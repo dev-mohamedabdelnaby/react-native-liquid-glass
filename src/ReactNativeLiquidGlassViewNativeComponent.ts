@@ -8,4 +8,6 @@ interface NativeProps extends ViewProps {
   color?: ColorValue;
 }
 
-export default codegenNativeComponent<NativeProps>('ReactNativeLiquidGlassView');
+export default codegenNativeComponent<NativeProps>(
+  'ReactNativeLiquidGlassView'
+);
