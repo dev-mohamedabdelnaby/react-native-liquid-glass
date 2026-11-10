@@ -35,8 +35,11 @@ internal open class ComposeHost(context: Context) : ReactViewGroup(context) {
     private set
 
   private val preDrawListener = ViewTreeObserver.OnPreDrawListener {
-    for (backdrop in backdrops) {
-      backdrop.record()
+    // Backdrops exist only from API 31 (see createBackdrop); the check also satisfies lint.
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+      for (backdrop in backdrops) {
+        backdrop.record()
+      }
     }
     true
   }
@@ -85,10 +88,10 @@ internal open class ComposeHost(context: Context) : ReactViewGroup(context) {
 
   /**
    * A backdrop that samples what is drawn behind this view, refreshed before every frame. Before
-   * API 29 (no RenderNode recording) it is empty and the glass falls back to its frost.
+   * API 31 (no RenderEffect: the glass is a plain frost) it is empty, so nothing records.
    */
   protected fun createBackdrop(): Backdrop {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
       return emptyBackdrop()
     }
     return ViewTreeBackdrop(this).also { backdrops.add(it) }

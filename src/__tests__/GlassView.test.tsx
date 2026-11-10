@@ -16,7 +16,8 @@ test('renders the native view where glass is supported', async () => {
   const props = r.getByTestId('g').props;
   expect(props.glassStyle).toBe('regular');
   expect(props.shapeKind).toBe('capsule');
-  expect(props.tintColor).toBeDefined();
+  // The native view config processes the color; JS must pass it through untouched.
+  expect(props.tintColor).toBe('red');
 });
 
 test('falls back to a plain View where glass is unsupported', async () => {

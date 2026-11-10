@@ -1,5 +1,4 @@
 import { expect, jest, test } from '@jest/globals';
-import { processColor } from 'react-native';
 import { DEFAULT_SETTINGS } from '../settings';
 import { resolveGlass } from '../resolveGlass';
 
@@ -41,12 +40,8 @@ test('a tinted glass stays regular when the setting says clear', () => {
 
 test('the general tint applies only to glass without its own', () => {
   const s = { ...DEFAULT_SETTINGS, tint: 'blue' };
-  expect(resolveGlass(undefined, s, undefined).tintColor).toBe(
-    processColor('blue')
-  );
-  expect(resolveGlass({ tint: 'red' }, s, undefined).tintColor).toBe(
-    processColor('red')
-  );
+  expect(resolveGlass(undefined, s, undefined).tintColor).toBe('blue');
+  expect(resolveGlass({ tint: 'red' }, s, undefined).tintColor).toBe('red');
 });
 
 test('liquid is off when either the item or the setting turns it off', () => {

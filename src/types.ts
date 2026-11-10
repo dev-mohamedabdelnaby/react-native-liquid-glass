@@ -1,4 +1,4 @@
-import type { ColorValue, ProcessedColorValue } from 'react-native';
+import type { ColorValue } from 'react-native';
 
 export type GlassStyle = 'regular' | 'clear';
 
@@ -37,7 +37,7 @@ export type GlassSettings = {
 
 export type NativeGlassProps = {
   glassStyle: GlassStyle;
-  tintColor: ProcessedColorValue | null;
+  tintColor: ColorValue | null;
   interactive: boolean;
   opaque: boolean;
   liquid: boolean;

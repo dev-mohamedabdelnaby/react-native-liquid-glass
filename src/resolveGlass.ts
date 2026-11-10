@@ -32,14 +32,15 @@ function clamp(
   return clamped;
 }
 
+// The native view config runs processColor on the prop, so the raw value goes through; here it is
+// only validated (processing it twice drops or garbles the color).
 function resolveTint(tint: Glass['tint']) {
   if (tint == null) return null;
-  const color = processColor(tint);
-  if (color == null) {
+  if (processColor(tint) == null) {
     warnOnce('tint', `tint ${String(tint)} is not a valid color, ignoring it.`);
     return null;
   }
-  return color;
+  return tint;
 }
 
 function resolveStyle(style: Glass['style']) {
