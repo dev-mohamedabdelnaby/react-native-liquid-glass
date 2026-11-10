@@ -18,6 +18,11 @@ test('override wins, unknown is null', () => {
   expect(androidIconName('sparkles')).toBeNull();
 });
 
+test('an empty override is no override', () => {
+  expect(androidIconName('checkmark', '')).toBe('check');
+  expect(androidIconName('sparkles', '')).toBeNull();
+});
+
 test('a missing symbol or a prototype key is null, not an inherited value', () => {
   expect(androidIconName(undefined)).toBeNull();
   expect(androidIconName('constructor')).toBeNull();

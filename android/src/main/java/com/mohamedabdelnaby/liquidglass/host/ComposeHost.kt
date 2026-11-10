@@ -48,8 +48,8 @@ internal open class ComposeHost(context: Context) : ReactViewGroup(context) {
     clipChildren = false
   }
 
-  /** Adds a ComposeView below the React children. */
-  protected fun addComposeView(content: @Composable () -> Unit) {
+  /** Adds a ComposeView below the React children; [accessible] exposes its semantics to TalkBack. */
+  protected fun addComposeView(accessible: Boolean = false, content: @Composable () -> Unit) {
     // React detaches and reattaches views when an ancestor changes (a navigator pushing or
     // popping a screen, a tab switch). After that, Compose stops re-reading the graphicsLayer
     // blocks of the content, so animated layers freeze. Rebuilding the content on reattach
@@ -59,7 +59,7 @@ internal open class ComposeHost(context: Context) : ReactViewGroup(context) {
       lifecycleOwner.install(this)
       setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
       clipChildren = false
-      importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
+      if (!accessible) importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
       setContent { key(attachGeneration.intValue) { content() } }
       var attachedBefore = false
       addOnAttachStateChangeListener(object : OnAttachStateChangeListener {

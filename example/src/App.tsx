@@ -5,7 +5,10 @@ import {
   type NativeStackScreenProps,
 } from '@react-navigation/native-stack';
 import { useState } from 'react';
-import { GlassView } from '@mohamed_abd_elnaby/react-native-liquid-glass';
+import {
+  GlassButton,
+  GlassView,
+} from '@mohamed_abd_elnaby/react-native-liquid-glass';
 
 type Routes = { Home: undefined; GlassChecks: undefined };
 
@@ -30,6 +33,7 @@ const hue = (i: number) => `hsl(${(i * 47) % 360}, 80%, 55%)`;
 // Temporary screen for the Task 5 device checks (Task 8 rebuilds the example).
 function GlassChecks() {
   const [presses, setPresses] = useState(0);
+  const [done, setDone] = useState(0);
   return (
     <View style={styles.flex}>
       <View style={styles.scrollArea}>
@@ -77,6 +81,23 @@ function GlassChecks() {
             <Text style={styles.glassText}>Op</Text>
           </GlassView>
         </View>
+        <View style={styles.shapes}>
+          <GlassButton
+            testID="done"
+            title="Done"
+            icon="checkmark"
+            style={styles.glassButton}
+            onPress={() => setDone((n) => n + 1)}
+          />
+          <GlassButton
+            title="Go"
+            prominent
+            tint="#0a84ff"
+            style={styles.glassButton}
+          />
+          <GlassButton title="Off" disabled style={styles.glassButton} />
+        </View>
+        <Text style={styles.label}>Done: {done}</Text>
       </View>
     </View>
   );
@@ -132,6 +153,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  glassButton: { width: 100 },
   label: { color: '#222', fontWeight: '600' },
   glassText: { color: '#111', fontWeight: '700' },
 });

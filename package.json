@@ -132,6 +132,9 @@
       "components": {
         "RNGlassView": {
           "className": "RNGlassView"
+        },
+        "RNGlassButton": {
+          "className": "RNGlassButton"
         }
       }
     }

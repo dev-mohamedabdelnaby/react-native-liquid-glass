@@ -11,12 +11,12 @@ export const ANDROID_ICONS: Record<string, string> = {
   'trash': 'delete',
 };
 
-// An explicit override wins; a symbol outside the map gives null.
+// An explicit, non-empty override wins; a symbol outside the map gives null.
 export function androidIconName(
   systemImage: string | undefined,
   override?: string
 ): string | null {
-  if (override !== undefined) return override;
+  if (override) return override;
   if (systemImage === undefined || !Object.hasOwn(ANDROID_ICONS, systemImage)) {
     return null;
   }
