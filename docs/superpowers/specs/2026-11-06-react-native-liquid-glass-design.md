@@ -116,6 +116,24 @@ type GlassShape = 'capsule' | 'circle' | { cornerRadius: number };
   (`checkmark`, `xmark`, `plus`, `minus`, `magnifyingglass`, `heart`, `square.and.arrow.up`,
   `ellipsis`, `trash`) to Material icons; `androidIcon` overrides any of them.
 
+## React Navigation (added 2026-11-10)
+
+- The library does not depend on React Navigation or react-native-screens. Compatible means its
+  views work inside navigators and at the navigators' extension points.
+- All glass is drawn natively; JS only passes props. An app configures it with a
+  `GlassSettingsProvider` above its `NavigationContainer` and with per-view `glass` props, and
+  the settings reach every screen.
+- Glass views work inside native-stack, stack and tab screens: they draw after a push, during
+  the transition, and again after the screen was detached and re-attached (going back, switching
+  tabs). On Android the backdrop is found by walking the glass view's ancestors up to the window
+  root, so it needs no knowledge of screen containers, and the Compose host survives
+  detach and re-attach.
+- `GlassView` works wherever React Navigation takes a background element: `headerBackground`
+  (with `headerTransparent`) and `tabBarBackground` (with an absolutely positioned tab bar).
+- The example app runs on native-stack and has one bottom-tabs screen whose `tabBarBackground`
+  is a `GlassView`. Only the example depends on React Navigation.
+- Native glass tab bar and toolbar components for navigators belong to sub-project 4.
+
 ## Errors and fallbacks
 
 - Invalid prop values fall back to the defaults with a dev-only warning; they never throw.
