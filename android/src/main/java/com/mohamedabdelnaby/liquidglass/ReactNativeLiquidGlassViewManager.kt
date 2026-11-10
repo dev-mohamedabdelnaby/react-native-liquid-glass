@@ -1,4 +1,4 @@
-package com.mohamedabdelnaby.reactnativeliquidglass
+package com.mohamedabdelnaby.liquidglass
 
 import android.graphics.Color
 import com.facebook.react.module.annotations.ReactModule

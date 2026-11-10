@@ -1,4 +1,4 @@
-package com.mohamedabdelnaby.reactnativeliquidglass
+package com.mohamedabdelnaby.liquidglass
 
 import com.facebook.react.BaseReactPackage
 import com.facebook.react.bridge.NativeModule

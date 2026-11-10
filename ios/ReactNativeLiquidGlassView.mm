@@ -2,9 +2,9 @@
 
 #import <React/RCTConversions.h>
 
-#import <react/renderer/components/ReactNativeLiquidGlassViewSpec/ComponentDescriptors.h>
-#import <react/renderer/components/ReactNativeLiquidGlassViewSpec/Props.h>
-#import <react/renderer/components/ReactNativeLiquidGlassViewSpec/RCTComponentViewHelpers.h>
+#import <react/renderer/components/RNLiquidGlassViewSpec/ComponentDescriptors.h>
+#import <react/renderer/components/RNLiquidGlassViewSpec/Props.h>
+#import <react/renderer/components/RNLiquidGlassViewSpec/RCTComponentViewHelpers.h>
 
 using namespace facebook::react;
 

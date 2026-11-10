@@ -43,7 +43,13 @@
   "keywords": [
     "react-native",
     "ios",
-    "android"
+    "android",
+    "liquid-glass",
+    "glass",
+    "glassmorphism",
+    "fabric",
+    "jetpack-compose",
+    "uiglasseffect"
   ],
   "repository": {
     "type": "git",
@@ -112,11 +118,11 @@
     ]
   },
   "codegenConfig": {
-    "name": "ReactNativeLiquidGlassViewSpec",
+    "name": "RNLiquidGlassViewSpec",
     "type": "all",
     "jsSrcsDir": "src",
     "android": {
-      "javaPackageName": "com.mohamedabdelnaby.reactnativeliquidglass"
+      "javaPackageName": "com.mohamedabdelnaby.liquidglass"
     },
     "ios": {
       "components": {

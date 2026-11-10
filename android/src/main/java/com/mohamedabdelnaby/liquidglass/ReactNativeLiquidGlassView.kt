@@ -1,4 +1,4 @@
-package com.mohamedabdelnaby.reactnativeliquidglass
+package com.mohamedabdelnaby.liquidglass
 
 import android.content.Context
 import android.view.View
