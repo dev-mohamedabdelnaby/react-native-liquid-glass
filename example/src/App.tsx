@@ -62,6 +62,21 @@ function GlassChecks() {
         </GlassView>
         <GlassView testID="zero" style={styles.zero} />
         <Text style={styles.label}>Zero width glass above</Text>
+        <View style={styles.shapes}>
+          <GlassView style={styles.shape} shape="circle">
+            <Text style={styles.glassText}>O</Text>
+          </GlassView>
+          <GlassView style={styles.shape} shape={{ cornerRadius: 8 }}>
+            <Text style={styles.glassText}>8</Text>
+          </GlassView>
+          <GlassView
+            style={styles.shape}
+            glass={{ opaque: true }}
+            shape={{ cornerRadius: 8 }}
+          >
+            <Text style={styles.glassText}>Op</Text>
+          </GlassView>
+        </View>
       </View>
     </View>
   );
@@ -110,6 +125,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   zero: { height: 40, width: 0 },
+  shapes: { flexDirection: 'row', gap: 12 },
+  shape: {
+    height: 60,
+    width: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   label: { color: '#222', fontWeight: '600' },
   glassText: { color: '#111', fontWeight: '700' },
 });
