@@ -42,6 +42,14 @@ function resolveTint(tint: Glass['tint']) {
   return color;
 }
 
+function resolveStyle(style: Glass['style']) {
+  if (style === undefined || style === 'regular' || style === 'clear') {
+    return style;
+  }
+  warnOnce('style', `style ${String(style)} is not valid, ignoring it.`);
+  return undefined;
+}
+
 function resolveShape(
   shape: GlassShape | undefined
 ): Pick<NativeGlassProps, 'shapeKind' | 'cornerRadius'> {
@@ -68,7 +76,8 @@ export function resolveGlass(
   const refraction = g.refraction ?? settings.refraction;
   return {
     glassStyle:
-      g.style ?? (settings.clear && g.tint == null ? 'clear' : 'regular'),
+      resolveStyle(g.style) ??
+      (settings.clear && g.tint == null ? 'clear' : 'regular'),
     tintColor: resolveTint(g.tint ?? settings.tint),
     interactive: g.interactive ?? false,
     opaque: g.opaque ?? settings.opaque,

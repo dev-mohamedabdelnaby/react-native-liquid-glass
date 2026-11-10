@@ -29,7 +29,15 @@ export function GlassSettingsProvider({
   children: ReactNode;
 }) {
   const parent = useGlassSettings();
-  const merged = useMemo(() => ({ ...parent, ...value }), [parent, value]);
+  const merged = useMemo(
+    () => ({
+      ...parent,
+      ...Object.fromEntries(
+        Object.entries(value).filter(([, v]) => v !== undefined)
+      ),
+    }),
+    [parent, value]
+  );
   return (
     <GlassSettingsContext.Provider value={merged}>
       {children}

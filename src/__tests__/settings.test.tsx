@@ -21,3 +21,17 @@ test('nested providers merge over the parent and re-render live', async () => {
   await r.rerender(tree(2));
   expect(read().blur).toBe(2);
 });
+
+test('undefined provider entries follow the parent', async () => {
+  const r = await render(
+    <GlassSettingsProvider value={{ blur: 8 }}>
+      <GlassSettingsProvider value={{ blur: undefined, liquid: undefined }}>
+        <Probe />
+      </GlassSettingsProvider>
+    </GlassSettingsProvider>
+  );
+  expect(JSON.parse(r.getByTestId('s').props.children)).toMatchObject({
+    blur: 8,
+    liquid: true,
+  });
+});

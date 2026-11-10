@@ -82,3 +82,17 @@ test('invalid values fall back with one dev warning', () => {
   expect(resolveGlass({ white: 3 }, DEFAULT_SETTINGS, undefined).white).toBe(1);
   expect(warn).toHaveBeenCalledTimes(4);
 });
+
+test('an invalid style is ignored with a warning and the style rule decides', () => {
+  const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+  warn.mockClear();
+  const bad = 'frosted' as never;
+  expect(
+    resolveGlass({ style: bad }, DEFAULT_SETTINGS, undefined).glassStyle
+  ).toBe('clear');
+  expect(
+    resolveGlass({ style: bad, tint: 'red' }, DEFAULT_SETTINGS, undefined)
+      .glassStyle
+  ).toBe('regular');
+  expect(warn).toHaveBeenCalledTimes(1);
+});
