@@ -1,1 +1,1 @@
-export { ReactNativeLiquidGlassView } from './ReactNativeLiquidGlassView';
+export { GlassView, type GlassViewProps } from './GlassView';

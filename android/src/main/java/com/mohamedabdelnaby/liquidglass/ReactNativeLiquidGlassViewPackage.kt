@@ -8,7 +8,7 @@ import com.facebook.react.uimanager.ViewManager
 
 class ReactNativeLiquidGlassViewPackage : BaseReactPackage() {
   override fun createViewManagers(reactContext: ReactApplicationContext): List<ViewManager<*, *>> {
-    return listOf(ReactNativeLiquidGlassViewManager())
+    return listOf(GlassViewManager())
   }
 
   override fun getModule(name: String, reactContext: ReactApplicationContext): NativeModule? = null

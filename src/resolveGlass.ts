@@ -9,7 +9,7 @@ import type {
 
 const warned = new Set<string>();
 
-function warnOnce(key: string, message: string) {
+export function warnOnce(key: string, message: string) {
   if (!__DEV__ || warned.has(key)) return;
   warned.add(key);
   console.warn(`[react-native-liquid-glass] ${message}`);

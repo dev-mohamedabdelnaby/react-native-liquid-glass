@@ -130,8 +130,8 @@
     },
     "ios": {
       "components": {
-        "ReactNativeLiquidGlassView": {
-          "className": "ReactNativeLiquidGlassView"
+        "RNGlassView": {
+          "className": "RNGlassView"
         }
       }
     }
