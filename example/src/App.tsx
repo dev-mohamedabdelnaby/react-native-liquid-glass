@@ -59,6 +59,14 @@ function GlassChecks() {
           </Pressable>
         </GlassView>
         <Text style={styles.label}>Presses: {presses}</Text>
+        <View style={styles.shapes}>
+          <GlassButton title="Tint" tint="#34c759" style={styles.glassButton} />
+          <GlassButton
+            title="Opaque"
+            glass={{ opaque: true }}
+            style={styles.glassButton}
+          />
+        </View>
         <GlassView style={styles.outer} shape={{ cornerRadius: 28 }}>
           <GlassView style={styles.inner} glass={{ tint: 'rgba(255,0,0,0.3)' }}>
             <Text style={styles.glassText}>Nested</Text>

@@ -64,6 +64,7 @@ static NSString *_Nullable RNGlassButtonString(const std::string &value)
   }
   _button.disabled = p.disabled;
   _button.tint = p.tintColor ? RCTUIColorFromSharedColor(p.tintColor) : nil;
+  _button.opaqueFill = p.opaque;
   _button.glassStyle = p.glassStyle == RNGlassButtonGlassStyle::Clear ? @"clear" : @"regular";
   // The UIButton is the accessible element, so the label goes there.
   _button.label = RNGlassButtonString(p.accessibilityLabel);

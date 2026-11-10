@@ -15,6 +15,9 @@ public final class LiquidGlassButton: UIView {
   @objc public var tint: UIColor?
   /// "clear" picks the clear glass variant; prominent buttons are always regular glass (as on Android).
   @objc public var glassStyle = "regular"
+  /// A solid fill instead of glass: the tint, or the system background. Not named `opaque`
+  /// (that is `UIView.opaque`).
+  @objc public var opaqueFill = false
   /// Falls back to the title when nil.
   @objc public var label: String?
   @objc public var onPress: (() -> Void)?
@@ -34,7 +37,9 @@ public final class LiquidGlassButton: UIView {
   /// Rebuilds the button configuration from the props.
   @objc public func apply() {
     var config: UIButton.Configuration
-    if prominent {
+    if opaqueFill {
+      config = .filled()
+    } else if prominent {
       config = .prominentGlass()
     } else {
       config = glassStyle == "clear" ? .clearGlass() : .glass()
@@ -47,8 +52,15 @@ public final class LiquidGlassButton: UIView {
     case "large": .large
     default: .medium
     }
-    if prominent, let tint {
+    if let tint {
       config.baseBackgroundColor = tint
+      if !prominent && !opaqueFill {
+        // The plain glass configurations ignore baseBackgroundColor; tint their glass effect instead.
+        config.background.visualEffect = GlassMapping.effect(style: glassStyle, tint: tint, interactive: true)
+      }
+    } else if opaqueFill {
+      config.baseBackgroundColor = .systemBackground
+      config.baseForegroundColor = .label
     }
     button.configuration = config
     button.isEnabled = !disabled

@@ -44,4 +44,29 @@ final class GlassButtonTests: XCTestCase {
     b.button.sendActions(for: .primaryActionTriggered)
     XCTAssertEqual(presses, 1)
   }
+
+  func testNonProminentTint() throws {
+    let b = LiquidGlassButton()
+    b.glassStyle = "clear"
+    b.tint = .green
+    b.apply()
+    let effect = try XCTUnwrap(b.button.configuration?.background.visualEffect as? UIGlassEffect)
+    XCTAssertEqual(effect.tintColor, .green)
+  }
+
+  func testOpaqueIsASolidFill() throws {
+    let b = LiquidGlassButton()
+    b.opaqueFill = true
+    b.title = "Op"
+    b.tint = .red
+    b.apply()
+    var config = try XCTUnwrap(b.button.configuration)
+    XCTAssertEqual(config.baseBackgroundColor, .red)
+    XCTAssertEqual(config.title, "Op")
+    b.tint = nil
+    b.apply()
+    config = try XCTUnwrap(b.button.configuration)
+    XCTAssertEqual(config.baseBackgroundColor, .systemBackground)
+    XCTAssertEqual(config.baseForegroundColor, .label)
+  }
 }
