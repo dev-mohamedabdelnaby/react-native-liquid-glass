@@ -56,7 +56,6 @@ import UIKit
   public override func willMove(toWindow newWindow: UIWindow?) {
     super.willMove(toWindow: newWindow)
     guard newWindow !== window else { return }
-    if let window { WindowStyle.release(self, in: window) }
     if newWindow == nil {
       if controller.parent != nil { controller.willMove(toParent: nil) }
     } else {
@@ -66,11 +65,17 @@ import UIKit
 
   public override func didMoveToWindow() {
     super.didMoveToWindow()
-    guard window != nil else {
+    // Leaving the window keeps the style request: a full-screen cover or a native-stack push
+    // takes a screen out of the window while it is still mounted.
+    guard let window else {
       if controller.parent != nil { controller.removeFromParent() }
       return
     }
-    applyAppearance()
+    if styledWindow !== window {
+      releaseWindowStyle()
+      styledWindow = window
+      applyAppearance()
+    }
     // When this view itself was just added, its superview (and so the view controller) was not
     // reachable yet in willMove(toWindow:).
     addControllerToParent()
@@ -84,16 +89,27 @@ import UIKit
     parent.addChild(controller)
   }
 
+  /// The window this screen asks a style of: the first window it entered, until it leaves the
+  /// React tree or enters another window.
+  private weak var styledWindow: UIWindow?
+
   // `preferredColorScheme` does not reach the window from a child hosting controller. In the iOS
   // app it sets the window's style (the choice is for the whole app), so the host does that;
   // `'system'` leaves the window to the app.
   fileprivate func applyAppearance() {
-    guard let window else { return }
+    guard let styledWindow else { return }
     if let scheme = model.appearance.colorScheme {
-      WindowStyle.claim(self, UIUserInterfaceStyle(scheme), in: window)
+      WindowStyle.claim(self, UIUserInterfaceStyle(scheme), in: styledWindow)
     } else {
-      WindowStyle.release(self, in: window)
+      WindowStyle.release(self, in: styledWindow)
     }
+  }
+
+  /// The screen left the React tree (`RNLiquidGlassScreen` left its superview or was torn down):
+  /// its window style request ends.
+  @objc public func releaseWindowStyle() {
+    if let styledWindow { WindowStyle.release(self, in: styledWindow) }
+    styledWindow = nil
   }
 
   /// `'#RRGGBBAA'` (a dynamic colour as in light mode), as the events send colours; `''` for none.
@@ -151,23 +167,44 @@ import UIKit
 /// The window styles mounted screens ask for. The latest request wins; when no screen asks any
 /// more, the window gets back the style it had before (an app's own `Appearance.setColorScheme`).
 enum WindowStyle {
-  private static var requests: [ObjectIdentifier: (original: UIUserInterfaceStyle, stack: [(host: ObjectIdentifier, style: UIUserInterfaceStyle)])] = [:]
+  private final class Requests {
+    weak var window: UIWindow?
+    let original: UIUserInterfaceStyle
+    var stack: [(host: ObjectIdentifier, style: UIUserInterfaceStyle)] = []
+
+    init(_ window: UIWindow) {
+      self.window = window
+      original = window.overrideUserInterfaceStyle
+    }
+  }
+
+  /// Weak windows: a window closed with screens still in it is dropped, not inherited by a new one.
+  private static var all: [Requests] = []
 
   static func claim(_ host: AnyObject, _ style: UIUserInterfaceStyle, in window: UIWindow) {
-    var entry = requests[ObjectIdentifier(window)] ?? (window.overrideUserInterfaceStyle, [])
-    entry.stack.removeAll { $0.host == ObjectIdentifier(host) }
-    entry.stack.append((ObjectIdentifier(host), style))
-    requests[ObjectIdentifier(window)] = entry
+    all.removeAll { $0.window == nil }
+    let requests: Requests
+    if let existing = all.first(where: { $0.window === window }) {
+      requests = existing
+    } else {
+      requests = Requests(window)
+      all.append(requests)
+    }
+    let id = ObjectIdentifier(host)
+    // The same style again (every props update sets it) keeps this screen's place.
+    if requests.stack.contains(where: { $0.host == id && $0.style == style }) { return }
+    requests.stack.removeAll { $0.host == id }
+    requests.stack.append((id, style))
     window.overrideUserInterfaceStyle = style
   }
 
   static func release(_ host: AnyObject, in window: UIWindow) {
-    guard var entry = requests[ObjectIdentifier(window)],
-          entry.stack.contains(where: { $0.host == ObjectIdentifier(host) })
+    guard let requests = all.first(where: { $0.window === window }),
+          requests.stack.contains(where: { $0.host == ObjectIdentifier(host) })
     else { return }
-    entry.stack.removeAll { $0.host == ObjectIdentifier(host) }
-    requests[ObjectIdentifier(window)] = entry.stack.isEmpty ? nil : entry
-    window.overrideUserInterfaceStyle = entry.stack.last?.style ?? entry.original
+    requests.stack.removeAll { $0.host == ObjectIdentifier(host) }
+    window.overrideUserInterfaceStyle = requests.stack.last?.style ?? requests.original
+    if requests.stack.isEmpty { all.removeAll { $0 === requests } }
   }
 }
 

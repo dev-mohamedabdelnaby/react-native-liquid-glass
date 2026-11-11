@@ -58,12 +58,12 @@ final class LiquidGlassScreenHostTests: XCTestCase {
     XCTAssertEqual(host.screen, "home")
   }
 
-  // A logic test has no window scene, so it needs the deprecated UIWindow(frame:); marked
-  // deprecated itself so that call does not warn.
+  // The window-style tests need a window, and a logic test has no window scene: they use the
+  // deprecated UIWindow(frame:) and are marked deprecated themselves so that call does not warn.
+
   @available(iOS, deprecated: 26.0)
   func testWindowStyleIsSharedAndRestored() {
-    let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
-    window.overrideUserInterfaceStyle = .light  // the app's own choice
+    let window = makeWindow(.light)  // the app's own choice
     let first = LiquidGlassScreenHost(frame: .zero)
     let second = LiquidGlassScreenHost(frame: .zero)
 
@@ -75,16 +75,91 @@ final class LiquidGlassScreenHostTests: XCTestCase {
     window.addSubview(second)
     XCTAssertEqual(window.overrideUserInterfaceStyle, .dark)
 
-    first.removeFromSuperview()
+    unmount(first)
     XCTAssertEqual(window.overrideUserInterfaceStyle, .dark, "the other screen still asks for dark")
-    second.removeFromSuperview()
+    unmount(second)
     XCTAssertEqual(window.overrideUserInterfaceStyle, .light, "the last screen gives the style back")
 
     window.addSubview(first)
     XCTAssertEqual(window.overrideUserInterfaceStyle, .dark)
     first.appearance = "system"
     XCTAssertEqual(window.overrideUserInterfaceStyle, .light, "back to 'system' gives the style back")
-    first.removeFromSuperview()
+    unmount(first)
     XCTAssertEqual(window.overrideUserInterfaceStyle, .light)
+  }
+
+  @available(iOS, deprecated: 26.0)
+  func testLatestStyleWinsAndReleasesInAnyOrder() {
+    let window = makeWindow(.unspecified)
+    let dark = LiquidGlassScreenHost(frame: .zero)
+    let light = LiquidGlassScreenHost(frame: .zero)
+    dark.appearance = "dark"
+    light.appearance = "light"
+
+    window.addSubview(dark)
+    window.addSubview(light)
+    XCTAssertEqual(window.overrideUserInterfaceStyle, .light, "the latest request wins")
+    dark.appearance = "dark"
+    XCTAssertEqual(window.overrideUserInterfaceStyle, .light, "the same style again keeps its place")
+    unmount(light)
+    XCTAssertEqual(window.overrideUserInterfaceStyle, .dark)
+    unmount(dark)
+    XCTAssertEqual(window.overrideUserInterfaceStyle, .unspecified)
+
+    window.addSubview(dark)
+    window.addSubview(light)
+    unmount(dark)
+    XCTAssertEqual(window.overrideUserInterfaceStyle, .light, "releasing the lower request changes nothing")
+    unmount(light)
+    XCTAssertEqual(window.overrideUserInterfaceStyle, .unspecified)
+  }
+
+  // A full-screen cover or a native-stack push takes a mounted screen out of the window.
+  @available(iOS, deprecated: 26.0)
+  func testLeavingTheWindowKeepsTheRequest() {
+    let window = makeWindow(.light)
+    let container = UIView()
+    let host = LiquidGlassScreenHost(frame: .zero)
+    host.appearance = "dark"
+    container.addSubview(host)
+    window.addSubview(container)
+    XCTAssertEqual(window.overrideUserInterfaceStyle, .dark)
+
+    container.removeFromSuperview()
+    XCTAssertNil(host.window)
+    XCTAssertEqual(window.overrideUserInterfaceStyle, .dark, "still mounted, still dark")
+    window.addSubview(container)
+    XCTAssertEqual(window.overrideUserInterfaceStyle, .dark)
+    unmount(host)
+    XCTAssertEqual(window.overrideUserInterfaceStyle, .light)
+  }
+
+  @available(iOS, deprecated: 26.0)
+  func testMovingToAnotherWindowMovesTheRequest() {
+    let first = makeWindow(.light)
+    let second = makeWindow(.unspecified)
+    let host = LiquidGlassScreenHost(frame: .zero)
+    host.appearance = "dark"
+    first.addSubview(host)
+    XCTAssertEqual(first.overrideUserInterfaceStyle, .dark)
+
+    second.addSubview(host)
+    XCTAssertEqual(first.overrideUserInterfaceStyle, .light)
+    XCTAssertEqual(second.overrideUserInterfaceStyle, .dark)
+    unmount(host)
+    XCTAssertEqual(second.overrideUserInterfaceStyle, .unspecified)
+  }
+
+  @available(iOS, deprecated: 26.0)
+  private func makeWindow(_ style: UIUserInterfaceStyle) -> UIWindow {
+    let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+    window.overrideUserInterfaceStyle = style
+    return window
+  }
+
+  /// What RNLiquidGlassScreen does when React unmounts it.
+  private func unmount(_ host: LiquidGlassScreenHost) {
+    host.removeFromSuperview()
+    host.releaseWindowStyle()
   }
 }

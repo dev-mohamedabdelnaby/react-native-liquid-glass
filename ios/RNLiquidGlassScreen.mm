@@ -109,4 +109,20 @@ static UIColor *_Nullable RNLiquidGlassScreenColor(const SharedColor &color)
   [super updateProps:props oldProps:oldProps];
 }
 
+// The window style is the screen's while it is in the React tree, not only while it is in the
+// window: unmounting removes this view from its superview, then invalidates it (no recycling).
+- (void)willMoveToSuperview:(UIView *)newSuperview
+{
+  [super willMoveToSuperview:newSuperview];
+  if (!newSuperview) {
+    [_host releaseWindowStyle];
+  }
+}
+
+- (void)invalidate
+{
+  [_host releaseWindowStyle];
+  [super invalidate];
+}
+
 @end
