@@ -15,9 +15,10 @@ if linkage != nil
 end
 
 target 'ReactNativeLiquidGlassExample' do
-  config = use_native_modules!
-  # The library's XCTest bundle (scheme ReactNativeLiquidGlass-Unit-Tests).
+  # Declared before autolinking, which then skips it: the library with its XCTest bundle
+  # (scheme ReactNativeLiquidGlass-Unit-Tests).
   pod 'ReactNativeLiquidGlass', :path => '../..', :testspecs => ['Tests']
+  config = use_native_modules!
 
   use_react_native!(
     :path => config[:reactNativePath],

@@ -22,7 +22,10 @@ import UIKit
   /// `'system' | 'light' | 'dark'`.
   @objc public var appearance: String {
     get { model.appearance.rawValue }
-    set { model.appearance = AppearanceMode(rawValue: newValue) ?? .system }
+    set {
+      model.appearance = AppearanceMode(rawValue: newValue) ?? .system
+      applyAppearance()
+    }
   }
 
   /// `'system' | 'ltr' | 'rtl'`.
@@ -48,26 +51,49 @@ import UIKit
   required init?(coder: NSCoder) { fatalError("init(coder:) is not supported") }
 
   // A child of the React view controller while on screen, so the screen can present
-  // full-screen covers, sheets, popovers and alerts.
-  public override func didMoveToWindow() {
-    super.didMoveToWindow()
-    if window == nil {
-      controller.willMove(toParent: nil)
-      controller.removeFromParent()
-      return
-    }
-    applyAppearance()
-    if controller.parent == nil,
-       let parent = sequence(first: self as UIResponder, next: { $0.next }).first(where: { $0 is UIViewController }) as? UIViewController {
-      parent.addChild(controller)
-      controller.didMove(toParent: parent)
+  // full-screen covers, sheets, popovers and alerts. Added before the view enters the window
+  // when the view controller is already reachable, so the controller gets its appear callbacks.
+  public override func willMove(toWindow newWindow: UIWindow?) {
+    super.willMove(toWindow: newWindow)
+    guard newWindow !== window else { return }
+    if let window { WindowStyle.release(self, in: window) }
+    if newWindow == nil {
+      if controller.parent != nil { controller.willMove(toParent: nil) }
+    } else {
+      addControllerToParent()
     }
   }
 
+  public override func didMoveToWindow() {
+    super.didMoveToWindow()
+    guard window != nil else {
+      if controller.parent != nil { controller.removeFromParent() }
+      return
+    }
+    applyAppearance()
+    // When this view itself was just added, its superview (and so the view controller) was not
+    // reachable yet in willMove(toWindow:).
+    addControllerToParent()
+    if let parent = controller.parent { controller.didMove(toParent: parent) }
+  }
+
+  private func addControllerToParent() {
+    guard controller.parent == nil,
+          let parent = sequence(first: self as UIResponder, next: { $0.next }).first(where: { $0 is UIViewController }) as? UIViewController
+    else { return }
+    parent.addChild(controller)
+  }
+
   // `preferredColorScheme` does not reach the window from a child hosting controller. In the iOS
-  // app it sets the window's style (the choice is for the whole app), so the host does that.
+  // app it sets the window's style (the choice is for the whole app), so the host does that;
+  // `'system'` leaves the window to the app.
   fileprivate func applyAppearance() {
-    window?.overrideUserInterfaceStyle = UIUserInterfaceStyle(model.appearance.colorScheme)
+    guard let window else { return }
+    if let scheme = model.appearance.colorScheme {
+      WindowStyle.claim(self, UIUserInterfaceStyle(scheme), in: window)
+    } else {
+      WindowStyle.release(self, in: window)
+    }
   }
 
   /// `'#RRGGBBAA'` (a dynamic colour as in light mode), as the events send colours; `''` for none.
@@ -82,7 +108,8 @@ import UIKit
   }
 
   // Only Home's controls call this, never the prop setters: JS state and props would echo.
-  fileprivate func sendSettings() {
+  fileprivate func homeChanged() {
+    applyAppearance()
     onSettingsChange?([
       "appearance": model.appearance.rawValue,
       "layoutDirection": model.directionMode.jsValue,
@@ -111,6 +138,37 @@ import UIKit
 
   /// What untinted glass takes: the picked choice's own colour (it follows light and dark mode), else the tint.
   var glassTint: Color? { tintChoice.color ?? tint.map { Color(uiColor: $0) } }
+
+  /// Home picked a tint; false when nothing changes. None also clears a tint no choice matches
+  /// (which shows as None).
+  func pickTint(_ choice: GlassTintChoice) -> Bool {
+    guard choice != tintChoice || (choice == .none && tint != nil) else { return false }
+    tint = choice.color.map { UIColor($0) }
+    return true
+  }
+}
+
+/// The window styles mounted screens ask for. The latest request wins; when no screen asks any
+/// more, the window gets back the style it had before (an app's own `Appearance.setColorScheme`).
+enum WindowStyle {
+  private static var requests: [ObjectIdentifier: (original: UIUserInterfaceStyle, stack: [(host: ObjectIdentifier, style: UIUserInterfaceStyle)])] = [:]
+
+  static func claim(_ host: AnyObject, _ style: UIUserInterfaceStyle, in window: UIWindow) {
+    var entry = requests[ObjectIdentifier(window)] ?? (window.overrideUserInterfaceStyle, [])
+    entry.stack.removeAll { $0.host == ObjectIdentifier(host) }
+    entry.stack.append((ObjectIdentifier(host), style))
+    requests[ObjectIdentifier(window)] = entry
+    window.overrideUserInterfaceStyle = style
+  }
+
+  static func release(_ host: AnyObject, in window: UIWindow) {
+    guard var entry = requests[ObjectIdentifier(window)],
+          entry.stack.contains(where: { $0.host == ObjectIdentifier(host) })
+    else { return }
+    entry.stack.removeAll { $0.host == ObjectIdentifier(host) }
+    requests[ObjectIdentifier(window)] = entry.stack.isEmpty ? nil : entry
+    window.overrideUserInterfaceStyle = entry.stack.last?.style ?? entry.original
+  }
 }
 
 extension LayoutDirectionMode {
@@ -149,10 +207,8 @@ struct LiquidGlassScreenRoot: View {
           directionMode: setting(\.directionMode),
           glassTint: Binding {
             model.tintChoice
-          } set: { choice in
-            guard choice != model.tintChoice else { return }
-            model.tint = choice.color.map { UIColor($0) }
-            host?.sendSettings()
+          } set: {
+            if model.pickTint($0) { host?.homeChanged() }
           },
           systemLayoutDirection: systemLayoutDirection,
           onOpen: { host?.onOpen?($0) })
@@ -170,7 +226,6 @@ struct LiquidGlassScreenRoot: View {
     }
     .environment(\.glassTint, model.glassTint)
     .preferredColorScheme(model.appearance.colorScheme)
-    .onChange(of: model.appearance) { host?.applyAppearance() }
     .environment(\.layoutDirection, model.directionMode.layoutDirection ?? systemLayoutDirection)
   }
 
@@ -181,7 +236,7 @@ struct LiquidGlassScreenRoot: View {
     } set: { value in
       guard value != model[keyPath: keyPath] else { return }
       model[keyPath: keyPath] = value
-      host?.sendSettings()
+      host?.homeChanged()
     }
   }
 }

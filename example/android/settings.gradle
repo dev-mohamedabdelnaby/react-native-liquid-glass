@@ -1,6 +1,19 @@
 pluginManagement { includeBuild("../node_modules/@react-native/gradle-plugin") }
 plugins { id("com.facebook.react.settings") }
-extensions.configure(com.facebook.react.ReactSettingsExtension){ ex -> ex.autolinkLibrariesFromCommand() }
+extensions.configure(com.facebook.react.ReactSettingsExtension){ ex ->
+  // The default cache keys, plus the workspace yarn.lock and the library's package.json: a
+  // codegen change in the library must refresh the cached autolinking config. The cache keys
+  // files by name, and the example's package.json already has that name, so the library's goes
+  // in under its own name.
+  def example = settings.layout.rootDirectory.dir('../')
+  def libraryPackage = new File(settings.layout.rootDirectory.asFile, 'build/generated/autolinking-keys/library-package.json')
+  libraryPackage.parentFile.mkdirs()
+  libraryPackage.text = example.file('../package.json').asFile.text
+  ex.autolinkLibrariesFromCommand(
+    ['npx', '@react-native-community/cli', 'config'],
+    example.asFile,
+    example.files('yarn.lock', 'package-lock.json', 'package.json', 'react-native.config.js', '../yarn.lock', libraryPackage))
+}
 rootProject.name = 'ReactNativeLiquidGlassExample'
 include ':app'
 includeBuild('../node_modules/@react-native/gradle-plugin')
