@@ -22,6 +22,7 @@ package com.mohamedabdelnaby.liquidglass.engine.liquid.backdrop
 import android.os.Build
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.setValue
@@ -282,6 +283,16 @@ private class DrawBackdropNode(
 
     private var padding by mutableFloatStateOf(0f)
 
+    /**
+     * Modified: bumped when the draw lambdas or effects change, and read in [draw]. This node is a
+     * layout node that places its content with a layer, and Compose draws a layout node's draw
+     * part inside that wrapped layer, while [invalidateDraw] invalidates the node's own (outer)
+     * layer. The outer layer then redrew the inner one from its cached display list, so a new
+     * tint or surface stayed invisible until something else redrew the glass (a press). Reading
+     * this state makes the snapshot observer of the layer that holds the drawing invalidate it.
+     */
+    private var drawRevision by mutableIntStateOf(0)
+
     private val recordBackdropBlock: (DrawScope.() -> Unit) = {
         val canvas = drawContext.canvas
         val padding = padding
@@ -335,6 +346,8 @@ private class DrawBackdropNode(
     }
 
     override fun ContentDrawScope.draw() {
+        @Suppress("UNUSED_VARIABLE")
+        val revision = drawRevision
         if (effectScope.update(this)) {
             updateEffects()
         }
@@ -373,6 +386,7 @@ private class DrawBackdropNode(
     }
 
     fun invalidateDrawCache() {
+        drawRevision++
         observeEffects()
     }
 
