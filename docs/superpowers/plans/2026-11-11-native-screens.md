@@ -14,7 +14,7 @@
 
 - Library root: `/Users/mohamedabdelnaby/Developer/libs/liquid-glass`, branch `feat/native-screens`. Never push.
 - iOS source: `/Users/mohamedabdelnaby/Developer/ios/liquidGlass/liquidGlass`. Android source: `/Users/mohamedabdelnaby/Developer/android/app/src/main/java/com/example/myapplication` (+ `app/src/main/res/drawable-nodpi`, `app/src/test`). Read only: never edit or commit in those two projects.
-- Native code is copied unchanged. Allowed edits: Android package names (`com.example.myapplication` → `com.mohamedabdelnaby.liquidglass.catalog`, `R` import → `com.mohamedabdelnaby.liquidglass.R`); the live-tint fix from commit 53f95ae in `DrawBackdropModifier.kt`; on iOS only the `ContentView` struct's settings source and row action (Task 4). Any other edit needs a line in the task report saying why.
+- Native code is copied unchanged. Allowed edits: Android package names (`com.example.myapplication` → `com.mohamedabdelnaby.liquidglass.catalog`, `R` import → `com.mohamedabdelnaby.liquidglass.R`); the live-tint fix from commit 53f95ae in `DrawBackdropModifier.kt`; on iOS only the `ContentView` struct's settings source and row action (Task 4); and the edits Tasks 6–8 make for direction, fonts and icons (spec section "Additions"). Any other edit needs a line in the task report saying why.
 - Minimum OS: iOS 27.0; Android API 26. React Native 0.80+, New Architecture only (Fabric + codegen; no old-architecture view managers or bridge modules).
 - The library has no dependency on React Navigation or react-native-screens; only the example has.
 - Yarn only. Example: React Native CLI (no Expo), Metro on port 8081 only, the default (user, 2026-11-11: "close all ports and run 8081 only"; Task 1's 8084 settings were removed in f1016a7). Start no other dev server on any port; never touch `~/node_modules`.
@@ -173,13 +173,65 @@ func testEveryScreenIdIsAGlassComponent() {
 - [ ] **Step 3: Device checks, phone and simulator, each screen against the native app on the same device** (screenshots `rn-*.png` next to `native-*.png` in the report folder): all 21 screens open from Home and match; the back button and Android's back key return to Home; Android back with a sheet, menu or dialog open closes it first; iOS swipe-back from the left edge pops; Home keeps scroll position and settings after back; appearance light/dark from Home applies to Home and to screens opened after; tint and (Android) blur change Home at once; bars sit below the status bar and above the navigation bar / home indicator; 0 `APP_SCOUT_` lines on Android. Fix failures in the library (host files), not by changing copied native code.
 - [ ] **Step 4: Commit** — `git add -A example android ios src && git commit -m "feat(example): every native screen through react navigation"`
 
-### Task 6: README and CI
+### Task 6: Direction on Android, like iOS
+
+Spec section "Additions → Direction". Edits to copied code are allowed for this; list each in the report.
 
 **Files:**
-- Create: `README.md` (replace the template's), `.github/workflows/ci.yml` (or extend the template's)
+- Modify: `android/.../catalog/HomeScreen.kt` (the "Layout direction" picker, as the iOS Home's: System / LTR / RTL, same footer text, placed as on iOS), `android/.../LiquidGlassScreenView.kt` (Compose layout direction from the prop), copied engine files that use left/right where iOS follows the reading direction, `example/src/App.tsx` (screen animation per direction)
+- Test: `android/src/test/java/com/mohamedabdelnaby/liquidglass/LayoutDirectionTest.kt`
+
+**Interfaces:**
+- Produces: `fun layoutDirectionOf(value: String, systemIsRtl: Boolean): LayoutDirection` in `LiquidGlassScreenView.kt`; Android Home's picker sends `onSettingsChange` with `layoutDirection`.
+
+- [ ] **Step 1: Failing test** — `layoutDirectionOf("rtl", false) == Rtl`, `("ltr", true) == Ltr`, `("system", true) == Rtl`, `("system", false) == Ltr`, `("bogus", false) == Ltr`. Run the Gradle unit tests → FAIL.
+- [ ] **Step 2: Implement** the function, the host wiring (`system` = the device locale's direction) and the Home picker → PASS.
+- [ ] **Step 3: Controls in RTL.** On the phone in RTL, compare with the iOS simulator in RTL (iOS Home → RTL): Glass View, Controls, Tab Bar, Sheets & Menus, Toolbar, Search, Recipes. Slider fill and thumb, toggle thumb and drop, segmented pill and drop, tab bar drop, menus and popovers growing from their button, sheets, the back chevron, press effects. Fix each mismatch in the copied engine code (start/end instead of left/right).
+- [ ] **Step 4: Transitions.** `example/src/App.tsx`: native-stack `animation` is `'ios_from_right'` on Android (`'ios_from_left'` when the settings' direction is RTL) and the default on iOS (`'slide_from_left'` in RTL). Check push and back on both platforms in LTR and RTL.
+- [ ] **Step 5: Run** all tests and both builds → PASS. **Commit** — `git add -A android example/src && git commit -m "feat(android): layout direction like ios"`
+
+### Task 7: Custom font
+
+Spec section "Additions → Fonts". Edits to copied code are allowed for this; list each in the report.
+
+**Files:**
+- Modify: `src/types.ts`, `src/settings.tsx`, `src/screens.tsx`, `src/LiquidGlassScreenNativeComponent.ts` (props `fontRegular`, `fontMedium`, `fontSemibold`, `fontBold`, `fontHeavy: string`, `''` = not set; a string `fontFamily` fills all five), `src/__tests__/screens.test.tsx`; Android host + a `fontFamilyOf(...)` helper; iOS host + `ios/Host/GlassFont.swift` and the copied SwiftUI files' `.font(...)` calls; `example/` (a sample font, `CUSTOMIZE` flag)
+- Test: Jest; `android/src/test/.../FontFamilyTest.kt`; `ios/Tests/GlassFontTests.swift`
+
+**Interfaces:**
+- Produces (JS): `GlassSettings.fontFamily?: string | { regular?: string; medium?: string; semibold?: string; bold?: string; heavy?: string }`; also a prop on every screen (wins over the provider).
+- Produces (native): Android `fun fontFamilyOf(faces: FontFaces, load: (name: String, weight: FontWeight) -> Typeface?): FontFamily?` (null when no face is set); iOS `struct GlassFontSpec` in the environment and `View.glassFont(_ style: Font.TextStyle)` / `glassFont(size:weight:)` that keep size, weight and Dynamic Type.
+
+- [ ] **Step 1: Failing tests** — Jest: `fontFamily: 'Cairo'` → all five props `'Cairo'`; `{ regular: 'Cairo-Regular', bold: 'Cairo-Bold' }` → those two set, others `''`; a screen's own `fontFamily` prop wins; `onSettingsChange` from Home keeps the current `fontFamily` and `icons` (the event does not carry them). Kotlin: weight → face, missing weight falls back to regular, none set → null. XCTest: the face for each weight, fallback to regular, nil → system font.
+- [ ] **Step 2: Implement.** Android: React Native's font manager (`ReactFontManager.getTypeface`) loads faces; the host provides `MaterialTheme(typography = …with fontFamily)` and `LocalTextStyle` around the copied screens; copied texts that build a `TextStyle` without the theme get the family too. iOS: each copied `.font(.style)` / `.font(.system(size:weight:))` becomes `.glassFont(…)`; navigation and large titles, tab bar items, segmented controls, bar buttons and search fields get the font through appearance proxies scoped to the library's hosting controller class. → PASS.
+- [ ] **Step 3: Example and device check.** Add an OFL font to the example (e.g. the `@expo-google-fonts/cairo` package's TTFs; register them the React Native way) and `example/src/customize.ts` with `CUSTOMIZE = false` (true passes the font and Task 8's icons to the provider). With it true, on the phone and the simulator every screen's text uses the font, sizes and weights as before; with it false, screens look native. List the texts that stay in the system font.
+- [ ] **Step 4: Run** all tests and both builds → PASS. **Commit** — `git add -A src android ios example && git commit -m "feat: custom font for every screen"`
+
+### Task 8: Custom icons
+
+Spec section "Additions → Icons". Edits to copied code are allowed for this; list each in the report.
+
+**Files:**
+- Modify: `src/types.ts`, `src/settings.tsx`, `src/screens.tsx`, `src/index.tsx` (`vectorIcon`), `src/LiquidGlassScreenNativeComponent.ts` (prop `icons: string`, JSON of name → `{glyph, fontFamily}` | `{svg}` | `{uri}`; image sources resolved with `Image.resolveAssetSource`), tests; Android host + `GlassIcons.kt` and the copied Compose icon call sites; `android/build.gradle` (`com.caverock:androidsvg-aar`); iOS host + `ios/Host/GlassIcon.swift` and the copied SwiftUI icon call sites; podspec (`SwiftDraw`); `example/` (`react-native-vector-icons` and an SVG and PNG sample in `customize.ts`)
+- Test: Jest; `android/src/test/.../GlassIconsTest.kt`; `ios/Tests/GlassIconTests.swift`
+
+**Interfaces:**
+- Produces (JS): `GlassSettings.icons?: Record<string, GlassIcon>`, `type GlassIcon` and `vectorIcon(iconSet, name)` as in the spec; `icons` also a prop on every screen (merged over the provider's, key by key).
+- Produces (native): Android `@Composable fun glassIcon(sfName: String, fallback: ImageVector): Painter`; iOS `struct GlassImage: View` (`GlassImage("heart")`) and `func glassUIImage(_ sfName: String) -> UIImage?` for UIKit-backed places (tab items, menus).
+- Call sites: every Android Material icon in the copied screens names the SF Symbol the iOS catalog uses in the same place (`glassIcon("heart.fill", Icons.Filled.Favorite)`); no separate table.
+
+- [ ] **Step 1: Failing tests** — Jest: `vectorIcon({ getRawGlyphMap: () => ({ heart: 0xf443 }), getFontFamily: () => 'Ionicons' }, 'heart')` → `{ glyph: '', fontFamily: 'Ionicons' }`; an unknown name → dev warning, `undefined`; `icons` JSON has `uri` for `require`d images and passes `svg`/`glyph` through; a screen's own icons merge over the provider's. Kotlin and XCTest: JSON → icon kinds; a glyph icon renders at the requested size; an unknown name → fallback.
+- [ ] **Step 2: Implement** native drawing (glyph from the registered font; SVG via AndroidSVG / SwiftDraw; images loaded from the uri), template tinting, the original icon's size; replace the copied call sites → PASS.
+- [ ] **Step 3: Device check** with `CUSTOMIZE = true`: a vector icon, an SVG and a PNG replace their icons on Home, Buttons, Toolbar, Tab Bar and in a menu, on the phone and the simulator; icons not in the map stay native.
+- [ ] **Step 4: Run** all tests and both builds → PASS. **Commit** — `git add -A src android ios example ReactNativeLiquidGlass.podspec && git commit -m "feat: custom icons for every screen"`
+
+### Task 9: README and CI
+
+**Files:**
+- Create: `README.md` (replace the template's), `.github/workflows/ci.yml` (or extend the template's; remove the Expo `prebuild` and `build:web` steps)
 - Modify: `package.json` (`files` includes `ios`, `android` without build outputs, `src`, `lib`, the podspec; `keywords`)
 
-- [ ] **Step 1: README** — install (bare React Native CLI; `pod install` with `LANG`/`LC_ALL`), floors (iOS 27, Android 26, RN 0.80+ New Architecture), the 22 components and `GLASS_SCREENS`, `GlassSettingsProvider` and which settings each platform reads (the spec's table), events, the React Navigation recipe from Task 5 (header hidden, `onOpen` → `navigate`, `onBack` → `goBack`), "memoise the provider `value`", Expo not yet supported, licenses of the backdrop code (`LICENSE-*` files kept).
+- [ ] **Step 1: README** — install (bare React Native CLI; `pod install` with `LANG`/`LC_ALL`), floors (iOS 27; Android 26 with compileSdk 37 and AGP 9.1, from the copied Compose; RN 0.88 verified, New Architecture), the 22 components and `GLASS_SCREENS`, `GlassSettingsProvider` and which settings each platform reads (the spec's table), events, the React Navigation recipe from Task 5 (header hidden, `onOpen` → `navigate`, `onBack` → `goBack`, the per-direction animations), layout direction, fonts (adding fonts, the weight map, the texts iOS keeps in the system font), icons (`vectorIcon`, SVG, images, SF Symbol keys), "memoise the provider `value`", Metro on 8081, Expo not yet supported, licenses of the backdrop code (`LICENSE-*` files kept).
 - [ ] **Step 2: CI** — lint, typecheck, Jest, and the Android unit tests (`./gradlew :mohamed_abd_elnaby_react-native-liquid-glass:testDebugUnitTest` from `example/android`).
 - [ ] **Step 3: Run** — `yarn lint && yarn typecheck && yarn test` → PASS; `npm pack --dry-run` lists no build folders.
 - [ ] **Step 4: Commit** — `git add README.md .github package.json && git commit -m "docs: readme and ci for the native screens"`
