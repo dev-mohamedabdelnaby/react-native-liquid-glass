@@ -22,6 +22,29 @@ test('nested providers merge over the parent and re-render live', async () => {
   expect(read().blur).toBe(2);
 });
 
+test('defaults are the native apps defaults', async () => {
+  const r = await render(<Probe />);
+  expect(JSON.parse(r.getByTestId('s').props.children)).toEqual({
+    appearance: 'system',
+    tint: null,
+    layoutDirection: 'system',
+    clear: true,
+    blur: 3,
+    white: 0.25,
+    black: 0.05,
+    edgeLight: 0.15,
+    refraction: { height: 14, amount: 24 },
+    opaque: false,
+    liquid: true,
+    dropColor: null,
+    sliderLiquid: true,
+    switchLiquid: true,
+    segmentedLiquid: true,
+    tabBarLiquid: true,
+    tabBarDrop: true,
+  });
+});
+
 test('undefined provider entries follow the parent', async () => {
   const r = await render(
     <GlassSettingsProvider value={{ blur: 8 }}>

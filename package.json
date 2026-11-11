@@ -135,6 +135,9 @@
         },
         "RNGlassButton": {
           "className": "RNGlassButton"
+        },
+        "LiquidGlassScreen": {
+          "className": "RNLiquidGlassScreen"
         }
       }
     }

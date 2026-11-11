@@ -1,7 +1,10 @@
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
 import type { GlassSettings } from './types';
 
-export const DEFAULT_SETTINGS: GlassSettings = {
+export const DEFAULT_SETTINGS: Required<GlassSettings> = {
+  appearance: 'system',
+  tint: null,
+  layoutDirection: 'system',
   clear: true,
   blur: 3,
   white: 0.25,
@@ -10,6 +13,7 @@ export const DEFAULT_SETTINGS: GlassSettings = {
   refraction: { height: 14, amount: 24 },
   opaque: false,
   liquid: true,
+  dropColor: null,
   sliderLiquid: true,
   switchLiquid: true,
   segmentedLiquid: true,
