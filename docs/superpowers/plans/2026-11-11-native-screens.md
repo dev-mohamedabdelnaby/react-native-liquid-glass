@@ -17,10 +17,10 @@
 - Native code is copied unchanged. Allowed edits: Android package names (`com.example.myapplication` → `com.mohamedabdelnaby.liquidglass.catalog`, `R` import → `com.mohamedabdelnaby.liquidglass.R`); the live-tint fix from commit 53f95ae in `DrawBackdropModifier.kt`; on iOS only the `ContentView` struct's settings source and row action (Task 4). Any other edit needs a line in the task report saying why.
 - Minimum OS: iOS 27.0; Android API 26. React Native 0.80+, New Architecture only (Fabric + codegen; no old-architecture view managers or bridge modules).
 - The library has no dependency on React Navigation or react-native-screens; only the example has.
-- Yarn only. Example: React Native CLI (no Expo), Metro on port 8084 only. Never use ports 8081, 8082, 8083; never touch `~/node_modules`.
+- Yarn only. Example: React Native CLI (no Expo), Metro on port 8081 only, the default (user, 2026-11-11: "close all ports and run 8081 only"; Task 1's 8084 settings were removed in f1016a7). Start no other dev server on any port; never touch `~/node_modules`.
 - Commit subjects lower-case (commitlint); never `--no-verify`.
 - iOS: `pod install` and `xcodebuild` need `LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8`. Simulator: iPhone 18 Pro, UDID `459FB3AD-93EC-4C18-ADE6-2A0FC3C24DED`.
-- Android device: phone `5ef3365c` only (adb at `~/Library/Android/sdk/platform-tools/adb`), no emulator. Allowed: install, launch, logcat, screencap, input. Before every tap or swipe, check `dumpsys activity activities | grep -m1 topResumedActivity` shows the app you mean. Never change settings, never unlock the phone, never bypass a MIUI install prompt (stop and report). `adb reverse tcp:8084 tcp:8084` drops when the phone is replugged; re-apply it.
+- Android device: phone `5ef3365c` only (adb at `~/Library/Android/sdk/platform-tools/adb`), no emulator. Allowed: install, launch, logcat, screencap, input. Before every tap or swipe, check `dumpsys activity activities | grep -m1 topResumedActivity` shows the app you mean. Never change settings, never unlock the phone, never bypass a MIUI install prompt (stop and report). `adb reverse tcp:8081 tcp:8081` drops when the phone is replugged; re-apply it.
 - Screen ids (home order): `glassEffect, glassView, interactive, buttons, container, morphing, union, toolbar, floatingHeader, tabBar, sheets, controls, text, transitions, search, editSearch, scrollEdge, splitView, zoomTransitions, alerts, recipes`, plus `home`.
 
 ## Review Focus
