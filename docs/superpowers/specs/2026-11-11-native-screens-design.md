@@ -120,6 +120,67 @@ React-view backdrop recorder (`ViewTreeBackdrop`), the icon map, and the Expo ex
 Done when every screen of both native apps opens from the React Native CLI example and matches the
 native app on the same platform, settings apply live, and back navigation works.
 
+## Additions (2026-11-11, after Task 3): direction, fonts, icons
+
+These need edits to the copied native code. They are the only edits allowed beyond the ones listed
+in Decisions, and each one is listed in its task report.
+
+### Direction (Android like iOS)
+
+- `layoutDirection` (`'system' | 'ltr' | 'rtl'`) applies on Android too. The Android Home gets the
+  iOS Home's "Layout direction" picker (System / LTR / RTL) with the same footer text. The host sets
+  Compose's layout direction from it; `system` follows the device language.
+- In RTL every control moves the way iOS moves it: sliders fill from the leading edge, toggle thumbs
+  and liquid drops slide toward the reading direction, the segmented pill and tab bar drop follow
+  the selected item, menus and popovers grow from their button's leading side, and the back chevron
+  points the other way. Copied engine code that uses left/right instead of start/end is fixed.
+- Screen transitions slide like iOS: the new screen comes in from the trailing edge and the one
+  below moves a third of the way (the native Android app's spring slide). In the example this is
+  native-stack's `ios_from_right` on Android (`ios_from_left` in RTL) and `slide_from_left` on iOS
+  in RTL.
+
+### Fonts
+
+```ts
+fontFamily?: string | {
+  regular?: string; medium?: string; semibold?: string; bold?: string; heavy?: string;
+};
+```
+
+- In `GlassSettings` (so the provider sets it for every screen) and as a prop on every screen.
+  A string is one family; the object maps weights to font names, the way an app's own `AppText`
+  maps weights to font files.
+- Fonts are added to the app the React Native way (`assets/fonts` on Android, `UIAppFonts` on iOS)
+  and named as in React Native `fontFamily`. Android resolves them through React Native's font
+  manager, so the names an app's `AppText` uses work unchanged.
+- Every text the screens draw uses it and keeps its own size, weight and Dynamic Type / font
+  scaling: titles, navigation and tab bar titles, buttons, segmented controls, search fields,
+  menus on Android. Text that iOS draws itself and does not let apps restyle (context menus,
+  alerts, action sheets, the share sheet) keeps the system font; the README lists them.
+- Native screens draw their own text, so a JS component such as `AppText` cannot be rendered inside
+  them; the weight map is how its fonts carry over.
+
+### Icons
+
+```ts
+icons?: Record<string, GlassIcon>;   // key: the SF Symbol name the catalog uses for that icon
+type GlassIcon =
+  | { glyph: string; fontFamily: string }   // icon fonts, e.g. react-native-vector-icons
+  | { svg: string }                          // SVG markup
+  | ImageSourcePropType;                     // require('./icon.png'), { uri }
+function vectorIcon(iconSet: { getRawGlyphMap(): Record<string, number>; getFontFamily(): string },
+  name: string): GlassIcon;                  // builds a glyph icon from a react-native-vector-icons set
+```
+
+- In `GlassSettings` and as a prop on every screen. An icon not in the map stays native.
+- Keys are SF Symbol names on both platforms: the library has one table from each Material icon
+  the Android screens use to the SF Symbol the iOS catalog uses in the same place.
+- The custom icon takes the original icon's place, size and tint (drawn as a template), in
+  buttons, toolbars, tab bars, menus, lists and controls.
+- SVG is drawn natively: Android with AndroidSVG (`com.caverock:androidsvg-aar`), iOS with
+  SwiftDraw. These are the library's only new native dependencies. The library does not depend on
+  react-native-vector-icons or react-native-svg.
+
 ## Out of scope for this version
 
 Expo (development builds); building blocks (`GlassView`, buttons, controls) as separate React Native
