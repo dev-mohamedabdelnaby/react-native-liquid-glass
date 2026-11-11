@@ -165,7 +165,7 @@ func testEveryScreenIdIsAGlassComponent() {
 Spec section "Additions → Android like iOS". Edits to copied Android code are allowed; list each in the report.
 
 **Files:**
-- Modify: `android/src/main/java/com/mohamedabdelnaby/liquidglass/catalog/**` and the same files in the native Android app, `/Users/mohamedabdelnaby/Developer/android/app/src/main/java/com/example/myapplication/**`. Both get the same change; only the package names differ. The library also keeps its own `R` import and its stale-tint fix in `DrawBackdropModifier.kt`. The native app has no git, so before you first edit one of its files, copy it to `.superpowers/sdd/2026-11-11-native-screens/native-android-backup/<same relative path>`.
+- Modify: `android/src/main/java/com/mohamedabdelnaby/liquidglass/catalog/**` and the host files, in the library only. The native Android app (`/Users/mohamedabdelnaby/Developer/android`) stays as it is (the user's choice); use it only for comparison.
 
 **Inputs:** iOS drop measurements in `ios-drop-measurements.md`, the phone test in `android-vs-ios-test.md` (both in the plan workspace), the iOS screens in `ios/Catalog/Screens/*.swift`, and the iOS shots `task-4-shots/native-*.png`.
 

@@ -188,8 +188,8 @@ is changed to match iOS. This covers the top-tabs drop (less bounce along x), th
 drop, header flicker when the share sheet opens (Toolbar, Floating Header), the Floating Header
 status bar (blurred background, dark icons in light appearance), Union (button flicker, alert
 padding), the Morphing press animation, and every other non-platform difference found by testing
-each component on the phone. Each change goes into both the native Android app and the library
-copy, so the two stay identical.
+each component on the phone. The changes go into the library copy only (the user's choice); the
+native Android app stays as it is.
 
 ## Out of scope for this version
 
