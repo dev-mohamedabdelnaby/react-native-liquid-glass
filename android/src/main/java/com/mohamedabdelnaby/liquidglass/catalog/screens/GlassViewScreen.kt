@@ -35,6 +35,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -51,7 +52,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.mohamedabdelnaby.liquidglass.R
 import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassBackdrop
+import com.mohamedabdelnaby.liquidglass.catalog.glass.LocalGlassBackdrop
 import com.mohamedabdelnaby.liquidglass.catalog.glass.LocalGlassSettings
+import com.mohamedabdelnaby.liquidglass.catalog.liquid.backdrop.backdrops.rememberLayerBackdrop
 import com.mohamedabdelnaby.liquidglass.catalog.glass.DemoColumn
 import com.mohamedabdelnaby.liquidglass.catalog.glass.Fill
 import com.mohamedabdelnaby.liquidglass.catalog.glass.Glass
@@ -135,12 +138,17 @@ fun GlassViewScreen() {
                 }
             }
 
+            val panel = rememberLayerBackdrop()
             Column(
-                Modifier.fillMaxWidth().glassEffect(Glass.Regular, RoundedCornerShape(28.dp)).padding(20.dp),
+                Modifier.fillMaxWidth().glassEffect(Glass.Regular, RoundedCornerShape(28.dp), exportTo = panel).padding(20.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                GlassSegmented(listOf("Regular", "Clear"), if (isClear) 1 else 0, { isClear = it == 1 })
-                GlassSegmented(LiquidGlassShape.entries.map { it.title }, shape.ordinal, { shape = LiquidGlassShape.entries[it] })
+                // The tabs' drop refracts the panel under it, as the top tabs' drop does on a plain
+                // page, not the photo behind the panel.
+                CompositionLocalProvider(LocalGlassBackdrop provides panel) {
+                    GlassSegmented(listOf("Regular", "Clear"), if (isClear) 1 else 0, { isClear = it == 1 })
+                    GlassSegmented(LiquidGlassShape.entries.map { it.title }, shape.ordinal, { shape = LiquidGlassShape.entries[it] })
+                }
                 AnimatedVisibility(shape == LiquidGlassShape.Rounded) {
                     Column {
                         Text("Corner radius: ${cornerRadius.toInt()}")

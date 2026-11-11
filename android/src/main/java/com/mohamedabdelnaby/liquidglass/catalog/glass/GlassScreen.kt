@@ -23,7 +23,8 @@ import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.statusBarsIgnoringVisibility
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBackIos
@@ -57,6 +58,7 @@ import com.mohamedabdelnaby.liquidglass.catalog.liquid.backdrop.backdrops.rememb
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.backdrop.backdrops.rememberLayerBackdrop
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.backdrop.drawBackdrop
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.backdrop.effects.blur
+import com.mohamedabdelnaby.liquidglass.catalog.liquid.backdrop.effects.vibrancy
 
 /** Pops the current screen. Provided by the nav host so screens need no NavController. */
 val LocalOnBack = staticCompositionLocalOf<() -> Unit> { {} }
@@ -215,6 +217,7 @@ fun BarTitle(text: String) {
 private val BackButtonGlass = Glass.Regular.copy(ownVariant = true, blur = 4.dp, white = 0.3f, edgeLight = 0.1f)
 
 /** An iOS 26 style bar: no background, a glass back button, glass actions, a scroll-edge fade. */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun GlassTopBar(
     modifier: Modifier = Modifier,
@@ -225,16 +228,18 @@ fun GlassTopBar(
     accessory: (@Composable () -> Unit)? = null,
     closeButton: Boolean = false,
 ) {
+    // The status bar's height even while another window hides it (the share sheet opening and
+    // closing), so the bar never jumps up under it.
     Box(modifier.fillMaxWidth()) {
         if (edge == EdgeEffect.StatusBar) {
-            ScrollEdge(EdgeEffect.Soft, top = true, Modifier.fillMaxWidth().windowInsetsTopHeight(WindowInsets.statusBars))
+            StatusBarEdge(Modifier.fillMaxWidth().windowInsetsTopHeight(WindowInsets.statusBarsIgnoringVisibility))
         } else {
             // withAnimation on the style: the old edge crossfades into the new one.
             Crossfade(edge, Modifier.matchParentSize(), label = "top edge") { ScrollEdge(it, top = true, Modifier.fillMaxSize()) }
         }
         Column(
             Modifier
-                .windowInsetsPadding(WindowInsets.statusBars)
+                .windowInsetsPadding(WindowInsets.statusBarsIgnoringVisibility)
                 .padding(vertical = 4.dp),
         ) {
         Box(
@@ -280,6 +285,34 @@ fun GlassBottomBar(
             content = content,
         )
     }
+}
+
+/**
+ * iOS's `StatusBarEdge`: `.ultraThinMaterial` (a strong blur under a thin wash) over the status
+ * bar, solid to 40% of its height and fading out at its bottom edge.
+ */
+@Composable
+private fun StatusBarEdge(modifier: Modifier) {
+    val backdrop = LocalGlassBackdrop.current ?: return
+    val wash = MaterialTheme.colorScheme.background.copy(alpha = 0.25f)
+    val mask = Brush.verticalGradient(0f to Color.Black, 0.4f to Color.Black, 1f to Color.Transparent)
+    Box(
+        modifier.drawBackdrop(
+            backdrop = backdrop,
+            shape = { RectangleShape },
+            effects = {
+                vibrancy()
+                blur(20.dp.toPx())
+            },
+            highlight = null,
+            shadow = null,
+            onDrawBackdrop = { drawBackdrop ->
+                drawBackdrop()
+                drawRect(wash)
+                drawRect(mask, blendMode = BlendMode.DstIn)
+            },
+        ),
+    )
 }
 
 /** The fade where scrolling content meets a bar: progressive blur, an opaque band, or nothing. */

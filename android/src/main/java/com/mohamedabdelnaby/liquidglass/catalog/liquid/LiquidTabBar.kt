@@ -160,7 +160,11 @@ private class TabBarPhysics(private val scope: CoroutineScope) {
     val state = TabBarState()
     var tabCount = 1
     var rtl = false
+    // iOS's segmented control: a tap moves the thumb on release (SegmentTap), only the selected
+    // thumb lifts under a finger, and its held lens grows and shrinks critically damped.
+    var segmented = false
     var onSelect: (Int) -> Unit = {}
+    private var tap: SegmentTap? = null
     // The bar's width and inset in px, set by the touch handler.
     var width = 0f
     var inset = 0f
@@ -222,7 +226,9 @@ private class TabBarPhysics(private val scope: CoroutineScope) {
         if (touching || value.target == index.toFloat()) {
             return
         }
-        if (animated) {
+        if (animated && segmented) {
+            startTap(index)
+        } else if (animated) {
             // Lift the lens while it travels to the new tab.
             value.stiffness = TAP_TRAVEL_STIFFNESS
             lift()
@@ -242,6 +248,15 @@ private class TabBarPhysics(private val scope: CoroutineScope) {
         releasePending = false
         downX = x
         dragging = false
+        if (segmented) {
+            stopTap()
+            // Elsewhere nothing moves until the finger lifts or drags.
+            if (indexFor(x).toFloat() == value.target) {
+                lift()
+                startAnimating()
+            }
+            return
+        }
         lift()
         // A tap glides straight to the tab under the finger.
         value.stiffness = TAP_TRAVEL_STIFFNESS
@@ -253,9 +268,11 @@ private class TabBarPhysics(private val scope: CoroutineScope) {
         if (abs(x - downX) > touchSlop) {
             if (!dragging) {
                 value.stiffness = DRAG_STIFFNESS
+                if (segmented) lift()
             }
             dragging = true
         }
+        if (segmented && !dragging) return
         value.target = if (dragging) positionFor(x) else indexFor(x).toFloat()
         startAnimating()
     }
@@ -264,9 +281,6 @@ private class TabBarPhysics(private val scope: CoroutineScope) {
         touching = false
         val index = indexFor(x)
         state.landingIndex = index
-        value.target = index.toFloat()
-        releasePending = true
-        startAnimating()
         pendingSelect = index
         // Select as the lens lands (onFrame), not on release, so the new screen composes after the
         // travel instead of during it. The timer is a fallback in case the lens never arrives.
@@ -275,6 +289,36 @@ private class TabBarPhysics(private val scope: CoroutineScope) {
             delay(SELECT_FALLBACK_MS)
             flushPendingSelect()
         }
+        if (segmented && !dragging && index.toFloat() != value.target) {
+            startTap(index)
+            return
+        }
+        value.target = index.toFloat()
+        releasePending = true
+        startAnimating()
+    }
+
+    private fun startTap(index: Int) {
+        // From where a tap in flight has its thumb, if one has.
+        tap = SegmentTap(tap?.x ?: value.value, index.toFloat())
+        value.target = index.toFloat()
+        // The lens and its size are the tap's now.
+        press.snap(0f)
+        scaleX.snap(1f)
+        scaleY.snap(1f)
+        startAnimating()
+    }
+
+    /** A touch takes over a tap in flight from where its thumb is. */
+    private fun stopTap() {
+        val running = tap ?: return
+        tap = null
+        value.snap(running.x)
+        value.stiffness = TAP_TRAVEL_STIFFNESS
+        value.target = running.to
+        press.snap(running.press)
+        scaleX.snap(running.scaleX)
+        scaleY.snap(running.scaleY)
     }
 
     fun onCancel() {
@@ -302,12 +346,22 @@ private class TabBarPhysics(private val scope: CoroutineScope) {
     private fun lift() {
         // Lift quickly, settle a little softer, like the iOS bar.
         press.stiffness = 1400f
+        press.target = 1f
+        if (segmented) {
+            // iOS's held segmented lens: 1.24 x 1.62 of the thumb, critically damped.
+            scaleX.dampingRatio = 1f
+            scaleY.dampingRatio = 1f
+            scaleX.stiffness = 790f
+            scaleY.stiffness = 580f
+            scaleX.target = 1.24f
+            scaleY.target = 1.62f
+            return
+        }
         // A little bounce on the way up, like a drop of liquid.
         scaleX.dampingRatio = 0.85f
         scaleY.dampingRatio = 0.9f
         scaleX.stiffness = 600f
         scaleY.stiffness = 600f
-        press.target = 1f
         scaleX.target = PRESSED_SCALE_X
         scaleY.target = PRESSED_SCALE_Y
     }
@@ -319,8 +373,9 @@ private class TabBarPhysics(private val scope: CoroutineScope) {
         // Critically damped on the way back, so the size eases in without a wobble.
         scaleX.dampingRatio = 1f
         scaleY.dampingRatio = 1f
-        scaleX.stiffness = SETTLE_SCALE_STIFFNESS
-        scaleY.stiffness = SETTLE_SCALE_STIFFNESS
+        // iOS's segmented lens lets go over about 250 ms.
+        scaleX.stiffness = if (segmented) 760f else SETTLE_SCALE_STIFFNESS
+        scaleY.stiffness = if (segmented) 570f else SETTLE_SCALE_STIFFNESS
         press.target = 0f
         scaleX.target = 1f
         scaleY.target = 1f
@@ -340,6 +395,26 @@ private class TabBarPhysics(private val scope: CoroutineScope) {
         val dt = if (lastFrameNanos == 0L) 1f / 60f
         else ((frameTimeNanos - lastFrameNanos) / 1e9f).coerceIn(1f / 240f, 1f / 30f)
         lastFrameNanos = frameTimeNanos
+
+        tap?.let { running ->
+            val moving = running.step(dt)
+            if (pendingSelect >= 0 && abs(running.x - running.to) < SELECT_DISTANCE) flushPendingSelect()
+            state.value = running.x
+            state.press = running.press
+            state.scaleX = running.scaleX
+            state.scaleY = running.scaleY
+            state.velocity = 0f
+            if (!moving) {
+                tap = null
+                value.snap(running.to)
+                velocity.snap(0f)
+                previousValue = running.to
+                flushPendingSelect()
+            }
+            val keepGoing = moving || touching
+            if (!keepGoing) animating = false
+            return keepGoing
+        }
 
         var moving = value.step(dt)
         velocity.target = (value.value - previousValue) / dt
@@ -448,6 +523,7 @@ fun LiquidTabBar(
     SideEffect {
         physics.tabCount = count
         physics.rtl = rtl
+        physics.segmented = segmented
         physics.onSelect = onSelect
         physics.setSelectedIndex(selectedIndex.coerceIn(0, count - 1))
     }
@@ -524,21 +600,29 @@ fun LiquidTabBar(
                     val inset = insetDp.toPx()
                     val tabWidth = (size.width - inset * 2) / count
                     val height = size.height - inset * 2
-                    val position = state.value.coerceIn(0f, (count - 1).toFloat())
+                    // A segmented thumb lands squashed, as on iOS, about its own centre; a tap keeps
+                    // its leading edge on the track, so it isn't clamped.
+                    val thumb = segmented && dropOn
+                    val position = if (thumb) state.value else state.value.coerceIn(0f, (count - 1).toFloat())
+                    val pill = Size(tabWidth * (if (thumb) state.scaleX else 1f), height * (if (thumb) state.scaleY else 1f))
+                    val pillTopLeft = Offset(
+                        pillLeft(rtl, size.width, inset, tabWidth, position) + (tabWidth - pill.width) / 2f,
+                        inset + (height - pill.height) / 2f,
+                    )
                     if (segmented) {
                         // The thumb's soft drop shadow.
                         drawRoundRect(
                             color = Color.Black.copy(alpha = 0.08f * (1f - press())),
-                            topLeft = Offset(pillLeft(rtl, size.width, inset, tabWidth, position), inset + 1.dp.toPx()),
-                            size = Size(tabWidth, height),
-                            cornerRadius = CornerRadius(height / 2f),
+                            topLeft = pillTopLeft + Offset(0f, 1.dp.toPx()),
+                            size = pill,
+                            cornerRadius = CornerRadius(pill.height / 2f),
                         )
                     }
                     drawRoundRect(
                         color = pillColor.copy(alpha = pillColor.alpha * (1f - press())),
-                        topLeft = Offset(pillLeft(rtl, size.width, inset, tabWidth, position), inset),
-                        size = Size(tabWidth, height),
-                        cornerRadius = CornerRadius(height / 2f),
+                        topLeft = pillTopLeft,
+                        size = pill,
+                        cornerRadius = CornerRadius(pill.height / 2f),
                     )
                 },
         )

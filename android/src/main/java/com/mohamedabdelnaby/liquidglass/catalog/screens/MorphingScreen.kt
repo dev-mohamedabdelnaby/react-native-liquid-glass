@@ -1,11 +1,6 @@
 package com.mohamedabdelnaby.liquidglass.catalog.screens
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.animation.togetherWith
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -63,7 +58,8 @@ fun MorphingScreen() {
             Spacer(Modifier.weight(1f))
             // As iOS's centred VStack: the toggle rests at the centre and slides down on the spring as
             // the tools grow out of it. The frame keeps its size, so the container's origin never jumps.
-            val shift by animateDpAsState(if (expanded) 0.dp else -(60.dp + 16.dp) * Tools.size / 2, spring(0.75f, 380f), label = "stack")
+            // withAnimation(.bouncy): a 0.5 s spring with bounce 0.3 (damping 0.7, stiffness (2π / 0.5)²).
+            val shift by animateDpAsState(if (expanded) 0.dp else -(60.dp + 16.dp) * Tools.size / 2, spring(0.7f, 158f), label = "stack")
             Box(Modifier.offset { IntOffset(0, shift.roundToPx()) }.height(60.dp * 5 + 16.dp * 4), contentAlignment = Alignment.BottomCenter) {
                 GlassEffectContainer(spacing = 20.dp) {
                     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -82,11 +78,8 @@ fun MorphingScreen() {
                                 .glassClickable(label = if (expanded) "Close tools" else "Show tools") { expanded = !expanded },
                             contentAlignment = Alignment.Center,
                         ) {
-                            AnimatedContent(
-                                expanded,
-                                transitionSpec = { (scaleIn() + fadeIn()) togetherWith (scaleOut() + fadeOut()) },
-                                label = "toggle",
-                            ) { open -> Icon(if (open) Icons.Filled.Close else Icons.Filled.Add, null) }
+                            // The symbol changes inside the animation, so SwiftUI crossfades it.
+                            Crossfade(expanded, label = "toggle") { open -> Icon(if (open) Icons.Filled.Close else Icons.Filled.Add, null) }
                         }
                     }
                 }

@@ -56,6 +56,7 @@ import com.mohamedabdelnaby.liquidglass.catalog.liquid.MergedGlassLook
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.MergedGlassShape
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.backdrop.Backdrop
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.backdrop.BackdropEffectScope
+import com.mohamedabdelnaby.liquidglass.catalog.liquid.backdrop.backdrops.LayerBackdrop
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.backdrop.drawBackdrop
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.backdrop.effects.blur
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.backdrop.effects.iosLens
@@ -230,6 +231,8 @@ fun Modifier.glassEffect(
     // false while the content animates out, so a container's glass leaves alongside the content
     // fading (as on iOS) instead of after it; true again brings it back.
     present: Boolean = true,
+    // Records this glass (without its content) for glass drawn on it to refract, outside a container.
+    exportTo: LayerBackdrop? = null,
 ): Modifier {
     val backdrop = LocalGlassBackdrop.current ?: return this
     val settings = LocalGlassSettings.current
@@ -239,7 +242,7 @@ fun Modifier.glassEffect(
     val elastic = if (glass.interactive) remember(scope, glass.prominent) { ElasticPress(scope, swells = !glass.prominent) } else null
     val input = elastic?.let { Modifier.elasticInput(it) } ?: Modifier
     // Not liquid: plain frosted material that neither refracts nor merges with its container.
-    if (!glass.liquid) return this.frostedGlass(glass, shape)
+    if (!glass.liquid) return this.frostedGlass(glass, shape, exportTo = exportTo)
 
     val container = LocalGlassContainer.current
     if (container != null) {
@@ -271,6 +274,7 @@ fun Modifier.glassEffect(
             highlight = { if (lensSupported) null else if (dark) Highlight.Ambient else Highlight.Default },
             shadow = { Shadow(radius = 16.dp, color = Color.Black.copy(alpha = if (dark) 0.3f else 0.12f)) },
             layerBlock = elastic?.layerBlock,
+            exportedBackdrop = exportTo,
             onDrawSurface = {
                 drawFrost(glass, dark, elastic?.press?.value ?: 0f)
                 drawEdgeLight(shape.topStart.toPx(size, this), glass.edgeLight ?: settings.edgeLight)
@@ -298,7 +302,7 @@ private fun BackdropEffectScope.glassEffects(glass: Glass, shape: RoundedCornerS
 /** react-native-liquid's surface: frost, tint and the press glow over the lensed backdrop. */
 /** Frosted material in any [shape]: the glass's blur, frost and tint without the liquid lens. */
 @Composable
-fun Modifier.frostedGlass(glass: Glass = Glass.Regular, shape: Shape = CapsuleShape, shadow: Boolean = true): Modifier {
+fun Modifier.frostedGlass(glass: Glass = Glass.Regular, shape: Shape = CapsuleShape, shadow: Boolean = true, exportTo: LayerBackdrop? = null): Modifier {
     val backdrop = LocalGlassBackdrop.current ?: return this
     val styled = glass.styled(LocalGlassSettings.current).copy(variant = Glass.Variant.Regular)
     val dark = isSystemInDarkTheme()
@@ -311,6 +315,7 @@ fun Modifier.frostedGlass(glass: Glass = Glass.Regular, shape: Shape = CapsuleSh
         },
         highlight = null,
         shadow = if (shadow) { { Shadow(radius = 12.dp, color = Color.Black.copy(alpha = if (dark) 0.25f else 0.08f)) } } else null,
+        exportedBackdrop = exportTo,
         onDrawSurface = { drawFrost(styled, dark, 0f) },
     )
 }
@@ -477,11 +482,18 @@ internal class GlassContainerState(private val scope: CoroutineScope) {
         val container = coordinates?.takeIf { it.isAttached } ?: return
         // A container that grows or moves in its parent (a column widening to the left) shifts
         // its own origin; shift the shapes with it, so glass that stayed put on screen doesn't morph.
+        // Glass still laid out where it was moved with the container (a column re-centering it, as
+        // Union's does when its details show): it follows instead of lagging behind.
         val offset = container.positionInParent()
         offsetInParent?.let { last ->
-            if (offset != last) members.forEach { if (it.placed) it.rect = it.rect.translate(last - offset) }
+            if (offset != last) members.forEach {
+                val now = it.coordinates?.takeIf { c -> c.isAttached }?.let { c -> container.localBoundingBoxOf(c, clipBounds = false) }
+                if (it.placed && now != it.rect) it.rect = it.rect.translate(last - offset)
+            }
         }
         offsetInParent = offset
+        // New glass grows out of glass already on screen, as on iOS, not out of glass appearing with it.
+        val shown = members.filter { it.placed && !it.leaving }
         for (member in members) {
             if (member.leaving) continue
             val coords = member.coordinates?.takeIf { it.isAttached } ?: continue
@@ -495,7 +507,7 @@ internal class GlassContainerState(private val scope: CoroutineScope) {
             val from = when {
                 member.placed -> member.displayed
                 member.transition == GlassTransition.Identity -> rect
-                member.transition == GlassTransition.MatchedGeometry -> nearest(member, rect)?.displayed ?: rect.collapsed()
+                member.transition == GlassTransition.MatchedGeometry -> nearest(member, rect, shown)?.displayed ?: rect.collapsed()
                 else -> rect.collapsed()
             }
             member.rect = rect
@@ -531,7 +543,7 @@ internal class GlassContainerState(private val scope: CoroutineScope) {
         }
     }
 
-    private fun nearest(member: GlassMember, rect: Rect): GlassMember? = members
+    private fun nearest(member: GlassMember, rect: Rect, among: List<GlassMember> = members): GlassMember? = among
         .filter { it !== member && it.placed && !it.leaving }
         .minByOrNull { (it.rect.center - rect.center).getDistance() }
 

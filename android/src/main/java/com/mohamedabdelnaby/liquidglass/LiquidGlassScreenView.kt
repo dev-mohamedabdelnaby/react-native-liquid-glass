@@ -1,7 +1,10 @@
 package com.mohamedabdelnaby.liquidglass
 
 import android.content.Context
+import android.view.Window
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,6 +26,7 @@ import com.mohamedabdelnaby.liquidglass.catalog.glass.LocalOnBack
 import com.mohamedabdelnaby.liquidglass.catalog.ui.theme.AppearanceMode
 import com.mohamedabdelnaby.liquidglass.catalog.ui.theme.LiquidGlassTheme
 import com.mohamedabdelnaby.liquidglass.host.ComposeHost
+import com.mohamedabdelnaby.liquidglass.host.SystemBarIcons
 
 /** The catalog screen for a JS screen id (`buttons` → [GlassComponent.Buttons]); null when unknown. */
 fun screenComponent(id: String): GlassComponent? =
@@ -49,9 +53,17 @@ internal class LiquidGlassScreenView(context: Context) : ComposeHost(context) {
 
   private val onBack: () -> Unit = { emit(EVENT_BACK, null) }
 
+  // What this screen's appearance asks of the system bar icons (null until composed), and the
+  // window it asked.
+  private var barsDark: Boolean? = null
+  private var barsWindow: Window? = null
+
   init {
     setContent {
       LiquidGlassTheme(mode) {
+        // The theme's forced appearance, or the system's.
+        val dark = isSystemInDarkTheme()
+        SideEffect { if (barsDark != dark) { barsDark = dark; claimBars() } }
         CompositionLocalProvider(
           LocalOnBack provides onBack,
           LocalGlassWindowBackdrop provides remember { GlassWindowBackdrop() },
@@ -71,6 +83,25 @@ internal class LiquidGlassScreenView(context: Context) : ComposeHost(context) {
         }
       }
     }
+  }
+
+  override fun onAttachedToWindow() {
+    super.onAttachedToWindow()
+    claimBars()
+  }
+
+  override fun onDetachedFromWindow() {
+    barsWindow?.let { SystemBarIcons.release(this, it) }
+    barsWindow = null
+    super.onDetachedFromWindow()
+  }
+
+  private fun claimBars() {
+    val dark = barsDark ?: return
+    if (!isAttachedToWindow) return
+    val window = (context as? ReactContext)?.currentActivity?.window ?: return
+    barsWindow = window
+    SystemBarIcons.claim(this, window, dark)
   }
 
   // Only Home's own controls call this, never the prop setters: JS state and props would echo.

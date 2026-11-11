@@ -125,7 +125,9 @@ fun UnionScreen() {
                                         Icon(
                                             Icons.Filled.Notifications, "Alert set",
                                             tint = SystemColors.Orange,
-                                            modifier = Modifier.align(Alignment.TopEnd).graphicsLayer { alpha = bell }.padding(6.dp).size(12.dp),
+                                            // The size of iOS's caption2 bell, with more room above it than
+                                            // iOS's 6 pt so it sits clear of the glass's curved rim.
+                                            modifier = Modifier.align(Alignment.TopEnd).graphicsLayer { alpha = bell }.padding(top = 10.dp, end = 10.dp).size(14.dp),
                                         )
                                     }
                                 }
