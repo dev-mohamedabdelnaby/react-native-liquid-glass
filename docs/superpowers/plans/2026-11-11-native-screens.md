@@ -160,6 +160,28 @@ func testEveryScreenIdIsAGlassComponent() {
 - [ ] **Step 6: Device check (simulator).** Build the native iOS app (`/Users/mohamedabdelnaby/Developer/ios/liquidGlass`, scheme `liquidGlass`, into DerivedData) for reference screenshots. In the example: Home matches the native Home; open every screen, compare with the native app's same screen, go back; Tab Bar and Sidebar & Inspector covers open and close; Sheets & Menus sheet, popover and menu; Alerts & Dialogs alert, confirmation dialog and context menu; the tint picker repaints Home at once; after going back, Home keeps its scroll position. Note every visible difference in the report.
 - [ ] **Step 7: Commit** — `git add -A ios src package.json ReactNativeLiquidGlass.podspec example && git commit -m "feat(ios): host the ios app's screens"`
 
+### Task 10: Android behaves like iOS (the user's list; runs after Task 4, before Task 5)
+
+Spec section "Additions → Android like iOS". Edits to copied Android code are allowed; list each in the report.
+
+**Files:**
+- Modify: `android/src/main/java/com/mohamedabdelnaby/liquidglass/catalog/**` and the same files in the native Android app, `/Users/mohamedabdelnaby/Developer/android/app/src/main/java/com/example/myapplication/**`. Both get the same change; only the package names differ. The library also keeps its own `R` import and its stale-tint fix in `DrawBackdropModifier.kt`. The native app has no git, so before you first edit one of its files, copy it to `.superpowers/sdd/2026-11-11-native-screens/native-android-backup/<same relative path>`.
+
+**Inputs:** iOS drop measurements in `ios-drop-measurements.md`, the phone test in `android-vs-ios-test.md` (both in the plan workspace), the iOS screens in `ios/Catalog/Screens/*.swift`, and the iOS shots `task-4-shots/native-*.png`.
+
+- [ ] **Step 1: Items.** Each item is a difference from iOS that the user saw on Android:
+  1. Top tabs (segmented) drop: "more bouncy on x axis… make it like ios". Its travel, scaleX/scaleY peaks and wobble count match the iOS measurements.
+  2. Glass View screen: the Regular/Clear tabs get the same liquid drop as the top tabs.
+  3. Toolbar: pressing Share must not make the header flicker upward, while the share sheet opens or when it closes.
+  4. Floating Header: on the status bar option, the status bar area shows a blurred background, not a linear gradient. Share has no header flicker, as in item 3. In light appearance, the status bar icons are dark.
+  5. Union: showing details must not make the buttons flicker. The alert it adds has top padding, so it sits clear of the status bar as on iOS.
+  6. Morphing: the button press animates like iOS (`GlassMorphingScreen.swift`).
+  7. Every `hosting` or `port` difference in `android-vs-ios-test.md`, except the ones marked `planned` (Tasks 5–8) or `platform`.
+- [ ] **Step 2: Cause first.** Reproduce each item on the phone (screencap bursts, or `screenrecord` for motion), read the iOS and Android code, and name the cause before you change anything.
+- [ ] **Step 3: Fix** in the library copy, then mirror it into the native app. Wherever the logic can run without Compose (for example the drop springs), add a JVM test. Run the library unit tests and `assembleDebug` for the example and for the native app → PASS.
+- [ ] **Step 4: Device check** on the phone, in the example and in the native app: each item before and after, with frames for every animation, compared against the iOS numbers and shots.
+- [ ] **Step 5: Commit** — `git add -A android && git commit -m "fix(android): match ios on drops, headers, union and morphing"` (more commits are fine; the native app has no git).
+
 ### Task 5: Every native screen through React Navigation
 
 **Files:**

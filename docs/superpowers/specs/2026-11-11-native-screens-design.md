@@ -181,6 +181,16 @@ function vectorIcon(iconSet: { getRawGlyphMap(): Record<string, number>; getFont
   SwiftDraw. These are the library's only new native dependencies. The library does not depend on
   react-native-vector-icons or react-native-svg.
 
+### Android like iOS (the user's list, 2026-11-11)
+
+Where the user found an Android screen that looks or moves differently from iOS, the Android code
+is changed to match iOS. This covers the top-tabs drop (less bounce along x), the Glass View tabs'
+drop, header flicker when the share sheet opens (Toolbar, Floating Header), the Floating Header
+status bar (blurred background, dark icons in light appearance), Union (button flicker, alert
+padding), the Morphing press animation, and every other non-platform difference found by testing
+each component on the phone. Each change goes into both the native Android app and the library
+copy, so the two stay identical.
+
 ## Out of scope for this version
 
 Expo (development builds); building blocks (`GlassView`, buttons, controls) as separate React Native
