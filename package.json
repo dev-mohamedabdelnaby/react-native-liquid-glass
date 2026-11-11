@@ -130,12 +130,6 @@
     },
     "ios": {
       "components": {
-        "RNGlassView": {
-          "className": "RNGlassView"
-        },
-        "RNGlassButton": {
-          "className": "RNGlassButton"
-        },
         "LiquidGlassScreen": {
           "className": "RNLiquidGlassScreen"
         }

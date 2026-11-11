@@ -16,7 +16,7 @@ buildscript {
 
 ext.ReactNativeLiquidGlass = [
   minSdkVersion: 26,
-  compileSdkVersion: 36,
+  compileSdkVersion: 37,
   // The Android catalog app's versions (its gradle/libs.versions.toml).
   composeBomVersion: "2026.09.00",
   materialIconsExtendedVersion: "1.7.8",

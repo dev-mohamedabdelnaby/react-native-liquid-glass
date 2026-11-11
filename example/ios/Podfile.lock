@@ -1836,6 +1836,29 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
+  - ReactNativeLiquidGlass/Tests (0.1.0):
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-bridging
+    - React-Core
+    - React-Core-prebuilt
+    - React-cxxstableapi
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - Yoga
   - RNScreens (4.30.1):
     - hermes-engine
     - RCTRequired
@@ -1978,6 +2001,7 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - ReactNativeDependencies (from `../node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec`)
   - ReactNativeLiquidGlass (from `../..`)
+  - ReactNativeLiquidGlass/Tests (from `../..`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - SocketRocket (from `build/rndeps-facades/SocketRocket`)
   - Yoga (from `build/rncore-facades/Yoga`)
@@ -2249,11 +2273,11 @@ SPEC CHECKSUMS:
   ReactCodegen: 3840312f5071bb6b953b35a029c5c6dcf06b435e
   ReactCommon: b63ce798b898ed77c6cfdeb80b18080161f52ed5
   ReactNativeDependencies: a5164c3ebbe90d992022b5d9cbabbf770a6d7d05
-  ReactNativeLiquidGlass: 017c2edc44fd1b9cddc1d51b7c66e6a4611e1cbb
+  ReactNativeLiquidGlass: 9ce60b8d45e762efc4995f7734d46500499cc2ba
   RNScreens: f15a5bda1ddeff8575b8ce41d83885b67129f84b
   SocketRocket: 37aec555668fb852ec12e3c0de59a86ca58f0871
   Yoga: d1c536142c5ff8ec8cd856ab2a7c227a1d875c8e
 
-PODFILE CHECKSUM: 2baa513356ec392f13c8c24c6b17d3c1b8731e56
+PODFILE CHECKSUM: f3ae2e2d7c681d447c1843098347a61e496c8ec0
 
 COCOAPODS: 1.16.2
