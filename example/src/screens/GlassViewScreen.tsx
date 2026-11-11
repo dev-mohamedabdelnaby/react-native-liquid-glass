@@ -31,7 +31,8 @@ export function GlassViewScreen() {
   const { c, t } = useTheme();
   // This view alone: its controls start from Home's general settings and then override them.
   const general = useGlassSettings();
-  const [isClear, setClear] = useState(general.clear);
+  // Android starts from the general setting, the iOS catalog from Regular.
+  const [isClear, setClear] = useState(android && general.clear);
   const [shape, setShape] = useState<Shape>('Rounded');
   const [cornerRadius, setCornerRadius] = useState(24);
   const [contentPadding, setContentPadding] = useState(24);

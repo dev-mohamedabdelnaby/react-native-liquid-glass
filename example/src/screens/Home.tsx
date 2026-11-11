@@ -228,10 +228,7 @@ function TintChoices({
             accessibilityState={{ selected }}
             accessibilityLabel={color ? 'Glass tint' : 'No Glass tint'}
             onPress={() => onPick(color)}
-            style={[
-              styles.swatch,
-              selected && [styles.swatchPicked, { borderColor: c.primary }],
-            ]}
+            style={[styles.swatch, selected && { borderColor: c.primary }]}
           >
             <View
               style={[
@@ -285,8 +282,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  swatch: { width: 32, height: 32, borderRadius: 16, padding: 4 },
-  swatchPicked: { borderWidth: 2 },
+  // The ring is always there (transparent when not picked) so the fill stays 24 wide, as native.
+  swatch: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    padding: 2,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
   swatchNone: { borderWidth: 1 },
   swatchFill: {
     flex: 1,

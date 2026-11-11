@@ -53,6 +53,7 @@ export function FitButton(props: GlassButtonProps) {
   return (
     <View>
       <Text
+        // The engine's label style: semibold, iOS body tracking on Android.
         style={[styles.measure, { fontSize: size.font }]}
         onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
       >
@@ -240,6 +241,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     opacity: 0,
     fontWeight: '600',
+    letterSpacing: Platform.OS === 'android' ? -0.43 : undefined,
   },
   choice: { flexDirection: 'row', gap: 6 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 34 },

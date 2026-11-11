@@ -68,5 +68,19 @@ final class GlassButtonTests: XCTestCase {
     config = try XCTUnwrap(b.button.configuration)
     XCTAssertEqual(config.baseBackgroundColor, .systemBackground)
     XCTAssertEqual(config.baseForegroundColor, .label)
+    XCTAssertEqual(config.cornerStyle, .capsule)
+  }
+
+  func testOpaqueProminentKeepsTheAccent() throws {
+    let b = LiquidGlassButton()
+    b.opaqueFill = true
+    b.prominent = true
+    b.title = "Go"
+    b.apply()
+    let config = try XCTUnwrap(b.button.configuration)
+    // nil leaves `.filled()` on the accent (tint colour), not the plain background.
+    XCTAssertNil(config.baseBackgroundColor)
+    XCTAssertNil(config.baseForegroundColor)
+    XCTAssertEqual(config.cornerStyle, .capsule)
   }
 }

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -66,7 +67,11 @@ internal class GlassButtonView(context: Context) : ComposeHost(context) {
       }
       val content: @Composable RowScope.() -> Unit = {
         materialIcon(current.androidIcon.orEmpty())?.let { Icon(it, null, Modifier.size(20.dp)) }
-        current.title?.takeIf { it.isNotEmpty() }?.let { Text(it) }
+        // One line at its own width, centred: a label wider than the space left by the padding
+        // spills evenly into the padding instead of wrapping or being cut at the end.
+        current.title?.takeIf { it.isNotEmpty() }?.let {
+          Text(it, Modifier.wrapContentWidth(unbounded = true), maxLines = 1, softWrap = false)
+        }
       }
       CompositionLocalProvider(
         LocalGlassBackdrop provides backdrop,

@@ -12,6 +12,7 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import com.facebook.react.uimanager.PointerEvents
 import com.facebook.react.uimanager.ReactPointerEventsView
 import com.facebook.react.views.view.ReactViewGroup
+import com.mohamedabdelnaby.liquidglass.engine.GlassTheme
 import com.mohamedabdelnaby.liquidglass.engine.liquid.backdrop.Backdrop
 import com.mohamedabdelnaby.liquidglass.engine.liquid.backdrop.backdrops.emptyBackdrop
 
@@ -60,7 +61,9 @@ internal open class ComposeHost(context: Context) : ReactViewGroup(context) {
       setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
       clipChildren = false
       if (!accessible) importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
-      setContent { key(attachGeneration.intValue) { content() } }
+      // The hosts have no app theme: GlassTheme gives the engine the catalog's colours and type,
+      // following the system dark mode.
+      setContent { GlassTheme { key(attachGeneration.intValue) { content() } } }
       var attachedBefore = false
       addOnAttachStateChangeListener(object : OnAttachStateChangeListener {
         override fun onViewAttachedToWindow(view: View) {
@@ -76,7 +79,7 @@ internal open class ComposeHost(context: Context) : ReactViewGroup(context) {
     }
     // React never picks the ComposeView as a touch target, so JS touchables above it get their
     // presses; Compose still gets the native touches it handles.
-    val frame = NoReactTouchFrame(context).apply {
+    val frame = GlassLayerFrame(context).apply {
       clipChildren = false
       addView(view, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
     }
@@ -119,7 +122,7 @@ internal open class ComposeHost(context: Context) : ReactViewGroup(context) {
     // Compose lays out and places its content while drawing; make sure that draw happens.
     for (frame in hostedViews) {
       frame.invalidate()
-      (frame as? NoReactTouchFrame)?.getChildAt(0)?.invalidate()
+      (frame as? GlassLayerFrame)?.getChildAt(0)?.invalidate()
     }
   }
 
@@ -163,8 +166,11 @@ internal open class ComposeHost(context: Context) : ReactViewGroup(context) {
   }
 }
 
-/** Holds a ComposeView that React's touch targeting skips. */
-private class NoReactTouchFrame(context: Context) :
+/**
+ * Holds a host's ComposeView (its glass layer). React's touch targeting skips it, and no backdrop
+ * records it (see [ViewTreeBackdrop]): glass never refracts other glass.
+ */
+internal class GlassLayerFrame(context: Context) :
   android.widget.FrameLayout(context),
   ReactPointerEventsView {
   override val pointerEvents: PointerEvents

@@ -238,7 +238,7 @@ internal class ViewTreeBackdrop(private val target: View) : Backdrop {
 
   /** Mirrors [drawChild], for the views that overlap the sampled area. */
   private fun checkChild(child: View, check: DirtyCheck) {
-    if (!overlaps(child, check.area)) {
+    if (child is GlassLayerFrame || !overlaps(child, check.area)) {
       return
     }
     check.add(System.identityHashCode(child).toLong())
@@ -328,8 +328,15 @@ internal class ViewTreeBackdrop(private val target: View) : Backdrop {
     canvas.restoreToCount(saveCount)
   }
 
-  private fun drawChild(parent: ViewGroup, child: View, canvas: Canvas) {
+  /**
+   * Draws [child] of [parent] as the window would, minus any glass inside it. [parentScrolled]:
+   * the canvas already holds [parent]'s own scroll (when drawing inside [drawWithoutGlass]).
+   */
+  private fun drawChild(parent: ViewGroup, child: View, canvas: Canvas, parentScrolled: Boolean = false) {
     if (child.visibility != View.VISIBLE || child.alpha <= 0f || child.width <= 0 || child.height <= 0) {
+      return
+    }
+    if (child is GlassLayerFrame) {
       return
     }
     // Views away from the glass are left out: they cannot show in it, and a recording that
@@ -339,7 +346,9 @@ internal class ViewTreeBackdrop(private val target: View) : Backdrop {
     }
 
     val saveCount = canvas.save()
-    canvas.translate((child.left - parent.scrollX).toFloat(), (child.top - parent.scrollY).toFloat())
+    val scrollX = if (parentScrolled) 0 else parent.scrollX
+    val scrollY = if (parentScrolled) 0 else parent.scrollY
+    canvas.translate((child.left - scrollX).toFloat(), (child.top - scrollY).toFloat())
     if (!child.matrix.isIdentity) {
       canvas.concat(child.matrix)
     }
@@ -352,8 +361,43 @@ internal class ViewTreeBackdrop(private val target: View) : Backdrop {
       canvas.translate(-child.scrollX.toFloat(), -child.scrollY.toFloat())
       canvas.clipRect(child.scrollX, child.scrollY, child.scrollX + child.width, child.scrollY + child.height)
     }
-    child.draw(canvas)
+    if (child is ViewGroup && containsGlass(child)) {
+      drawWithoutGlass(child, canvas)
+    } else {
+      child.draw(canvas)
+    }
     canvas.restoreToCount(saveCount)
+  }
+
+  /**
+   * Glass never records other glass, at any depth (as in the catalog, where glass in the content
+   * refracts only the backdrop). Drawing a group that holds glass with View.draw would put that
+   * glass, with its own blurred backdrop, inside this one; every glass near other glass (buttons
+   * in a row, on a glass card) then nested all the earlier ones, so the render thread's work grew
+   * with each level until a frame never finished and the app hung (Glass View screen, 24 buttons).
+   * Such a group is drawn here instead: its background and its children, without the glass.
+   */
+  private fun drawWithoutGlass(group: ViewGroup, canvas: Canvas) {
+    group.background?.let { background ->
+      if (background.bounds.isEmpty) background.setBounds(0, 0, group.width, group.height)
+      // The background stays put while the content scrolls (canvas holds the scroll here).
+      canvas.translate(group.scrollX.toFloat(), group.scrollY.toFloat())
+      background.draw(canvas)
+      canvas.translate(-group.scrollX.toFloat(), -group.scrollY.toFloat())
+    }
+    for (child in childrenInDrawingOrder(group)) {
+      drawChild(group, child, canvas, parentScrolled = true)
+    }
+  }
+
+  private fun containsGlass(group: ViewGroup): Boolean {
+    for (i in 0 until group.childCount) {
+      val child = group.getChildAt(i)
+      if (child is GlassLayerFrame || (child is ViewGroup && containsGlass(child))) {
+        return true
+      }
+    }
+    return false
   }
 
   private fun drawBackground(view: View, canvas: Canvas) {

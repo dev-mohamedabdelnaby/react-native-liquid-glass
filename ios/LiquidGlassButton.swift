@@ -39,6 +39,8 @@ public final class LiquidGlassButton: UIView {
     var config: UIButton.Configuration
     if opaqueFill {
       config = .filled()
+      // The glass configurations are capsules; keep that shape when the fill is solid.
+      config.cornerStyle = .capsule
     } else if prominent {
       config = .prominentGlass()
     } else {
@@ -58,7 +60,8 @@ public final class LiquidGlassButton: UIView {
         // The plain glass configurations ignore baseBackgroundColor; tint their glass effect instead.
         config.background.visualEffect = GlassMapping.effect(style: glassStyle, tint: tint, interactive: true)
       }
-    } else if opaqueFill {
+    } else if opaqueFill && !prominent {
+      // A prominent button keeps `.filled()`'s accent fill and white label.
       config.baseBackgroundColor = .systemBackground
       config.baseForegroundColor = .label
     }

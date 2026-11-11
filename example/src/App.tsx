@@ -8,7 +8,7 @@ import {
   type NativeStackNavigationOptions,
 } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Platform } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import {
@@ -48,17 +48,19 @@ export default function App() {
   const { c, dark } = useTheme();
   // Home's Glass settings; the one provider above the navigator feeds every screen live.
   const [settings, setSettings] = useState<GlassSettings>(DEFAULT_SETTINGS);
-  const base = dark ? DarkTheme : DefaultTheme;
-  const theme = {
-    ...base,
-    colors: {
-      ...base.colors,
-      primary: c.primary,
-      background: c.background,
-      card: c.surface,
-      text: c.onSurface,
-    },
-  };
+  const theme = useMemo(() => {
+    const base = dark ? DarkTheme : DefaultTheme;
+    return {
+      ...base,
+      colors: {
+        ...base.colors,
+        primary: c.primary,
+        background: c.background,
+        card: c.surface,
+        text: c.onSurface,
+      },
+    };
+  }, [dark, c]);
   return (
     <SafeAreaProvider>
       <StatusBar style="auto" />
