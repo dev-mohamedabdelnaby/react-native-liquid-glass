@@ -1,34 +1,35 @@
 {
   "name": "@mohamed_abd_elnaby/react-native-liquid-glass-example",
-  "version": "1.0.0",
-  "main": "index.js",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "android": "react-native run-android --port 8084",
+    "ios": "react-native run-ios --port 8084",
+    "start": "react-native start --port 8084",
+    "build:android": "react-native build-android --extra-params \"--no-daemon --console=plain -PreactNativeArchitectures=arm64-v8a\"",
+    "build:ios": "react-native build-ios --mode Debug"
+  },
   "dependencies": {
-    "@expo/metro-runtime": "~58.0.17",
-    "@react-navigation/bottom-tabs": "^7.21.0",
     "@react-navigation/native": "^7.5.1",
     "@react-navigation/native-stack": "^7.21.0",
-    "expo": "~58.0.23",
-    "expo-build-properties": "~58.0.12",
-    "expo-status-bar": "~58.0.4",
     "react": "19.3.0",
-    "react-dom": "19.3.0",
     "react-native": "0.88.1",
     "react-native-safe-area-context": "^5.10.1",
-    "react-native-screens": "^4.30.0",
-    "react-native-web": "~0.21.4"
+    "react-native-screens": "^4.30.0"
   },
-  "scripts": {
-    "start": "expo start --dev-client",
-    "android": "expo run:android",
-    "ios": "expo run:ios",
-    "web": "expo start --web",
-    "build:ios": "xcodebuild ONLY_ACTIVE_ARCH=YES -workspace ios/ReactNativeLiquidGlassExample.xcworkspace -UseNewBuildSystem=YES -scheme ReactNativeLiquidGlassExample -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build -quiet",
-    "build:android": "cd android && ./gradlew assembleDebug -DtestBuildType=debug -Dorg.gradle.jvmargs=-Xmx4g",
-    "build:web": "expo export --platform web"
-  },
-  "private": true,
   "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@babel/preset-env": "^7.25.3",
+    "@babel/runtime": "^7.25.0",
+    "@react-native-community/cli": "20.2.0",
+    "@react-native-community/cli-platform-android": "20.2.0",
+    "@react-native-community/cli-platform-ios": "20.2.0",
+    "@react-native/babel-preset": "0.88.1",
+    "@react-native/metro-config": "0.88.1",
     "react-native-builder-bob": "^0.44.1",
     "react-native-monorepo-config": "^0.4.0"
+  },
+  "engines": {
+    "node": ">= 22.11.0"
   }
 }

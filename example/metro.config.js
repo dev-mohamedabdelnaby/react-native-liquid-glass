@@ -1,19 +1,17 @@
 const path = require('path');
-const { getDefaultConfig } = require('@expo/metro-config');
+const { getDefaultConfig } = require('@react-native/metro-config');
 const { withMetroConfig } = require('react-native-monorepo-config');
 
 const root = path.resolve(__dirname, '..');
 
 /**
  * Metro configuration
- * https://facebook.github.io/metro/docs/configuration
+ * https://reactnative.dev/docs/metro
  *
- * @type {import('metro-config').MetroConfig}
+ * @type {import('@react-native/metro-config').MetroConfig}
  */
-const config = withMetroConfig(getDefaultConfig(__dirname), {
+module.exports = withMetroConfig(getDefaultConfig(__dirname), {
   root,
   dirname: __dirname,
   conditions: ['mohamed_abd_elnaby-react-native-liquid-glass-source'],
 });
-
-module.exports = config;
