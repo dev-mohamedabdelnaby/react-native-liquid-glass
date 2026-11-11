@@ -1,0 +1,3 @@
+<resources>
+    <string name="platform_glass_label">android.view.View + RenderEffect</string>
+</resources>
