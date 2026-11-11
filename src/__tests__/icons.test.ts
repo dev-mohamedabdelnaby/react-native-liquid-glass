@@ -13,6 +13,21 @@ test("the spec's nine symbols map", () => {
   expect(androidIconName('trash')).toBe('delete');
 });
 
+test('the catalog screens symbols map', () => {
+  expect(androidIconName('chevron.left')).toBe('arrow_back_ios');
+  expect(androidIconName('star')).toBe('star_border');
+  expect(androidIconName('star.fill')).toBe('star');
+  expect(androidIconName('gearshape')).toBe('settings');
+  expect(androidIconName('bell')).toBe('notifications');
+  expect(androidIconName('house')).toBe('home');
+  expect(androidIconName('person')).toBe('person');
+  expect(androidIconName('heart.fill')).toBe('favorite');
+  expect(androidIconName('bolt.fill')).toBe('bolt');
+  expect(androidIconName('play.fill')).toBe('play_arrow');
+  expect(androidIconName('pause.fill')).toBe('pause');
+  expect(androidIconName('forward.fill')).toBe('fast_forward');
+});
+
 test('override wins, unknown is null', () => {
   expect(androidIconName('checkmark', 'done')).toBe('done');
   expect(androidIconName('sparkles')).toBeNull();

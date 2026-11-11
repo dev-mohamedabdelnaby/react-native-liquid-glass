@@ -4,10 +4,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.mohamedabdelnaby.liquidglass.engine.glass.CapsuleShape
 import com.mohamedabdelnaby.liquidglass.engine.glass.Glass
+import com.mohamedabdelnaby.liquidglass.engine.glass.GlassCircle
 import com.mohamedabdelnaby.liquidglass.engine.glass.styled
 import androidx.compose.foundation.shape.RoundedCornerShape
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -42,5 +44,12 @@ class GlassViewPropsTest {
     assertEquals(CapsuleShape, GlassViewProps(shapeKind = "capsule").shape())
     assertEquals(CapsuleShape, GlassViewProps(shapeKind = "circle").shape())
     assertEquals(RoundedCornerShape(12.dp), GlassViewProps(shapeKind = "rect", cornerRadius = 12f).shape())
+  }
+
+  @Test
+  fun iconOnlyButtonIsACircle() {
+    assertSame(GlassCircle, GlassButtonProps(androidIcon = "add").shape())
+    assertSame(GlassCircle, GlassButtonProps(title = "", androidIcon = "add").shape())
+    assertEquals(CapsuleShape, GlassButtonProps(title = "Done").shape())
   }
 }

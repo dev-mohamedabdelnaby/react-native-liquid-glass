@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -22,6 +23,7 @@ import com.facebook.react.bridge.ReactContext
 import com.facebook.react.uimanager.UIManagerHelper
 import com.facebook.react.uimanager.events.Event
 import com.mohamedabdelnaby.liquidglass.engine.glass.GlassButton
+import com.mohamedabdelnaby.liquidglass.engine.glass.GlassCircle
 import com.mohamedabdelnaby.liquidglass.engine.glass.GlassControlSize
 import com.mohamedabdelnaby.liquidglass.engine.glass.GlassProminentButton
 import com.mohamedabdelnaby.liquidglass.engine.glass.LocalGlassBackdrop
@@ -38,7 +40,10 @@ internal data class GlassButtonProps(
   val size: String = "regular",
   val disabled: Boolean = false,
   val label: String? = null,
-)
+) {
+  // Icon only: the engine's circle, which drops the label padding that would squeeze the icon.
+  fun shape(): RoundedCornerShape = if (title.isNullOrEmpty()) GlassCircle else glass.shape()
+}
 
 /** A React view with no React children: the engine's glass button fills its bounds. */
 internal class GlassButtonView(context: Context) : ComposeHost(context) {
@@ -72,7 +77,7 @@ internal class GlassButtonView(context: Context) : ComposeHost(context) {
             onClick = ::emitPress,
             modifier = modifier,
             tint = glass.tint ?: MaterialTheme.colorScheme.primary,
-            shape = current.glass.shape(),
+            shape = current.shape(),
             size = size,
             enabled = !current.disabled,
             content = content,
@@ -82,7 +87,7 @@ internal class GlassButtonView(context: Context) : ComposeHost(context) {
             onClick = ::emitPress,
             modifier = modifier,
             glass = glass,
-            shape = current.glass.shape(),
+            shape = current.shape(),
             size = size,
             enabled = !current.disabled,
             content = content,

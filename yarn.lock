@@ -3120,6 +3120,7 @@ __metadata:
   resolution: "@mohamed_abd_elnaby/react-native-liquid-glass-example@workspace:example"
   dependencies:
     "@expo/metro-runtime": "npm:~58.0.17"
+    "@react-navigation/bottom-tabs": "npm:^7.21.0"
     "@react-navigation/native": "npm:^7.5.1"
     "@react-navigation/native-stack": "npm:^7.21.0"
     expo: "npm:~58.0.23"
@@ -3653,6 +3654,23 @@ __metadata:
     "@types/react":
       optional: true
   checksum: 10c0/663f3798bb619677549e047703d102e28244b569fedbcf493fbf4f056f5a06093cbf12470873593f7c436357c11660d41eed55638fbac404e2438b4b2e06fa13
+  languageName: node
+  linkType: hard
+
+"@react-navigation/bottom-tabs@npm:^7.21.0":
+  version: 7.21.0
+  resolution: "@react-navigation/bottom-tabs@npm:7.21.0"
+  dependencies:
+    "@react-navigation/elements": "npm:^2.9.45"
+    color: "npm:^4.2.3"
+    sf-symbols-typescript: "npm:^2.1.0"
+  peerDependencies:
+    "@react-navigation/native": ^7.5.1
+    react: ">= 18.2.0"
+    react-native: "*"
+    react-native-safe-area-context: ">= 4.0.0"
+    react-native-screens: ">= 4.0.0"
+  checksum: 10c0/da2c4f18607a62d1d134fb3c3c82ed5f5dbc3d528e6490d7ea96caef7d9971b5ba90f2a9d476532a5ee00d8004b7811a445d29f177c83d5d50351048278c6e24
   languageName: node
   linkType: hard
 

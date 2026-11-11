@@ -4,3 +4,10 @@ export {
   type GlassButtonProps,
   type GlassButtonSize,
 } from './GlassButton';
+export {
+  GlassSettingsProvider,
+  useGlassSettings,
+  DEFAULT_SETTINGS,
+} from './settings';
+export { isGlassSupported } from './support';
+export type { Glass, GlassShape, GlassSettings, GlassStyle } from './types';
