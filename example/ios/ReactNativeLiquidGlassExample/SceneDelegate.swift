@@ -21,9 +21,6 @@ class SceneDelegate: RCTDefaultReactNativeFactoryDelegate, UIWindowSceneDelegate
     window = UIWindow(windowScene: windowScene)
     
     #if DEBUG
-    // Metro runs on 8084; the prebuilt React core bakes 8081, so RCT_METRO_PORT cannot change it.
-    // shortcut: localhost reaches the Mac only from the simulator; a physical iPhone needs the Mac's IP here.
-    RCTBundleURLProvider.sharedSettings().jsLocation = "localhost:8084"
     let devMenuConfiguration = RCTDevMenuConfiguration(
       devMenuEnabled: true,
       shakeGestureEnabled: true,
