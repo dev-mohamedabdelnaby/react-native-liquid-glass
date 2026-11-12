@@ -301,8 +301,10 @@ private fun StatusBarEdge(modifier: Modifier) {
             backdrop = backdrop,
             shape = { RectangleShape },
             effects = {
-                vibrancy()
+                // Blur first: a blur after another effect pads the layer, and the padding above the
+                // screen is empty, which left the strip's top see-through.
                 blur(20.dp.toPx())
+                vibrancy()
             },
             highlight = null,
             shadow = null,

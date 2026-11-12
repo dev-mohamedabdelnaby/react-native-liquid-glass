@@ -394,7 +394,9 @@ private fun SeparatedSearchDemo(minimizeOnScroll: Boolean, searchFullWidth: Bool
                             }
                             Spacer(Modifier.width(gap))
                         }
-                        if (!field) Fill()
+                        // Always there: it is empty while the field fills the bar, and keeps a field that grows out
+                        // of the search circle (search opened from the minimized bar) at the bar's end.
+                        Fill()
                         Box(
                             Modifier
                                 .width(if (field) fieldWidth else SeparatedHeight)
