@@ -88,6 +88,9 @@ private val Forecasts = listOf(
 @Composable
 fun UnionScreen() {
     var selected by remember { mutableStateOf<Forecast?>(null) }
+    // A details change waits until the menu has flowed back into its symbol: the column re-centring
+    // under a closing menu left its drop overlapping the moving pill, with the symbol still hidden.
+    var afterMenu by remember { mutableStateOf<(() -> Unit)?>(null) }
     val alerts = remember { mutableStateListOf<String>() }
     // shortcut: 0–24 dp keeps four 64 dp symbols on a 360 dp-wide phone; derive it from the width for smaller screens.
     var gap by remember { mutableFloatStateOf(20f) }
@@ -109,6 +112,7 @@ fun UnionScreen() {
                     Forecasts.forEach { forecast ->
                         val alerted = forecast.name in alerts
                         GlassMenu(
+                            onClosed = { afterMenu?.invoke(); afterMenu = null },
                             anchor = { open ->
                                 Box(
                                     Modifier
@@ -135,7 +139,7 @@ fun UnionScreen() {
                             },
                         ) { dismiss ->
                             GlassMenuHeader("${forecast.name} · ${forecast.detail}")
-                            GlassMenuItem("Show Details", { selected = forecast; dismiss() }, icon = Icons.Outlined.Info)
+                            GlassMenuItem("Show Details", { afterMenu = { selected = forecast }; dismiss() }, icon = Icons.Outlined.Info)
                             GlassMenuItem(
                                 if (alerted) "Remove Alert" else "Set Alert",
                                 { if (alerted) alerts.remove(forecast.name) else alerts.add(forecast.name); dismiss() },
@@ -144,7 +148,7 @@ fun UnionScreen() {
                             GlassMenuItem("Share", { context.shareText("${forecast.name}: ${forecast.detail}"); dismiss() }, icon = Icons.Outlined.Share)
                             if (selected == forecast) {
                                 GlassMenuDivider()
-                                GlassMenuItem("Hide Details", { selected = null; dismiss() }, icon = Icons.Filled.Close, destructive = true)
+                                GlassMenuItem("Hide Details", { afterMenu = { selected = null }; dismiss() }, icon = Icons.Filled.Close, destructive = true)
                             }
                         }
                     }

@@ -65,6 +65,8 @@ fun GlassDropdownMenu(
 fun GlassMenu(
     modifier: Modifier = Modifier,
     preview: (@Composable () -> Unit)? = null,
+    // Once the menu has flowed back into its anchor.
+    onClosed: () -> Unit = {},
     anchor: @Composable (open: () -> Unit) -> Unit,
     items: @Composable ColumnScope.(dismiss: () -> Unit) -> Unit,
 ) {
@@ -80,7 +82,7 @@ fun GlassMenu(
             // A lifted preview covers the anchor, so it hides at once instead of fading.
             // A context menu's preview crossfades in over the tile as it pops out of it.
             onProgress = { anchorAlpha = if (preview != null) (1f - it * 3f).coerceIn(0f, 1f) else menuSourceAlpha(it) },
-            onClosed = { anchorAlpha = 1f },
+            onClosed = { anchorAlpha = 1f; onClosed() },
             preview = preview,
         ) { items { expanded = false } }
     }
