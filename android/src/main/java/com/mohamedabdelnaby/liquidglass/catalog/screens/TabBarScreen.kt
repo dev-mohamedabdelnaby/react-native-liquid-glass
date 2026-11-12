@@ -74,6 +74,10 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.animation.core.Animatable
+import kotlinx.coroutines.flow.first
+import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassTransition
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material.icons.outlined.SavedSearch
 import androidx.compose.material.icons.outlined.ManageSearch
@@ -147,8 +151,12 @@ private val BarColors = listOf(SystemColors.Blue, SystemColors.Purple, SystemCol
 
 /** A bar piece's surface: liquid glass, or the picked solid color in its place. */
 @Composable
-private fun Modifier.barSurface(shape: RoundedCornerShape = CapsuleShape): Modifier {
-    val color = LocalBarColor.current ?: return glassEffect(Glass.Regular.interactive(), shape)
+private fun Modifier.barSurface(
+    shape: RoundedCornerShape = CapsuleShape,
+    // Identity: the glass follows a piece whose size animates, instead of chasing it.
+    transition: GlassTransition = GlassTransition.MatchedGeometry,
+): Modifier {
+    val color = LocalBarColor.current ?: return glassEffect(Glass.Regular.interactive(), shape, transition = transition)
     return background(color, shape)
 }
 
@@ -318,22 +326,48 @@ private fun SeparatedSearchDemo(minimizeOnScroll: Boolean, searchFullWidth: Bool
                     Modifier.windowInsetsPadding(WindowInsets.navigationBars.union(WindowInsets.ime)).padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp),
                     spacing = 12.dp,
                 ) {
-                    // The tabs piece minimizes on the other tab bars' spring and progress: it narrows
-                    // into a circle as its tabs shrink into it and the selected tab's icon grows in.
+                    // Every piece rides the other tab bars' minimize spring, and its glass follows its
+                    // layout exactly (Identity), so glass and content move as one, as in those bars.
+                    // The tabs piece narrows into a circle as its tabs shrink into it and the selected
+                    // tab's icon grows in.
                     val collapsed = searching || minimized
                     val p by animateFloatAsState(if (collapsed) 1f else 0f, MinimizeSpring, label = "minimize")
+                    // At full width the tabs piece leaves while search is open.
+                    val gone by animateFloatAsState(if (searching && searchFullWidth) 1f else 0f, MinimizeSpring, label = "tabs away")
+                    // The field takes the width the tabs give up, and keeps it until they are back at
+                    // full width after search closes, so closing runs opening backwards.
+                    var fieldShown by remember { mutableStateOf(false) }
+                    // Search opened while the tabs are already a circle: the field grows out of the search circle.
+                    val grow = remember { Animatable(1f) }
+                    LaunchedEffect(searching) {
+                        if (searching) {
+                            fieldShown = true
+                            if (p >= 1f) {
+                                grow.snapTo(0f)
+                                grow.animateTo(1f, MinimizeSpring)
+                            }
+                        } else {
+                            grow.snapTo(1f)
+                            snapshotFlow { p <= 0f }.first { it }
+                            fieldShown = false
+                        }
+                    }
                     BoxWithConstraints(Modifier.fillMaxWidth()) {
                     // The tabs' full width: the bar less the search circle and the gap.
                     val full = maxWidth - SeparatedGap - SeparatedHeight
+                    val q = p.coerceIn(0f, 1f)
+                    val g = gone.coerceIn(0f, 1f)
+                    val tabsWidth = lerp(lerp(full, SeparatedHeight, q), 0.dp, g)
+                    val gap = lerp(SeparatedGap, 0.dp, g)
+                    val field = fieldShown && !minimized
+                    val fieldWidth = lerp(SeparatedHeight, maxWidth - tabsWidth - gap, grow.value)
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                        // One glass member per piece, so the container morphs each between its shapes.
-                        if (!(searching && searchFullWidth)) {
-                            val q = p.coerceIn(0f, 1f)
+                        if (g < 1f) {
                             Box(
                                 Modifier
-                                    .width(lerp(full, SeparatedHeight, q))
+                                    .width(tabsWidth)
                                     .height(SeparatedHeight)
-                                    .barSurface()
+                                    .barSurface(transition = GlassTransition.Identity)
                                     .then(if (collapsed) Modifier.glassClickable(label = "Show tabs") { exitSearch(); minimized = false } else Modifier),
                                 contentAlignment = Alignment.CenterStart,
                             ) {
@@ -351,19 +385,21 @@ private fun SeparatedSearchDemo(minimizeOnScroll: Boolean, searchFullWidth: Bool
                                 if (q > 0f) Icon(
                                     tab.icon, null,
                                     Modifier.align(Alignment.Center).size(24.dp).graphicsLayer {
-                                        alpha = q
+                                        alpha = q * (1f - g)
                                         scaleX = lerp(0.6f, 1f, q)
                                         scaleY = scaleX
                                     },
                                     tint = BarAccent,
                                 )
                             }
-                            Spacer(Modifier.width(SeparatedGap))
+                            Spacer(Modifier.width(gap))
                         }
-                        if (!searching) Fill()
+                        if (!field) Fill()
                         Box(
-                            (if (searching) Modifier.weight(1f).height(SeparatedHeight) else Modifier.size(SeparatedHeight))
-                                .barSurface()
+                            Modifier
+                                .width(if (field) fieldWidth else SeparatedHeight)
+                                .height(SeparatedHeight)
+                                .barSurface(transition = GlassTransition.Identity)
                                 .then(if (searching) Modifier else Modifier.glassClickable(label = "Search") { searching = true; minimized = false }),
                             contentAlignment = Alignment.Center,
                         ) {

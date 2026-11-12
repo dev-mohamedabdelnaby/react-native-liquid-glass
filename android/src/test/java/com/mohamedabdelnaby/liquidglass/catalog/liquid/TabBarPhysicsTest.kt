@@ -102,4 +102,20 @@ class TabBarPhysicsTest {
     clock.frames(80)
     assertEquals(2f, state.value, 0.001f)
   }
+
+  @Test
+  fun aCancelledSecondTouchKeepsTheFirstTapAndItsSelection() {
+    physics.onDown(150f)
+    physics.onUp(150f)
+    clock.frames(2)
+
+    // A second finger lands on another segment and the gesture is cancelled (a scroll took it).
+    physics.onDown(250f)
+    physics.onCancel()
+    clock.frames(80)
+
+    // The thumb and the selection agree: both on the first tap's segment.
+    assertEquals(1f, state.value, 0.001f)
+    assertEquals(listOf(1), selected)
+  }
 }

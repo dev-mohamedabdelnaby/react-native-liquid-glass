@@ -335,6 +335,9 @@ internal class TabBarPhysics(private val scope: CoroutineScope) {
 
     fun onCancel() {
         touching = false
+        // A cancelled touch that left a tap running (a down on another segment) cancels nothing:
+        // the tap still lands and reports its selection, so thumb and selection agree.
+        if (tap != null) return
         state.landingIndex = -1
         pendingSelect = -1
         value.target = selectedIndex.toFloat()

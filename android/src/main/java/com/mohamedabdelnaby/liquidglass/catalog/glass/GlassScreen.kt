@@ -330,19 +330,19 @@ fun ScrollEdge(edge: EdgeEffect, top: Boolean, modifier: Modifier = Modifier) {
             val mask = Brush.verticalGradient(*stops(Color.Black, Color.Transparent))
             val fade = Brush.verticalGradient(*stops(background.copy(alpha = 0.7f), background.copy(alpha = 0f)))
             Box(
-                modifier
-                    .drawBackdrop(
-                        backdrop = backdrop,
-                        shape = { RectangleShape },
-                        effects = { blur(18.dp.toPx()) },
-                        highlight = null,
-                        shadow = null,
-                        onDrawBackdrop = { drawBackdrop ->
-                            drawBackdrop()
-                            drawRect(mask, blendMode = BlendMode.DstIn)
-                        },
-                    )
-                    .background(fade),
+                modifier.drawBackdrop(
+                    backdrop = backdrop,
+                    shape = { RectangleShape },
+                    effects = { blur(18.dp.toPx()) },
+                    highlight = null,
+                    shadow = null,
+                    // Masked in the edge's own size after the blur, as the status bar strip; the
+                    // fade goes on top, unmasked.
+                    onDrawFront = {
+                        drawRect(mask, blendMode = BlendMode.DstIn)
+                        drawRect(fade)
+                    },
+                ),
             )
         }
     }

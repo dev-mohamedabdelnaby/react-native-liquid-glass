@@ -79,28 +79,54 @@ internal class BarsRequest<W : Any>(
  * icons (an app's `StatusBar` style) come back. The iOS host does the same with the window style.
  */
 internal object SystemBarIcons {
-  // Light icons for (status bar, navigation bar) are the controller's `isAppearanceLight…` = false.
-  private val windows = WeakHashMap<Window, SharedRequests<Pair<Boolean, Boolean>>>()
+  private val windows = WeakHashMap<Window, WindowBarIcons>()
 
   fun claim(host: Any, window: Window, dark: Boolean) {
-    val current = shown(window)
-    val requests = windows.getOrPut(window) { SharedRequests(current) }
-    requests.claim(host, !dark to !dark, current)?.let { show(window, it) }
+    val flags = WindowFlags(window)
+    windows.getOrPut(window) { WindowBarIcons(flags) }.claim(host, dark, flags)
   }
 
   fun release(host: Any, window: Window) {
-    val requests = windows[window] ?: return
-    requests.release(host, shown(window))?.let { show(window, it) }
-    if (requests.isEmpty) windows.remove(window)
+    val icons = windows[window] ?: return
+    icons.release(host, WindowFlags(window))
+    if (icons.isEmpty) windows.remove(window)
   }
 
-  private fun shown(window: Window): Pair<Boolean, Boolean> =
-    WindowCompat.getInsetsController(window, window.decorView).run { isAppearanceLightStatusBars to isAppearanceLightNavigationBars }
+  // Made per call, not kept: a kept one would hold its window, the map's weak key.
+  private class WindowFlags(window: Window) : BarFlags {
+    private val controller = WindowCompat.getInsetsController(window, window.decorView)
+    override var lightStatus: Boolean
+      get() = controller.isAppearanceLightStatusBars
+      set(value) { controller.isAppearanceLightStatusBars = value }
+    override var lightNavigation: Boolean
+      get() = controller.isAppearanceLightNavigationBars
+      set(value) { controller.isAppearanceLightNavigationBars = value }
+  }
+}
 
-  private fun show(window: Window, lightBars: Pair<Boolean, Boolean>) {
-    WindowCompat.getInsetsController(window, window.decorView).apply {
-      isAppearanceLightStatusBars = lightBars.first
-      isAppearanceLightNavigationBars = lightBars.second
-    }
+/** A window's two icon flags: light (`true`) icons draw dark, for a light appearance. */
+internal interface BarFlags {
+  var lightStatus: Boolean
+  var lightNavigation: Boolean
+}
+
+/**
+ * One window's status and navigation bar icon requests, each flag on its own: React Native's
+ * `StatusBar` writes only the status flag, so the navigation flag still comes back on release.
+ */
+internal class WindowBarIcons(flags: BarFlags) {
+  private val status = SharedRequests(flags.lightStatus)
+  private val navigation = SharedRequests(flags.lightNavigation)
+
+  val isEmpty: Boolean get() = status.isEmpty && navigation.isEmpty
+
+  fun claim(host: Any, dark: Boolean, flags: BarFlags) {
+    status.claim(host, !dark, flags.lightStatus)?.let { flags.lightStatus = it }
+    navigation.claim(host, !dark, flags.lightNavigation)?.let { flags.lightNavigation = it }
+  }
+
+  fun release(host: Any, flags: BarFlags) {
+    status.release(host, flags.lightStatus)?.let { flags.lightStatus = it }
+    navigation.release(host, flags.lightNavigation)?.let { flags.lightNavigation = it }
   }
 }

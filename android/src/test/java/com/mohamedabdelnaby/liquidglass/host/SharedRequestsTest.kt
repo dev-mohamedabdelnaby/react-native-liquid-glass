@@ -92,6 +92,29 @@ class SharedRequestsTest {
   }
 }
 
+/** Status and navigation icons are each the app's or the library's on their own. */
+class WindowBarIconsTest {
+  private class Flags(override var lightStatus: Boolean, override var lightNavigation: Boolean) : BarFlags
+
+  @Test
+  fun anAppStatusBarWriteKeepsTheStatusFlagAndStillRestoresTheNavigationFlag() {
+    val flags = Flags(lightStatus = false, lightNavigation = false)
+    val icons = WindowBarIcons(flags)
+    val screen = Any()
+
+    // A light screen: dark icons on both bars.
+    icons.claim(screen, dark = false, flags)
+    assertTrue(flags.lightStatus && flags.lightNavigation)
+    // React Native's StatusBar (barStyle="light-content") writes only the status flag.
+    flags.lightStatus = false
+    icons.release(screen, flags)
+
+    assertEquals(false, flags.lightStatus)
+    assertEquals("the app's navigation flag comes back", false, flags.lightNavigation)
+    assertTrue(icons.isEmpty)
+  }
+}
+
 /** A screen's request lasts while it is in the React tree, not only while it is in the window. */
 class BarsRequestTest {
   private val calls = mutableListOf<String>()
