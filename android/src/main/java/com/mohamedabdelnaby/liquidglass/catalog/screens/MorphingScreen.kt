@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -57,12 +58,13 @@ fun MorphingScreen() {
         ) {
             Spacer(Modifier.weight(1f))
             // As iOS's centred VStack: the toggle rests at the centre and slides down on the spring as
-            // the tools grow out of it. The frame keeps its size, so the container's origin never jumps.
+            // the tools grow out of it. The container fills the fixed frame, so its origin never jumps
+            // and tools flowing back into the toggle aren't clipped at its edge.
             // withAnimation(.bouncy): a 0.5 s spring with bounce 0.3 (damping 0.7, stiffness (2π / 0.5)²).
             val shift by animateDpAsState(if (expanded) 0.dp else -(60.dp + 16.dp) * Tools.size / 2, spring(0.7f, 158f), label = "stack")
             Box(Modifier.offset { IntOffset(0, shift.roundToPx()) }.height(60.dp * 5 + 16.dp * 4), contentAlignment = Alignment.BottomCenter) {
-                GlassEffectContainer(spacing = 20.dp) {
-                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                GlassEffectContainer(Modifier.fillMaxHeight(), spacing = 20.dp) {
+                    Column(Modifier.fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.Bottom)) {
                         if (expanded) {
                             Tools.forEach { (icon, name) ->
                                 Box(

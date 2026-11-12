@@ -65,6 +65,7 @@ import com.mohamedabdelnaby.liquidglass.catalog.liquid.backdrop.highlight.Highli
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.backdrop.shadow.Shadow
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.mergedGlass
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlin.math.abs
@@ -551,7 +552,9 @@ internal class GlassContainerState(private val scope: CoroutineScope) {
      * Springs each edge from [from] to [to] separately, slightly differently per edge so the glass
      * stretches like liquid (react-native-liquid's ~0.55 s morph).
      */
-    private fun GlassMember.morph(from: Rect, to: Rect) = scope.launch {
+    // Undispatched, so the edges snap to [from] before this frame draws: new glass never shows a
+    // frame at its final place, and glass appearing next to it grows from where it really is.
+    private fun GlassMember.morph(from: Rect, to: Rect) = scope.launch(start = CoroutineStart.UNDISPATCHED) {
         // Each edge keeps its speed when a new layout restarts it, so a moving target is chased
         // smoothly instead of the glass stalling every frame.
         suspend fun edge(a: Animatable<Float, *>, from: Float, to: Float, spec: androidx.compose.animation.core.SpringSpec<Float>) {
@@ -561,10 +564,10 @@ internal class GlassContainerState(private val scope: CoroutineScope) {
         }
         listOf(
             // About 0.3 s, as measured on iOS 26 (react-native-liquid's springs, three times as stiff).
-            launch { edge(left, from.left - rect.left, to.left - rect.left, spring(0.72f, 400f, 0.5f)) },
-            launch { edge(right, from.right - rect.right, to.right - rect.right, spring(0.68f, 350f, 0.5f)) },
-            launch { edge(top, from.top - rect.top, to.top - rect.top, spring(0.76f, 480f, 0.5f)) },
-            launch { edge(bottom, from.bottom - rect.bottom, to.bottom - rect.bottom, spring(0.76f, 450f, 0.5f)) },
+            launch(start = CoroutineStart.UNDISPATCHED) { edge(left, from.left - rect.left, to.left - rect.left, spring(0.72f, 400f, 0.5f)) },
+            launch(start = CoroutineStart.UNDISPATCHED) { edge(right, from.right - rect.right, to.right - rect.right, spring(0.68f, 350f, 0.5f)) },
+            launch(start = CoroutineStart.UNDISPATCHED) { edge(top, from.top - rect.top, to.top - rect.top, spring(0.76f, 480f, 0.5f)) },
+            launch(start = CoroutineStart.UNDISPATCHED) { edge(bottom, from.bottom - rect.bottom, to.bottom - rect.bottom, spring(0.76f, 450f, 0.5f)) },
         ).joinAll()
     }
 
