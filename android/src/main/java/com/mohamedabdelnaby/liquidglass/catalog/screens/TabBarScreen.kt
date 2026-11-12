@@ -22,7 +22,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
@@ -313,21 +318,49 @@ private fun SeparatedSearchDemo(minimizeOnScroll: Boolean, searchFullWidth: Bool
                     Modifier.windowInsetsPadding(WindowInsets.navigationBars.union(WindowInsets.ime)).padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp),
                     spacing = 12.dp,
                 ) {
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                    // The tabs piece minimizes on the other tab bars' spring and progress: it narrows
+                    // into a circle as its tabs shrink into it and the selected tab's icon grows in.
+                    val collapsed = searching || minimized
+                    val p by animateFloatAsState(if (collapsed) 1f else 0f, MinimizeSpring, label = "minimize")
+                    BoxWithConstraints(Modifier.fillMaxWidth()) {
+                    // The tabs' full width: the bar less the search circle and the gap.
+                    val full = maxWidth - SeparatedGap - SeparatedHeight
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         // One glass member per piece, so the container morphs each between its shapes.
                         if (!(searching && searchFullWidth)) {
-                            val collapsed = searching || minimized
+                            val q = p.coerceIn(0f, 1f)
                             Box(
-                                (if (collapsed) Modifier.size(SeparatedHeight) else Modifier.weight(1f).height(SeparatedHeight))
+                                Modifier
+                                    .width(lerp(full, SeparatedHeight, q))
+                                    .height(SeparatedHeight)
                                     .barSurface()
                                     .then(if (collapsed) Modifier.glassClickable(label = "Show tabs") { exitSearch(); minimized = false } else Modifier),
-                                contentAlignment = Alignment.Center,
+                                contentAlignment = Alignment.CenterStart,
                             ) {
-                                if (collapsed) Icon(tab.icon, null, Modifier.size(24.dp), tint = BarAccent)
-                                else TabsCapsule(tab) { tab = it }
+                                if (q < 1f) Box(
+                                    Modifier
+                                        .wrapContentWidth(Alignment.Start, unbounded = true)
+                                        .requiredWidth(full)
+                                        .fillMaxHeight()
+                                        .graphicsLayer {
+                                            scaleX = lerp(1f, SeparatedHeight / full, q)
+                                            transformOrigin = TransformOrigin(0f, 0.5f)
+                                            alpha = 1f - q
+                                        },
+                                ) { TabsCapsule(tab) { tab = it } }
+                                if (q > 0f) Icon(
+                                    tab.icon, null,
+                                    Modifier.align(Alignment.Center).size(24.dp).graphicsLayer {
+                                        alpha = q
+                                        scaleX = lerp(0.6f, 1f, q)
+                                        scaleY = scaleX
+                                    },
+                                    tint = BarAccent,
+                                )
                             }
+                            Spacer(Modifier.width(SeparatedGap))
                         }
-                        if (!searching && minimized) Fill()
+                        if (!searching) Fill()
                         Box(
                             (if (searching) Modifier.weight(1f).height(SeparatedHeight) else Modifier.size(SeparatedHeight))
                                 .barSurface()
@@ -345,6 +378,7 @@ private fun SeparatedSearchDemo(minimizeOnScroll: Boolean, searchFullWidth: Bool
                             }
                         }
                     }
+                    }
                 }
             }
         },
@@ -358,6 +392,10 @@ private fun SeparatedSearchDemo(minimizeOnScroll: Boolean, searchFullWidth: Bool
 }
 
 private val SeparatedHeight = 64.dp
+private val SeparatedGap = 12.dp
+
+/** Minimizing and restoring a tab bar on scroll: one spring moves every piece, in every layout. */
+private val MinimizeSpring = spring<Float>(dampingRatio = 0.85f, stiffness = 320f)
 
 /** One bar color choice: a swatch, or the glass drop for no color; the picked one is ringed. */
 @Composable
@@ -472,7 +510,7 @@ private fun TabBar(
     onSelect: (Tab) -> Unit,
 ) {
     // One spring moves every piece, so the bar, the accessory and the circles change as one.
-    val p by animateFloatAsState(if (minimized) 1f else 0f, spring(dampingRatio = 0.85f, stiffness = 320f), label = "minimize")
+    val p by animateFloatAsState(if (minimized) 1f else 0f, MinimizeSpring, label = "minimize")
     Box(Modifier.fillMaxWidth()) {
         ScrollEdge(EdgeEffect.Soft, top = false, Modifier.matchParentSize())
         Box(
