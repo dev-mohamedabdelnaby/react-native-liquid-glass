@@ -70,7 +70,7 @@ internal open class ComposeHost(context: Context) : ReactViewGroup(context) {
   }
 
   /** Releases the composition. Called when React drops the view. */
-  fun dispose() {
+  open fun dispose() {
     lifecycleOwner.destroy()
   }
 }

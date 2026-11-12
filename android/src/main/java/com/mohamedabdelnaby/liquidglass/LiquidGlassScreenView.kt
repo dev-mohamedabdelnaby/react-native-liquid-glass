@@ -26,6 +26,7 @@ import com.mohamedabdelnaby.liquidglass.catalog.glass.LocalOnBack
 import com.mohamedabdelnaby.liquidglass.catalog.ui.theme.AppearanceMode
 import com.mohamedabdelnaby.liquidglass.catalog.ui.theme.LiquidGlassTheme
 import com.mohamedabdelnaby.liquidglass.host.ComposeHost
+import com.mohamedabdelnaby.liquidglass.host.BarsRequest
 import com.mohamedabdelnaby.liquidglass.host.SystemBarIcons
 
 /** The catalog screen for a JS screen id (`buttons` → [GlassComponent.Buttons]); null when unknown. */
@@ -53,17 +54,18 @@ internal class LiquidGlassScreenView(context: Context) : ComposeHost(context) {
 
   private val onBack: () -> Unit = { emit(EVENT_BACK, null) }
 
-  // What this screen's appearance asks of the system bar icons (null until composed), and the
-  // window it asked.
-  private var barsDark: Boolean? = null
-  private var barsWindow: Window? = null
+  // What this screen's appearance asks of the window's system bar icons, while it is in the React tree.
+  private val bars = BarsRequest<Window>(
+    claim = { window, dark -> SystemBarIcons.claim(this, window, dark) },
+    release = { window -> SystemBarIcons.release(this, window) },
+  )
 
   init {
     setContent {
       LiquidGlassTheme(mode) {
         // The theme's forced appearance, or the system's.
         val dark = isSystemInDarkTheme()
-        SideEffect { if (barsDark != dark) { barsDark = dark; claimBars() } }
+        SideEffect { bars.appearance(dark) }
         CompositionLocalProvider(
           LocalOnBack provides onBack,
           LocalGlassWindowBackdrop provides remember { GlassWindowBackdrop() },
@@ -85,23 +87,16 @@ internal class LiquidGlassScreenView(context: Context) : ComposeHost(context) {
     }
   }
 
+  // Leaving the window keeps the request: a native-stack push or a cover detaches a screen that is
+  // still mounted. It ends when React drops the view.
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
-    claimBars()
+    (context as? ReactContext)?.currentActivity?.window?.let(bars::entered)
   }
 
-  override fun onDetachedFromWindow() {
-    barsWindow?.let { SystemBarIcons.release(this, it) }
-    barsWindow = null
-    super.onDetachedFromWindow()
-  }
-
-  private fun claimBars() {
-    val dark = barsDark ?: return
-    if (!isAttachedToWindow) return
-    val window = (context as? ReactContext)?.currentActivity?.window ?: return
-    barsWindow = window
-    SystemBarIcons.claim(this, window, dark)
+  override fun dispose() {
+    bars.left()
+    super.dispose()
   }
 
   // Only Home's own controls call this, never the prop setters: JS state and props would echo.

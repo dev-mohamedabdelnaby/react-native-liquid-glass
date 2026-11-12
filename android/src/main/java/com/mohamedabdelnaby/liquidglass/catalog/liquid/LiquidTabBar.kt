@@ -138,7 +138,7 @@ data class LiquidTabItem(val label: String, val icon: ImageVector? = null, val b
 
 /** Animated values, written once per frame by the physics loop. */
 @Stable
-private class TabBarState {
+internal class TabBarState {
     /** Position of the lens, in tabs. */
     var value by mutableFloatStateOf(0f)
     /** 0 when resting as the pill, 1 when lifted. */
@@ -155,7 +155,7 @@ private class TabBarState {
 }
 
 /** LiquidTabBarView's springs, touches and frame loop. */
-private class TabBarPhysics(private val scope: CoroutineScope) {
+internal class TabBarPhysics(private val scope: CoroutineScope) {
 
     val state = TabBarState()
     var tabCount = 1
@@ -249,9 +249,12 @@ private class TabBarPhysics(private val scope: CoroutineScope) {
         downX = x
         dragging = false
         if (segmented) {
+            val index = indexFor(x).toFloat()
+            // Elsewhere nothing moves until the finger lifts or drags, not even a tap in flight:
+            // its release retargets that tap.
+            if (tap?.let { index != it.to } == true) return
             stopTap()
-            // Elsewhere nothing moves until the finger lifts or drags.
-            if (indexFor(x).toFloat() == value.target) {
+            if (index == value.target) {
                 lift()
                 startAnimating()
             }
@@ -267,8 +270,11 @@ private class TabBarPhysics(private val scope: CoroutineScope) {
     fun onMove(x: Float, touchSlop: Float) {
         if (abs(x - downX) > touchSlop) {
             if (!dragging) {
+                if (segmented) {
+                    stopTap()
+                    lift()
+                }
                 value.stiffness = DRAG_STIFFNESS
-                if (segmented) lift()
             }
             dragging = true
         }
@@ -299,13 +305,18 @@ private class TabBarPhysics(private val scope: CoroutineScope) {
     }
 
     private fun startTap(index: Int) {
-        // From where a tap in flight has its thumb, if one has.
-        tap = SegmentTap(tap?.x ?: value.value, index.toFloat())
+        val running = tap
+        if (running != null) {
+            // A tap in flight goes on to the new tab with its speed and lens, as on iOS.
+            running.retarget(index.toFloat())
+        } else {
+            // The lens and its size are the tap's now; a lens a finger lifted stays up.
+            tap = SegmentTap(value.value, index.toFloat(), lift = press.value.coerceIn(0f, 1f))
+            press.snap(0f)
+            scaleX.snap(1f)
+            scaleY.snap(1f)
+        }
         value.target = index.toFloat()
-        // The lens and its size are the tap's now.
-        press.snap(0f)
-        scaleX.snap(1f)
-        scaleY.snap(1f)
         startAnimating()
     }
 
@@ -316,6 +327,7 @@ private class TabBarPhysics(private val scope: CoroutineScope) {
         value.snap(running.x)
         value.stiffness = TAP_TRAVEL_STIFFNESS
         value.target = running.to
+        previousValue = running.x
         press.snap(running.press)
         scaleX.snap(running.scaleX)
         scaleY.snap(running.scaleY)

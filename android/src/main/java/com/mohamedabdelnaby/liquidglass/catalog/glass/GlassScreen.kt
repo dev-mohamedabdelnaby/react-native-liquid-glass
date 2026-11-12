@@ -306,11 +306,10 @@ private fun StatusBarEdge(modifier: Modifier) {
             },
             highlight = null,
             shadow = null,
-            onDrawBackdrop = { drawBackdrop ->
-                drawBackdrop()
-                drawRect(wash)
-                drawRect(mask, blendMode = BlendMode.DstIn)
-            },
+            onDrawSurface = { drawRect(wash) },
+            // Masked in the strip's own size, after the blur: the backdrop layer is the strip plus
+            // the blur's padding, where the mask would still be opaque at the strip's bottom.
+            onDrawFront = { drawRect(mask, blendMode = BlendMode.DstIn) },
         ),
     )
 }

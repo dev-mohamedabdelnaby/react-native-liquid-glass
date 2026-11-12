@@ -18,6 +18,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -47,8 +48,10 @@ import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassProminentButton
 import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassScreen
 import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassSlider
 import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassSegmented
+import com.mohamedabdelnaby.liquidglass.catalog.glass.LocalGlassBackdrop
 import com.mohamedabdelnaby.liquidglass.catalog.glass.RectShape
 import com.mohamedabdelnaby.liquidglass.catalog.glass.glassEffect
+import com.mohamedabdelnaby.liquidglass.catalog.liquid.backdrop.backdrops.rememberLayerBackdrop
 import com.mohamedabdelnaby.liquidglass.catalog.ui.theme.SystemColors
 
 @Composable
@@ -66,11 +69,15 @@ fun TextScreen() {
             TextSection("Glass letterforms") {
                 GlassLettering("Liquid", TextStyle(fontSize = 88.sp, fontWeight = FontWeight.Black, fontFamily = FontFamily.SansSerif), letterGlass)
                 GlassLettering("GLASS", TextStyle(fontSize = 64.sp, fontWeight = FontWeight.ExtraBold), letterGlass)
+                val panel = rememberLayerBackdrop()
                 Column(
-                    Modifier.fillMaxWidth().glassEffect(Glass.Regular, RoundedCornerShape(24.dp)).padding(16.dp),
+                    Modifier.fillMaxWidth().glassEffect(Glass.Regular, RoundedCornerShape(24.dp), exportTo = panel).padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
-                    GlassSegmented(listOf("Regular", "Clear"), if (letterClear) 1 else 0, { letterClear = it == 1 })
+                    // The tabs' drop refracts the panel under it, not the photo behind the panel.
+                    CompositionLocalProvider(LocalGlassBackdrop provides panel) {
+                        GlassSegmented(listOf("Regular", "Clear"), if (letterClear) 1 else 0, { letterClear = it == 1 })
+                    }
                     Text("Blur: ${letterBlur.toInt()} dp", Modifier.padding(top = 8.dp))
                     GlassSlider(letterBlur, { letterBlur = it }, valueRange = 0f..40f, contentDescription = "Letter blur")
                     Text("Refraction: ${letterRefraction.toInt()} dp")
