@@ -60,7 +60,6 @@ import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassMenuItem
 import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassMenu
 import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassEffectContainer
 import com.mohamedabdelnaby.liquidglass.catalog.glass.Fill
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.geometry.Size
@@ -293,7 +292,7 @@ private fun SeparatedSearchDemo(minimizeOnScroll: Boolean, searchFullWidth: Bool
     val focus = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
     val scrollDirection = rememberScrollDirection { down -> if (minimizeOnScroll && !searching) minimized = down }
-    // Every tab stays alive, keeping its scroll position; only the selected one is shown.
+    // Every tab keeps its scroll position; only the selected one is shown.
     val states = MainTabs.associateWith { rememberLazyListState() }
     val searchState = rememberLazyListState()
     val listState = if (searching) searchState else states.getValue(tab)
@@ -350,14 +349,10 @@ private fun SeparatedSearchDemo(minimizeOnScroll: Boolean, searchFullWidth: Bool
             }
         },
     ) { padding ->
+        // Only the shown list is composed: hidden lists stacked at alpha 0 still took every drag, so
+        // the shown one never scrolled. Its state above keeps each tab's scroll position.
         Box(Modifier.fillMaxSize().nestedScroll(scrollDirection)) {
-            MainTabs.forEach { t ->
-                val visible = t == tab && !searching
-                Box(Modifier.graphicsLayer { alpha = if (visible) 1f else 0f }.then(if (visible) Modifier else Modifier.clearAndSetSemantics { })) {
-                    TabList(t.title, padding, states.getValue(t))
-                }
-            }
-            if (searching) SearchTab(padding, searchState, query)
+            if (searching) SearchTab(padding, searchState, query) else TabList(tab.title, padding, states.getValue(tab))
         }
     }
 }
