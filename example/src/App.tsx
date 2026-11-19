@@ -1,7 +1,10 @@
 import { useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { StatusBar, StyleSheet, useColorScheme } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {
   DEFAULT_SETTINGS,
+  GLASS_SCREENS,
   GlassAlertsScreen,
   GlassButtonsScreen,
   GlassContainerScreen,
@@ -57,21 +60,44 @@ const SCREENS: Record<
   recipes: GlassRecipesScreen,
 };
 
-// Temporary switcher until React Navigation is wired: the open screen covers Home, which stays mounted.
+type Routes = { Home: undefined } & Record<GlassScreenId, undefined>;
+
+const Stack = createNativeStackNavigator<Routes>();
+
 export default function App() {
   const [settings, setSettings] = useState<GlassSettings>(DEFAULT_SETTINGS);
-  const [open, setOpen] = useState<GlassScreenId | null>(null);
-  const Screen = open && SCREENS[open];
+  const scheme = useColorScheme();
+  const dark =
+    settings.appearance === 'system'
+      ? scheme === 'dark'
+      : settings.appearance === 'dark';
   return (
     <GlassSettingsProvider value={settings}>
-      <GlassHomeScreen
-        style={styles.fill}
-        onOpen={setOpen}
-        onSettingsChange={setSettings}
-      />
-      {Screen && (
-        <Screen style={StyleSheet.absoluteFill} onBack={() => setOpen(null)} />
-      )}
+      {/* Agrees with the icons the library host sets, so the two never fight. */}
+      <StatusBar barStyle={dark ? 'light-content' : 'dark-content'} />
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="Home">
+            {({ navigation }) => (
+              <GlassHomeScreen
+                style={styles.fill}
+                onOpen={(id) => navigation.navigate(id)}
+                onSettingsChange={setSettings}
+              />
+            )}
+          </Stack.Screen>
+          {GLASS_SCREENS.map(({ id }) => {
+            const Screen = SCREENS[id];
+            return (
+              <Stack.Screen key={id} name={id}>
+                {({ navigation }) => (
+                  <Screen style={styles.fill} onBack={navigation.goBack} />
+                )}
+              </Stack.Screen>
+            );
+          })}
+        </Stack.Navigator>
+      </NavigationContainer>
     </GlassSettingsProvider>
   );
 }
