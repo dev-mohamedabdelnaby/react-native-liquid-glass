@@ -218,6 +218,13 @@ Spec section "Additions → Native Android style".
 - [ ] **Step 3: Device check** on the phone (Release build) with `material`: all 21 screens open, controls work, back works (including Task 5's back-key routing), light/dark and RTL work; with `glass` nothing changed (compare with Task 11's shots).
 - [ ] **Step 4: Commit** — `git commit -m "feat(android): native material style option"`
 
+### Task 13: iOS header flicker on push (runs now, alongside Task 5's Android fix)
+
+- [ ] **Step 1: Reproduce.** In the user's words: "when i open screen on ios the header is flicker fix it please". On the iPhone simulator (Release build; port 8081 belongs to the user's other app), push several screens from Home through native-stack. Record video (`simctl io recordVideo`), extract frames, and name what the header does: a title or large-title jump, safe-area inset arriving late, the bar background or back button popping in, or the appearance changing. Compare with the native iOS app pushing the same screen.
+- [ ] **Step 2: Fix in the iOS host** (`ios/Host/`, `ios/RNLiquidGlassScreen.mm`), not in the copied SwiftUI screens. For example: give the hosting controller its final size and safe area before the push animation starts, or lay it out synchronously when it is first attached. Add an XCTest if the logic can run without the screen.
+- [ ] **Step 3: Device check:** frames before and after for at least 5 screens (one with a large title, one inline, Search, Tab Bar, Floating Header). No header change across the push in any frame, and still 0.01% against the native app.
+- [ ] **Step 4: Commit** — `git commit -m "fix(ios): steady header when a screen is pushed"`
+
 ### Task 5: Every native screen through React Navigation
 
 **Files:**
