@@ -1,9 +1,18 @@
 package com.mohamedabdelnaby.liquidglass.host
 
 import android.content.Context
+import android.view.Window
+import androidx.activity.OnBackPressedDispatcherOwner
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.lifecycle.LifecycleOwner
+import androidx.navigationevent.NavigationEventDispatcherOwner
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
+import androidx.navigationevent.findViewTreeNavigationEventDispatcherOwner
+import com.facebook.react.bridge.ReactContext
 import com.facebook.react.views.view.ReactViewGroup
 
 /**
@@ -15,24 +24,43 @@ internal open class ComposeHost(context: Context) : ReactViewGroup(context) {
   private val lifecycleOwner = GlassLifecycleOwner()
   // Null when the base constructor already calls requestLayout().
   private var composeView: ComposeView? = null
+  // The screen's BackHandlers get the back key before React Native pops the screen.
+  private val back = BackRouter()
+  private var keyWindow: Window? = null
 
   protected fun setContent(content: @Composable () -> Unit) {
+    val navigationOwner = object : NavigationEventDispatcherOwner {
+      override val navigationEventDispatcher = back.navigation
+    }
+    val onBackPressedOwner = object : OnBackPressedDispatcherOwner, LifecycleOwner by lifecycleOwner {
+      override val onBackPressedDispatcher = back.onBackPressed
+    }
     composeView = ComposeView(context).apply {
       lifecycleOwner.install(this)
       setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-      setContent(content)
+      setContent {
+        CompositionLocalProvider(
+          LocalNavigationEventDispatcherOwner provides navigationOwner,
+          LocalOnBackPressedDispatcherOwner provides onBackPressedOwner,
+          content = content,
+        )
+      }
     }.also { addView(it) }
   }
 
   override fun onAttachedToWindow() {
     lifecycleOwner.onAttached()
     super.onAttachedToWindow()
+    findViewTreeNavigationEventDispatcherOwner()?.let { back.attach(it.navigationEventDispatcher) }
+    keyWindow = (context as? ReactContext)?.currentActivity?.window?.takeIf { it.decorView === rootView }
+    keyWindow?.let { BackKey.add(it, back) }
     // A layout made before the window came (native-stack lays out a pushed screen first) was skipped.
     requestLayout()
   }
 
   override fun onDetachedFromWindow() {
     super.onDetachedFromWindow()
+    leaveBack()
     lifecycleOwner.onDetached()
   }
 
@@ -72,8 +100,15 @@ internal open class ComposeHost(context: Context) : ReactViewGroup(context) {
     view.layout(0, 0, width, height)
   }
 
+  private fun leaveBack() {
+    back.detach()
+    keyWindow?.let { BackKey.remove(it, back) }
+    keyWindow = null
+  }
+
   /** Releases the composition. Called when React drops the view. */
   open fun dispose() {
+    leaveBack()
     lifecycleOwner.destroy()
   }
 }

@@ -21,6 +21,8 @@ ext.ReactNativeLiquidGlass = [
   composeBomVersion: "2026.09.00",
   materialIconsExtendedVersion: "1.7.8",
   activityComposeVersion: "1.13.0",
+  // What activity-compose 1.13.0 brings; the host routes the back key with it.
+  navigationEventVersion: "1.0.0",
   lifecycleVersion: "2.11.0"
 ]
 
@@ -73,6 +75,7 @@ dependencies {
   implementation "androidx.compose.material3:material3"
   implementation "androidx.compose.material:material-icons-extended:${getExtOrDefault("materialIconsExtendedVersion")}"
   implementation "androidx.activity:activity-compose:${getExtOrDefault("activityComposeVersion")}"
+  implementation "androidx.navigationevent:navigationevent-compose:${getExtOrDefault("navigationEventVersion")}"
   implementation "androidx.lifecycle:lifecycle-runtime-ktx:${getExtOrDefault("lifecycleVersion")}"
 
   testImplementation "junit:junit:4.13.2"
