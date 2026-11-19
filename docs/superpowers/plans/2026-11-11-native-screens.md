@@ -182,6 +182,24 @@ Spec section "Additions → Android like iOS". Edits to copied Android code are 
 - [ ] **Step 4: Device check** on the phone, in the example and in the native app: each item before and after, with frames for every animation, compared against the iOS numbers and shots.
 - [ ] **Step 5: Commit** — `git add -A android && git commit -m "fix(android): match ios on drops, headers, union and morphing"` (more commits are fine; the native app has no git).
 
+### Task 11: Android behaves like iOS, second list (runs after Task 5)
+
+Same rules as Task 10: library only; the native Android app is used only for reading. List each edit in the report.
+
+- [ ] **Step 1: Items** (the user's words, 2026-11-19):
+  1. Glass View top tabs: "when it convert from liquid to active background color its become rectangular flicker then retrun to normal… make it like scroll edge screen". Settling from the lens to the pill must not show a rectangle in any frame; it should match the Scroll Edge screen's segmented control.
+  2. "when i back from another screen to main it flash whit background between them": no white frame while going back, or pushing, in light or dark.
+  3. Container: "the item is bouncing at first loading". No bounce on first appearance.
+  4. Floating Header, Soft: the gradient becomes a blur like iOS (the Status Bar option already is).
+  5. Scroll Edge: switching Auto / Soft / Hard animates like iOS, not "so ugly".
+  6. Zoom Transitions: the icon in the back button's row has a "3" badge that is clipped while the zoom opens and closes. It must never be clipped.
+  7. Morphing: more padding, and a smoother animation.
+  8. Glass Transitions: showing and hiding the badge animates more smoothly, like iOS.
+- [ ] **Step 2: Cause first.** Reproduce each item with frames on the phone (Release build; port 8081 belongs to the user's other app), compare with the iOS app and shots, and name the cause before you change anything.
+- [ ] **Step 3: Fix and test.** Add JVM tests where the logic runs without Compose. Library unit tests and `assembleRelease` → PASS.
+- [ ] **Step 4: Device check:** before and after frames for every item.
+- [ ] **Step 5: Commit** — `git commit -m "fix(android): smoother tabs, transitions and edges like ios"` (more commits are fine).
+
 ### Task 5: Every native screen through React Navigation
 
 **Files:**
