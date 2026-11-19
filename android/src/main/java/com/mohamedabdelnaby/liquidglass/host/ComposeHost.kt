@@ -27,6 +27,8 @@ internal open class ComposeHost(context: Context) : ReactViewGroup(context) {
   override fun onAttachedToWindow() {
     lifecycleOwner.onAttached()
     super.onAttachedToWindow()
+    // A layout made before the window came (native-stack lays out a pushed screen first) was skipped.
+    requestLayout()
   }
 
   override fun onDetachedFromWindow() {
@@ -61,7 +63,8 @@ internal open class ComposeHost(context: Context) : ReactViewGroup(context) {
 
   /** React lays out the host; the ComposeView is ours to size. */
   private fun layoutComposeView() {
-    val view = composeView ?: return
+    // Measured outside a window, a ComposeView throws: it has no recomposer yet.
+    val view = composeView?.takeIf { it.isAttachedToWindow } ?: return
     view.measure(
       MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
       MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY),
