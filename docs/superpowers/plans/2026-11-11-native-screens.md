@@ -37,7 +37,7 @@
 
 **Files:**
 - Delete: `example/` (the Expo app) except what step 1 says to keep
-- Create: `example/` as a React Native CLI app (package `@mohamed_abd_elnaby/react-native-liquid-glass-example`, the existing workspace name)
+- Create: `example/` as a React Native CLI app (package `@native-dev-kit/react-native-liquid-glass-example`, the existing workspace name)
 
 **Interfaces:**
 - Produces: `yarn example start` (Metro on 8084), `yarn example android`, `yarn example ios`; Android applicationId and iOS bundle id `mohamedabdelnaby.reactnativeliquidglass.example`; `example/src/App.tsx` as the app root; `@react-navigation/native`, `@react-navigation/native-stack`, `react-native-screens`, `react-native-safe-area-context` installed.
@@ -123,7 +123,7 @@ test('events reach the callbacks', () => {
 }
 ```
 
-- [ ] **Step 2: Run, see it fail** — `cd example/android && ./gradlew :mohamed_abd_elnaby_react-native-liquid-glass:testDebugUnitTest` → FAIL (does not compile).
+- [ ] **Step 2: Run, see it fail** — `cd example/android && ./gradlew :native-dev-kit_react-native-liquid-glass:testDebugUnitTest` → FAIL (does not compile).
 - [ ] **Step 3: Copy the app's code.** Copy as listed; rename packages and the `R` import only. Re-apply 53f95ae's `DrawBackdropModifier.kt` change (`git show 53f95ae`) to the copied file. Add the app's dependencies the copied code imports (not navigation-compose, datastore or serialization: only the app's `MainActivity` uses those).
 - [ ] **Step 4: Host.** `LiquidGlassScreenView` (a `ComposeHost`) renders, as the app's `LiquidGlassApp` does: `LiquidGlassTheme(mode)` + `CompositionLocalProvider(LocalOnBack provides { onBack event }, LocalGlassWindowBackdrop provides remember { GlassWindowBackdrop() }, LocalGlassSettings provides settingsFromProps)`, then `HomeScreen(mode, onModeChange → onSettingsChange event, onOpen → onOpen event with the screen id, settings, onSettingsChange → onSettingsChange event)` for `home`, else `screenComponent(id)?.screen()`. Settings live in Compose state set by the prop setters, so a prop change recomposes without recreating the view. `ComposeHost` keeps the lifecycle owner and the manual layout; it drops the backdrop recording, `GlassLayerFrame`, `GlassTheme` and the re-keying on attach, so the screen's state survives detach and re-attach.
 - [ ] **Step 5: Run** — the Gradle unit tests → PASS (copied app tests + `ScreenIdsTest`); `./gradlew :app:assembleDebug` → BUILD SUCCESSFUL; `yarn lint && yarn typecheck && yarn test` → PASS.
@@ -316,6 +316,6 @@ Spec section "Additions → Icons". Edits to copied code are allowed for this; l
 - Modify: `package.json` (`files` includes `ios`, `android` without build outputs, `src`, `lib`, the podspec; `keywords`)
 
 - [ ] **Step 1: README** — install (bare React Native CLI; `pod install` with `LANG`/`LC_ALL`), floors (iOS 27; Android 26 with compileSdk 37 and AGP 9.1, from the copied Compose; RN 0.88 verified, New Architecture), the 22 components and `GLASS_SCREENS`, `GlassSettingsProvider` and which settings each platform reads (the spec's table), events, the React Navigation recipe from Task 5 (header hidden, `onOpen` → `navigate`, `onBack` → `goBack`, the per-direction animations), layout direction, fonts (adding fonts, the weight map, the texts iOS keeps in the system font), icons (`vectorIcon`, SVG, images, SF Symbol keys), "memoise the provider `value`", Metro on 8081, Expo not yet supported, licenses of the backdrop code (`LICENSE-*` files kept).
-- [ ] **Step 2: CI** — lint, typecheck, Jest, and the Android unit tests (`./gradlew :mohamed_abd_elnaby_react-native-liquid-glass:testDebugUnitTest` from `example/android`).
+- [ ] **Step 2: CI** — lint, typecheck, Jest, and the Android unit tests (`./gradlew :native-dev-kit_react-native-liquid-glass:testDebugUnitTest` from `example/android`).
 - [ ] **Step 3: Run** — `yarn lint && yarn typecheck && yarn test` → PASS; `npm pack --dry-run` lists no build folders.
 - [ ] **Step 4: Commit** — `git add README.md .github package.json && git commit -m "docs: readme and ci for the native screens"`
