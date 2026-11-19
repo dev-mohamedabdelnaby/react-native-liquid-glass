@@ -103,6 +103,7 @@ internal open class ComposeHost(context: Context) : ReactViewGroup(context) {
 
   // React's current activity can still be null on attach: the next posted layout tries again.
   private fun enterKeyWindow() {
+    if (dropped) return
     if (keyWindow != null || !isAttachedToWindow) return
     keyWindow = (context as? ReactContext)?.currentActivity?.window?.takeIf { it.decorView === rootView }
     keyWindow?.let { BackKey.add(it, back) }

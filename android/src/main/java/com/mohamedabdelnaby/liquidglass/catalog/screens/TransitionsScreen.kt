@@ -1,9 +1,17 @@
 package com.mohamedabdelnaby.liquidglass.catalog.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterExitState
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -66,18 +74,31 @@ fun TransitionsScreen() {
                 // and go the avatar's glass slides to its new place (withAnimation) instead of jumping
                 // with a re-centred container.
                 GlassEffectContainer(Modifier.fillMaxWidth(), spacing = 24.dp) {
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterHorizontally), verticalAlignment = Alignment.CenterVertically) {
-                        Box(Modifier.size(72.dp).glassEffect(Glass.Regular, GlassCircle), contentAlignment = Alignment.Center) {
-                            Icon(Icons.Filled.Person, "Avatar", Modifier.size(32.dp))
-                        }
-                        if (showing) {
-                            Badges.forEach { (icon, name) ->
-                                Box(
-                                    Modifier.size(56.dp).glassEffect(Glass.Regular.tint(accent.copy(alpha = 0.4f)), GlassCircle, kind.transition),
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    AppearAnimated(enabled = kind != TransitionKind.Identity) { Icon(icon, name) }
-                                }
+                    // HStack(spacing: 24) whose avatar re-centres at once when the badges hide (its
+                    // glass slides there), while hiding badges keep their places until their glass
+                    // has flowed back into it, their symbols fading on the way.
+                    Layout(
+                        modifier = Modifier.fillMaxWidth(),
+                        content = {
+                            Box(Modifier.size(72.dp).glassEffect(Glass.Regular, GlassCircle), contentAlignment = Alignment.Center) {
+                                Icon(Icons.Filled.Person, "Avatar", Modifier.size(32.dp))
+                            }
+                            Badges.forEach { (icon, name) -> Badge(icon, name, showing, kind, accent) }
+                        },
+                    ) { measurables, constraints ->
+                        val items = measurables.map { it.measure(constraints.copy(minWidth = 0, minHeight = 0)) }
+                        val gap = 24.dp.roundToPx()
+                        val avatar = items.first()
+                        val rowWidth = items.sumOf { it.width } + gap * (items.size - 1)
+                        val height = items.maxOf { it.height }
+                        layout(constraints.maxWidth, height) {
+                            val rowStart = (constraints.maxWidth - rowWidth) / 2
+                            val avatarX = if (showing) rowStart else (constraints.maxWidth - avatar.width) / 2
+                            avatar.place(avatarX, (height - avatar.height) / 2)
+                            var x = rowStart + avatar.width + gap
+                            items.drop(1).forEach { badge ->
+                                badge.place(x, (height - badge.height) / 2)
+                                x += badge.width + gap
                             }
                         }
                     }
@@ -93,6 +114,29 @@ fun TransitionsScreen() {
             GlassProminentButton({ showing = !showing }, size = GlassControlSize.Large) {
                 Text(if (showing) "Hide Badges" else "Show Badges")
             }
+        }
+    }
+}
+
+/** A badge kept while it hides, its symbol fading on its glass as it flows back. */
+@Composable
+private fun Badge(icon: ImageVector, name: String, showing: Boolean, kind: TransitionKind, accent: Color) {
+    AnimatedVisibility(
+        showing,
+        enter = EnterTransition.None,
+        // Identity glass has no animation, so neither has its symbol.
+        exit = if (kind == TransitionKind.Identity) ExitTransition.None else fadeOut(tween(250)),
+    ) {
+        Box(
+            Modifier
+                .size(56.dp)
+                .glassEffect(
+                    Glass.Regular.tint(accent.copy(alpha = 0.4f)), GlassCircle, kind.transition,
+                    present = transition.targetState == EnterExitState.Visible,
+                ),
+            contentAlignment = Alignment.Center,
+        ) {
+            AppearAnimated(enabled = kind != TransitionKind.Identity) { Icon(icon, name) }
         }
     }
 }

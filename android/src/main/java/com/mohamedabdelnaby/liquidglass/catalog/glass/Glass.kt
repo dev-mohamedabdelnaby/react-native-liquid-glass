@@ -22,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -240,7 +241,9 @@ fun Modifier.glassEffect(
     val glass = remember(glass, settings) { glass.styled(settings) }
     val dark = isSystemInDarkTheme()
     val scope = rememberCoroutineScope()
-    val elastic = if (glass.interactive) remember(scope, glass.prominent) { ElasticPress(scope, swells = !glass.prominent) } else null
+    // Not keyed on prominence: glass turning prominent mid-press (a picker's selected button) keeps
+    // its press and lets its swell go as usual.
+    val elastic = if (glass.interactive) remember(scope) { ElasticPress(scope) }.also { it.swells = !glass.prominent } else null
     val input = elastic?.let { Modifier.elasticInput(it) } ?: Modifier
     // Not liquid: plain frosted material that neither refracts nor merges with its container.
     if (!glass.liquid) return this.frostedGlass(glass, shape, exportTo = exportTo)
@@ -382,7 +385,7 @@ private fun frostColor(clear: Boolean, dark: Boolean): Color = when {
  * stretches along a drag without leaving its place, then wobbles back like a drop.
  */
 @Stable
-internal class ElasticPress(private val scope: CoroutineScope, private val swells: Boolean = true) {
+internal class ElasticPress(private val scope: CoroutineScope, var swells: Boolean = true) {
     val swell = Animatable(1f)
     /** Lights the glass and bulges the lens under the finger. */
     val press = Animatable(0f)
@@ -497,7 +500,8 @@ internal class GlassContainerState(private val scope: CoroutineScope) {
         // New glass grows out of glass already on screen, as on iOS, not out of glass appearing with it.
         val shown = members.filter { it.placed && !it.leaving }
         // The glass a container first lays out is simply there, as on iOS: nothing animates it in.
-        val firstLayout = shown.isEmpty() && !laidOut
+        // Shapes are placed one by one in a layout pass, so this holds until the next frame.
+        val firstLayout = !laidOut
         for (member in members) {
             if (member.leaving) continue
             val coords = member.coordinates?.takeIf { it.isAttached } ?: continue
@@ -513,11 +517,15 @@ internal class GlassContainerState(private val scope: CoroutineScope) {
             member.placed = true
             member.morph(from, rect)
         }
-        if (members.any { it.placed }) laidOut = true
+        if (!laidOut && !settling && members.any { it.placed }) {
+            settling = true
+            scope.launch { withFrameNanos { }; laidOut = true }
+        }
     }
 
-    // Set once glass has been laid out in this container.
+    // Set a frame after glass was first laid out in this container.
     private var laidOut = false
+    private var settling = false
 
     /** Glass leaves into its nearest neighbour (matched geometry) or shrinks away in place. */
     fun leave(member: GlassMember) {
@@ -621,11 +629,12 @@ internal fun morphStart(member: GlassMember, rect: Rect, firstLayout: Boolean, n
 /**
  * The member's content rides on its glass while the glass morphs (it is laid out at its final
  * place at once), as SwiftUI moves a view with its matched glass: centred on the drawn glass and
- * shrunk with it, never grown.
+ * shrunk with it, never grown. Only matched glass carries it: materializing glass appears and
+ * goes in place, and its content stays (Toolbar's group glass turned off keeps its buttons).
  */
 private fun GlassMember.followLayer(): GraphicsLayerScope.() -> Unit = {
     val shown = displayed
-    if (rect.width > 0f && rect.height > 0f && shown != rect) {
+    if (transition == GlassTransition.MatchedGeometry && rect.width > 0f && rect.height > 0f && shown != rect) {
         translationX = shown.center.x - rect.center.x
         translationY = shown.center.y - rect.center.y
         val scale = min(shown.width / rect.width, shown.height / rect.height).coerceIn(0f, 1f)

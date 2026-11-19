@@ -1,6 +1,16 @@
 package com.mohamedabdelnaby.liquidglass.catalog.glass
 
 import androidx.compose.ui.geometry.Rect
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.CancellableContinuation
+import kotlin.coroutines.resume
+import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.AlignmentLine
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.runtime.MonotonicFrameClock
 import androidx.compose.ui.unit.Density
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -54,5 +64,61 @@ class GlassContainerTest {
         // Glass already placed starts where it is drawn.
         val placed = member(Rect(0f, 0f, 60f, 60f))
         assertEquals(placed.displayed, morphStart(placed, rect, firstLayout = true) { neighbour })
+    }
+
+    /** A box at [origin] in the container's space; the container is the one at zero. */
+    private class Box(val origin: Offset, private val side: Int) : LayoutCoordinates {
+        override val size = IntSize(side, side)
+        override val providedAlignmentLines = emptySet<AlignmentLine>()
+        override val parentLayoutCoordinates: LayoutCoordinates? = null
+        override val parentCoordinates: LayoutCoordinates? = null
+        override val isAttached = true
+        override fun windowToLocal(relativeToWindow: Offset) = relativeToWindow - origin
+        override fun localToWindow(relativeToLocal: Offset) = relativeToLocal + origin
+        override fun localToRoot(relativeToLocal: Offset) = relativeToLocal + origin
+        override fun localPositionOf(sourceCoordinates: LayoutCoordinates, relativeToSource: Offset) =
+            (sourceCoordinates as Box).origin + relativeToSource - origin
+        override fun localBoundingBoxOf(sourceCoordinates: LayoutCoordinates, clipBounds: Boolean) =
+            Rect(localPositionOf(sourceCoordinates, Offset.Zero), sourceCoordinates.size.toSize())
+        override fun get(alignmentLine: AlignmentLine) = AlignmentLine.Unspecified
+    }
+
+    /** Frames on demand. */
+    private class Clock : MonotonicFrameClock {
+        private val waiting = mutableListOf<CancellableContinuation<Long>>()
+        private var now = 0L
+        override suspend fun <R> withFrameNanos(onFrame: (frameTimeNanos: Long) -> R): R =
+            onFrame(suspendCancellableCoroutine { waiting += it })
+        fun frame() {
+            now += 16_666_667L
+            waiting.toList().also { waiting.clear() }.forEach { it.resume(now) }
+        }
+    }
+
+    @Test
+    fun shapesPlacedOneByOneInTheFirstLayoutAllStartInPlaceAndLaterOnesGrow() {
+        val clock = Clock()
+        val job = Job()
+        val state = GlassContainerState(CoroutineScope(Dispatchers.Unconfined + clock + job))
+        state.coordinates = Box(Offset.Zero, 400)
+        val shapes = List(3) { GlassMember() }
+        shapes.forEach { state.members += it }
+
+        // Compose positions the shapes one after another in one pass, each syncing the container.
+        shapes.forEachIndexed { i, shape ->
+            shape.coordinates = Box(Offset(100f * i, 0f), 60)
+            state.sync()
+        }
+        shapes.forEachIndexed { i, shape ->
+            assertEquals("shape $i", Rect(100f * i, 0f, 100f * i + 60f, 60f), shape.displayed)
+        }
+
+        // A frame later, new glass grows out of the nearest shape (matched geometry).
+        clock.frame()
+        val later = GlassMember().apply { coordinates = Box(Offset(300f, 0f), 60) }
+        state.members += later
+        state.sync()
+        assertEquals(Rect(200f, 0f, 260f, 60f), later.displayed)
+        job.cancel()
     }
 }
