@@ -43,6 +43,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.graphicsLayer
@@ -679,6 +680,9 @@ fun LiquidTabBar(
                     // Fade with the press, eased so the lens melts into the pill instead of popping.
                     // The drop stays fully glassy while it shrinks and only fades in the last part.
                     alpha = (press() * 1.25f).coerceAtMost(1f).let { p -> p * p * p * (p * (p * 6f - 15f) + 10f) }
+                    // Not offscreen: drawn into an offscreen layer, the drop below lost its capsule
+                    // clip while fading and showed its whole box (a rectangle over a panel backdrop).
+                    compositingStrategy = CompositingStrategy.ModulateAlpha
                 }
                 .drawBackdrop(
                     backdrop = lensBackdrop,

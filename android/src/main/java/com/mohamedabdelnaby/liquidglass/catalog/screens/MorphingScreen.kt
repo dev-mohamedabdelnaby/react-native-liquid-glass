@@ -1,6 +1,11 @@
 package com.mohamedabdelnaby.liquidglass.catalog.screens
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterExitState
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,6 +53,9 @@ private val Tools = listOf(
     Icons.Filled.Gesture to "Lasso",
 )
 
+/** `.buttonStyle(.glass)` pads its 60 pt label by 8 pt a side: the toggle's glass is 76 pt on iOS. */
+private val ToggleSize = 76.dp
+
 @Composable
 fun MorphingScreen() {
     var expanded by remember { mutableStateOf(false) }
@@ -62,20 +70,25 @@ fun MorphingScreen() {
             // and tools flowing back into the toggle aren't clipped at its edge.
             // withAnimation(.bouncy): a 0.5 s spring with bounce 0.3 (damping 0.7, stiffness (2π / 0.5)²).
             val shift by animateDpAsState(if (expanded) 0.dp else -(60.dp + 16.dp) * Tools.size / 2, spring(0.7f, 158f), label = "stack")
-            Box(Modifier.offset { IntOffset(0, shift.roundToPx()) }.height(60.dp * 5 + 16.dp * 4), contentAlignment = Alignment.BottomCenter) {
+            Box(Modifier.offset { IntOffset(0, shift.roundToPx()) }.height(60.dp * 4 + ToggleSize + 16.dp * 4), contentAlignment = Alignment.BottomCenter) {
                 GlassEffectContainer(Modifier.fillMaxHeight(), spacing = 20.dp) {
                     Column(Modifier.fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.Bottom)) {
-                        if (expanded) {
-                            Tools.forEach { (icon, name) ->
+                        Tools.forEach { (icon, name) ->
+                            // Kept while its symbol fades out, so the symbol rides its glass back into
+                            // the toggle instead of vanishing as the tool closes.
+                            AnimatedVisibility(expanded, enter = EnterTransition.None, exit = fadeOut(tween(250))) {
                                 Box(
-                                    Modifier.size(60.dp).glassEffect(Glass.Regular.interactive(), GlassCircle).glassClickable(label = name) {},
+                                    Modifier
+                                        .size(60.dp)
+                                        .glassEffect(Glass.Regular.interactive(), GlassCircle, present = transition.targetState == EnterExitState.Visible)
+                                        .glassClickable(label = name) {},
                                     contentAlignment = Alignment.Center,
                                 ) { AppearAnimated { Icon(icon, name, Modifier.size(22.dp)) } }
                             }
                         }
                         Box(
                             Modifier
-                                .size(60.dp)
+                                .size(ToggleSize)
                                 .glassEffect(Glass.Regular.interactive(), GlassCircle)
                                 .glassClickable(label = if (expanded) "Close tools" else "Show tools") { expanded = !expanded },
                             contentAlignment = Alignment.Center,

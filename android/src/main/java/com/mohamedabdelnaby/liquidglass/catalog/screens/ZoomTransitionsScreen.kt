@@ -100,14 +100,21 @@ fun ZoomTransitionsScreen() {
             },
             actions = {
                 AnimatedVisibility(panel != Panel.Inbox, enter = fadeIn(), exit = fadeOut()) {
-                    Box(Modifier.zoomSource(shared, this, Panel.Inbox)) {
-                        GlassIconButton(Icons.Filled.Inbox, "Inbox, $unread unread", { panel = Panel.Inbox })
+                    // The badge overhangs the button by 4 dp; this Box takes that room (and the
+                    // offset puts the button back where it was), because the badge is drawn in the
+                    // zoom's overlay clipped to this Box.
+                    Box(Modifier.offset(x = 4.dp, y = (-2).dp)) {
+                        Box(Modifier.padding(top = 4.dp, end = 4.dp).zoomSource(shared, this@AnimatedVisibility, Panel.Inbox)) {
+                            GlassIconButton(Icons.Filled.Inbox, "Inbox, $unread unread", { panel = Panel.Inbox })
+                        }
                         if (unread > 0) {
+                            // Outside the zooming bounds, whose clip cut the badge while the panel
+                            // opened and closed; drawn above the zoom, fading with the button.
                             Text(
                                 if (unread > 99) "99+" else "$unread",
-                                Modifier
+                                with(shared) { Modifier.renderInSharedTransitionScopeOverlay(zIndexInOverlay = 1f) }
+                                    .animateEnterExit(enter = fadeIn(), exit = fadeOut())
                                     .align(Alignment.TopEnd)
-                                    .offset(x = 4.dp, y = (-4).dp)
                                     .background(SystemColors.Red, CircleShape)
                                     .padding(horizontal = 6.dp, vertical = 1.dp),
                                 color = Color.White,

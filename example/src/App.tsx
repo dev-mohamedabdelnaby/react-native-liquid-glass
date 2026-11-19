@@ -69,7 +69,10 @@ export default function App() {
   return (
     <GlassSettingsProvider value={settings}>
       <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Navigator
+          // As a UINavigationController: the new screen slides in from the trailing edge.
+          screenOptions={{ headerShown: false, animation: 'ios_from_right' }}
+        >
           <Stack.Screen name="Home">
             {({ navigation }) => (
               <GlassHomeScreen

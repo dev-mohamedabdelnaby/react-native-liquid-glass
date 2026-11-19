@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -61,8 +62,11 @@ fun TransitionsScreen() {
             GlassSegmented(TransitionKind.entries.map { it.title }, kind.ordinal, { kind = TransitionKind.entries[it] })
             Spacer(Modifier.weight(1f))
             Box(Modifier.height(72.dp), contentAlignment = Alignment.Center) {
-                GlassEffectContainer(spacing = 24.dp) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(24.dp), verticalAlignment = Alignment.CenterVertically) {
+                // The container fills the width and the row centres inside it, so when the badges come
+                // and go the avatar's glass slides to its new place (withAnimation) instead of jumping
+                // with a re-centred container.
+                GlassEffectContainer(Modifier.fillMaxWidth(), spacing = 24.dp) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterHorizontally), verticalAlignment = Alignment.CenterVertically) {
                         Box(Modifier.size(72.dp).glassEffect(Glass.Regular, GlassCircle), contentAlignment = Alignment.Center) {
                             Icon(Icons.Filled.Person, "Avatar", Modifier.size(32.dp))
                         }

@@ -32,4 +32,27 @@ class GlassContainerTest {
         assertEquals(20f, union.radius)
         assertEquals(130f, shapes[1].left)
     }
+
+    @Test
+    fun glassOfTheFirstLayoutStartsInPlaceAndLaterGlassGrowsOutOfItsNeighbour() {
+        val rect = Rect(100f, 0f, 160f, 60f)
+        val neighbour = Rect(0f, 0f, 60f, 60f)
+        val fresh = GlassMember()
+
+        // On the container's first layout nothing animates in, whatever the transition.
+        assertEquals(rect, morphStart(fresh, rect, firstLayout = true) { neighbour })
+        fresh.transition = GlassTransition.Materialize
+        assertEquals(rect, morphStart(fresh, rect, firstLayout = true) { neighbour })
+
+        // Later, matched glass grows out of its neighbour (or its own centre), other glass from its centre.
+        fresh.transition = GlassTransition.MatchedGeometry
+        assertEquals(neighbour, morphStart(fresh, rect, firstLayout = false) { neighbour })
+        assertEquals(Rect(rect.center, rect.center), morphStart(fresh, rect, firstLayout = false) { null })
+        fresh.transition = GlassTransition.Materialize
+        assertEquals(Rect(rect.center, rect.center), morphStart(fresh, rect, firstLayout = false) { neighbour })
+
+        // Glass already placed starts where it is drawn.
+        val placed = member(Rect(0f, 0f, 60f, 60f))
+        assertEquals(placed.displayed, morphStart(placed, rect, firstLayout = true) { neighbour })
+    }
 }

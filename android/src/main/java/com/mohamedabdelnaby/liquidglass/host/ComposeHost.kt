@@ -61,6 +61,7 @@ internal open class ComposeHost(context: Context) : ReactViewGroup(context) {
     super.onDetachedFromWindow()
     leaveBack()
     lifecycleOwner.onDetached()
+    if (dropped) lifecycleOwner.destroy()
   }
 
   private var layoutPosted = false
@@ -113,9 +114,14 @@ internal open class ComposeHost(context: Context) : ReactViewGroup(context) {
     keyWindow = null
   }
 
+  // Dropped by React while still in a window: a popped screen still draws during the pop.
+  private var dropped = false
+
   /** Releases the composition. Called when React drops the view. */
   open fun dispose() {
     leaveBack()
-    lifecycleOwner.destroy()
+    // React drops a popped screen as its exit animation starts, and the screen keeps drawing until
+    // it leaves the window; disposing now would show its empty background in the meantime.
+    if (isAttachedToWindow) dropped = true else lifecycleOwner.destroy()
   }
 }

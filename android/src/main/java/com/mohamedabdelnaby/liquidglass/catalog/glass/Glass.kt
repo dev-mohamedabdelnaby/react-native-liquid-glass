@@ -262,6 +262,7 @@ fun Modifier.glassEffect(
         }
         return this
             .onGloballyPositioned { member.coordinates = it; container.sync() }
+            .graphicsLayer(remember(member) { member.followLayer() })
             .then(input)
             .then(elastic?.let { Modifier.graphicsLayer(it.layerBlock) } ?: Modifier)
     }
@@ -495,6 +496,8 @@ internal class GlassContainerState(private val scope: CoroutineScope) {
         offsetInParent = offset
         // New glass grows out of glass already on screen, as on iOS, not out of glass appearing with it.
         val shown = members.filter { it.placed && !it.leaving }
+        // The glass a container first lays out is simply there, as on iOS: nothing animates it in.
+        val firstLayout = shown.isEmpty() && !laidOut
         for (member in members) {
             if (member.leaving) continue
             val coords = member.coordinates?.takeIf { it.isAttached } ?: continue
@@ -505,20 +508,22 @@ internal class GlassContainerState(private val scope: CoroutineScope) {
                 member.rect = rect
                 continue
             }
-            val from = when {
-                member.placed -> member.displayed
-                member.transition == GlassTransition.Identity -> rect
-                member.transition == GlassTransition.MatchedGeometry -> nearest(member, rect, shown)?.displayed ?: rect.collapsed()
-                else -> rect.collapsed()
-            }
+            val from = morphStart(member, rect, firstLayout) { nearest(member, rect, shown)?.displayed }
             member.rect = rect
             member.placed = true
             member.morph(from, rect)
         }
+        if (members.any { it.placed }) laidOut = true
     }
+
+    // Set once glass has been laid out in this container.
+    private var laidOut = false
 
     /** Glass leaves into its nearest neighbour (matched geometry) or shrinks away in place. */
     fun leave(member: GlassMember) {
+        // Already on its way out: `present` turning false leaves once from the old effect's
+        // dispose and once from the new effect.
+        if (member.leaving) return
         if (!member.placed || member.transition == GlassTransition.Identity) {
             members -= member
             return
@@ -528,7 +533,9 @@ internal class GlassContainerState(private val scope: CoroutineScope) {
             // Picked a frame later, once every shape leaving together is marked, so several leave
             // into what stays (the + button) instead of into each other.
             // The reverse of appearing: flow back into that neighbour's whole shape, as on iOS.
-            val to = if (member.transition == GlassTransition.MatchedGeometry) nearest(member, member.rect)?.displayed else null
+            // Into the neighbour's layout, not where it is drawn now: a neighbour sliding to a new
+            // place (a row re-centring) takes the leaving glass with it instead of leaving it behind.
+            val to = if (member.transition == GlassTransition.MatchedGeometry) nearest(member, member.rect)?.rect else null
             member.morph(member.displayed, to ?: member.rect.collapsed()).join()
             // Unless it came back meanwhile.
             if (member.leaving) members -= member
@@ -598,6 +605,34 @@ internal class GlassContainerState(private val scope: CoroutineScope) {
 }
 
 private fun Rect.collapsed() = Rect(center, center)
+
+/**
+ * Where glass newly laid out at [rect] starts its morph: where it is drawn if it was placed
+ * before; in place on the container's first layout or with the identity transition; out of the
+ * nearest glass on screen with the matched transition; otherwise grown from its centre.
+ */
+internal fun morphStart(member: GlassMember, rect: Rect, firstLayout: Boolean, nearest: () -> Rect?): Rect = when {
+    member.placed -> member.displayed
+    firstLayout || member.transition == GlassTransition.Identity -> rect
+    member.transition == GlassTransition.MatchedGeometry -> nearest() ?: rect.collapsed()
+    else -> rect.collapsed()
+}
+
+/**
+ * The member's content rides on its glass while the glass morphs (it is laid out at its final
+ * place at once), as SwiftUI moves a view with its matched glass: centred on the drawn glass and
+ * shrunk with it, never grown.
+ */
+private fun GlassMember.followLayer(): GraphicsLayerScope.() -> Unit = {
+    val shown = displayed
+    if (rect.width > 0f && rect.height > 0f && shown != rect) {
+        translationX = shown.center.x - rect.center.x
+        translationY = shown.center.y - rect.center.y
+        val scale = min(shown.width / rect.width, shown.height / rect.height).coerceIn(0f, 1f)
+        scaleX = scale
+        scaleY = scale
+    }
+}
 
 /** The member's rect with its press swell, stretch and pull, as its content's layer draws it. */
 private fun GlassMember.pressedRect(): Rect {

@@ -292,10 +292,14 @@ fun GlassBottomBar(
  * bar, solid to 40% of its height and fading out at its bottom edge.
  */
 @Composable
-private fun StatusBarEdge(modifier: Modifier) {
+private fun StatusBarEdge(modifier: Modifier) =
+    EdgeMaterial(modifier, Brush.verticalGradient(0f to Color.Black, 0.4f to Color.Black, 1f to Color.Transparent))
+
+/** `.ultraThinMaterial` masked by [mask]: the blurred content under a thin wash of the page colour. */
+@Composable
+private fun EdgeMaterial(modifier: Modifier, mask: Brush) {
     val backdrop = LocalGlassBackdrop.current ?: return
     val wash = MaterialTheme.colorScheme.background.copy(alpha = 0.25f)
-    val mask = Brush.verticalGradient(0f to Color.Black, 0.4f to Color.Black, 1f to Color.Transparent)
     Box(
         modifier.drawBackdrop(
             backdrop = backdrop,
@@ -309,8 +313,8 @@ private fun StatusBarEdge(modifier: Modifier) {
             highlight = null,
             shadow = null,
             onDrawSurface = { drawRect(wash) },
-            // Masked in the strip's own size, after the blur: the backdrop layer is the strip plus
-            // the blur's padding, where the mask would still be opaque at the strip's bottom.
+            // Masked in the edge's own size, after the blur: the backdrop layer is the edge plus
+            // the blur's padding, where the mask would still be opaque at the edge's bottom.
             onDrawFront = { drawRect(mask, blendMode = BlendMode.DstIn) },
         ),
     )
@@ -319,33 +323,20 @@ private fun StatusBarEdge(modifier: Modifier) {
 /** The fade where scrolling content meets a bar: progressive blur, an opaque band, or nothing. */
 @Composable
 fun ScrollEdge(edge: EdgeEffect, top: Boolean, modifier: Modifier = Modifier) {
-    val backdrop = LocalGlassBackdrop.current ?: return
+    LocalGlassBackdrop.current ?: return
     val background = MaterialTheme.colorScheme.background
     when (edge) {
         EdgeEffect.Hidden, EdgeEffect.StatusBar -> Unit
         EdgeEffect.Hard -> Box(modifier.background(background.copy(alpha = 0.94f)))
-        EdgeEffect.Soft -> {
-            // As iOS's edge material: solid over the first 40% next to the bar, then fading out.
-            fun stops(near: Color, far: Color) =
-                if (top) arrayOf(0f to near, 0.4f to near, 1f to far) else arrayOf(0f to far, 0.6f to near, 1f to near)
-            // Blurred content masked to fade out away from the bar: a progressive blur.
-            val mask = Brush.verticalGradient(*stops(Color.Black, Color.Transparent))
-            val fade = Brush.verticalGradient(*stops(background.copy(alpha = 0.7f), background.copy(alpha = 0f)))
-            Box(
-                modifier.drawBackdrop(
-                    backdrop = backdrop,
-                    shape = { RectangleShape },
-                    effects = { blur(18.dp.toPx()) },
-                    highlight = null,
-                    shadow = null,
-                    // Masked in the edge's own size after the blur, as the status bar strip; the
-                    // fade goes on top, unmasked.
-                    onDrawFront = {
-                        drawRect(mask, blendMode = BlendMode.DstIn)
-                        drawRect(fade)
-                    },
-                ),
-            )
-        }
+        // As iOS's soft edge: the status bar strip's material over the whole bar (status bar,
+        // buttons and accessory), fading out softly only toward its far edge; a blur, not a
+        // page-colour gradient.
+        EdgeEffect.Soft -> EdgeMaterial(
+            modifier,
+            Brush.verticalGradient(
+                *if (top) arrayOf(0f to Color.Black, 0.7f to Color.Black, 1f to Color.Transparent)
+                else arrayOf(0f to Color.Transparent, 0.3f to Color.Black, 1f to Color.Black),
+            ),
+        )
     }
 }

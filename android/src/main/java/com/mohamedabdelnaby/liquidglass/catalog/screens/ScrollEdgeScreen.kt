@@ -24,6 +24,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import com.mohamedabdelnaby.liquidglass.catalog.glass.Glass
+import com.mohamedabdelnaby.liquidglass.catalog.glass.LocalGlassSettings
+import com.mohamedabdelnaby.liquidglass.catalog.glass.styled
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mohamedabdelnaby.liquidglass.catalog.glass.EdgeEffect
@@ -31,7 +37,6 @@ import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassBottomBar
 import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassButton
 import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassControlSize
 import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassEffectContainer
-import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassProminentButton
 import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassScreen
 import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassSegmented
 import com.mohamedabdelnaby.liquidglass.catalog.glass.PlainBackdrop
@@ -64,11 +69,7 @@ fun ScrollEdgeScreen() {
                 GlassEffectContainer(Modifier.fillMaxWidth(), spacing = 8.dp) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)) {
                         EdgeStyle.entries.forEach { option ->
-                            if (option == style) {
-                                GlassProminentButton({}, size = GlassControlSize.Small) { Text(option.title) }
-                            } else {
-                                GlassButton({ style = option }, size = GlassControlSize.Small) { Text(option.title) }
-                            }
+                            StyleButton(option.title, option == style) { style = option }
                         }
                     }
                 }
@@ -93,6 +94,27 @@ fun ScrollEdgeScreen() {
             }
         }
     }
+}
+
+/**
+ * `.glassProminent` when [selected], `.glass` otherwise. One glass that changes its tint in place:
+ * swapping two buttons made the container's glass flow from one button into the next.
+ */
+@Composable
+private fun StyleButton(title: String, selected: Boolean, onClick: () -> Unit) {
+    val settings = LocalGlassSettings.current
+    val accent = MaterialTheme.colorScheme.primary
+    // withAnimation's default: ease in and out over 0.35 s.
+    val progress by animateFloatAsState(if (selected) 1f else 0f, tween(350), label = "prominent")
+    // The variant the plain button has, kept while tinted, so only the colour changes.
+    val base = if (settings.clear) Glass.Clear else Glass.Regular
+    val wash = base.styled(settings).tint ?: Color.Transparent
+    GlassButton(
+        { if (!selected) onClick() },
+        glass = if (progress == 0f) base else base.tint(lerp(wash, accent, progress)).copy(prominent = selected),
+        size = GlassControlSize.Small,
+        contentColor = lerp(MaterialTheme.colorScheme.onSurface, Color.White, progress),
+    ) { Text(title) }
 }
 
 @Preview(name = "Light") @Composable private fun ScrollEdgeLight() = PreviewLight { ScrollEdgeScreen() }
