@@ -189,6 +189,7 @@ Same rules as Task 10: library only; the native Android app is used only for rea
 - [ ] **Step 1: Items** (the user's words, 2026-11-19):
   1. Glass View top tabs: "when it convert from liquid to active background color its become rectangular flicker then retrun to normal… make it like scroll edge screen". Settling from the lens to the pill must not show a rectangle in any frame; it should match the Scroll Edge screen's segmented control.
   2. "when i back from another screen to main it flash whit background between them": no white frame while going back, or pushing, in light or dark.
+     Also, in the user's words: "when i pop to screen sliding to back i frrl it flash no slide". Push and pop both slide like iOS: the new screen comes in from the trailing edge, and on pop it slides back out while the screen below slides in from a third of the way. On Android that is native-stack `animation: 'ios_from_right'` (Task 6 adds the RTL variant). This part of Task 6, Step 4 moves here.
   3. Container: "the item is bouncing at first loading". No bounce on first appearance.
   4. Floating Header, Soft: the gradient becomes a blur like iOS (the Status Bar option already is).
   5. Scroll Edge: switching Auto / Soft / Hard animates like iOS, not "so ugly".
