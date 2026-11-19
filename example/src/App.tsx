@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StatusBar, StyleSheet, useColorScheme } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {
@@ -66,15 +66,8 @@ const Stack = createNativeStackNavigator<Routes>();
 
 export default function App() {
   const [settings, setSettings] = useState<GlassSettings>(DEFAULT_SETTINGS);
-  const scheme = useColorScheme();
-  const dark =
-    settings.appearance === 'system'
-      ? scheme === 'dark'
-      : settings.appearance === 'dark';
   return (
     <GlassSettingsProvider value={settings}>
-      {/* Agrees with the icons the library host sets, so the two never fight. */}
-      <StatusBar barStyle={dark ? 'light-content' : 'dark-content'} />
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="Home">
