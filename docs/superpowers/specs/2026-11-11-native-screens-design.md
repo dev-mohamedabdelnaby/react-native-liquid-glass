@@ -191,6 +191,23 @@ padding), the Morphing press animation, and every other non-platform difference 
 each component on the phone. The changes go into the library copy only (the user's choice); the
 native Android app stays as it is.
 
+### Native Android style (approved 2026-11-19)
+
+```ts
+androidStyle?: 'glass' | 'material';   // default 'glass'; iOS ignores it
+```
+
+- In `GlassSettings` (the provider sets it for every screen) and as a prop on every screen (wins).
+- `'material'`: the same 21 screens and content, drawn with Material 3: top app bar with the Android
+  back arrow, buttons, switches, sliders, segmented buttons, navigation bar, bottom sheets, dialogs,
+  menus, search bar, Android typography and ripples. No glass and no liquid drops. Screens that
+  demonstrate glass itself (Glass Effect, Glass View, Union, Morphing, Container) show Material
+  surfaces in its place.
+- Each shared glass building block (button, switch, slider, segmented control, tab bar, top bar,
+  menu, dialog, sheet, search field) switches to its Material counterpart in one place; screens are
+  not rewritten.
+- Built before custom fonts and icons, which then apply to both styles.
+
 ## Out of scope for this version
 
 Expo (development builds); building blocks (`GlassView`, buttons, controls) as separate React Native

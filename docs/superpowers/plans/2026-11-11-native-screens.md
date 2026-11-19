@@ -200,6 +200,23 @@ Same rules as Task 10: library only; the native Android app is used only for rea
 - [ ] **Step 4: Device check:** before and after frames for every item.
 - [ ] **Step 5: Commit** — `git commit -m "fix(android): smoother tabs, transitions and edges like ios"` (more commits are fine).
 
+### Task 12: Native Android style (runs after Task 6, before Task 7)
+
+Spec section "Additions → Native Android style".
+
+**Files:**
+- Modify: `src/types.ts`, `src/settings.tsx`, `src/screens.tsx`, `src/LiquidGlassScreenNativeComponent.ts` (prop `androidStyle: string`, `'glass'` default), Jest tests; the Android host (reads the prop into `LocalAndroidStyle`); the shared building blocks under `catalog/glass/` and `catalog/liquid/` (each renders its Material 3 counterpart when the style is `material`); `example/` (a Glass/Material switch on Home's example header or in `customize.ts`).
+- Test: Jest; `android/src/test/.../AndroidStyleTest.kt`
+
+**Interfaces:**
+- Produces (JS): `GlassSettings.androidStyle?: 'glass' | 'material'`, also a prop on every screen (wins over the provider).
+- Produces (native): `val LocalAndroidStyle = staticCompositionLocalOf { AndroidStyle.Glass }`; `enum class AndroidStyle { Glass, Material }`; `fun androidStyleOf(value: String): AndroidStyle` (unknown → Glass).
+
+- [ ] **Step 1: Failing tests:** Jest: provider `androidStyle: 'material'` reaches every screen's prop; a screen's own prop wins; the default is `'glass'`. Kotlin: `androidStyleOf("material") == Material`, `("glass")` and `("bogus")` → Glass.
+- [ ] **Step 2: Implement** the prop path and `LocalAndroidStyle`. Then, one building block at a time, the Material counterpart: top bar → `TopAppBar` with `Icons.AutoMirrored.Filled.ArrowBack`; glass buttons → `Button`/`FilledTonalButton`/`IconButton`; switch → `Switch`; slider → `Slider`; segmented → `SingleChoiceSegmentedButtonRow`; bottom tab bar → `NavigationBar`; menus → `DropdownMenu`; dialogs → `AlertDialog`; sheets → `ModalBottomSheet`; search → `SearchBar`; glass surfaces → `Surface(tonalElevation)`. Text uses `MaterialTheme.typography`. → PASS.
+- [ ] **Step 3: Device check** on the phone (Release build) with `material`: all 21 screens open, controls work, back works (including Task 5's back-key routing), light/dark and RTL work; with `glass` nothing changed (compare with Task 11's shots).
+- [ ] **Step 4: Commit** — `git commit -m "feat(android): native material style option"`
+
 ### Task 5: Every native screen through React Navigation
 
 **Files:**
