@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { I18nManager, Platform, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {
@@ -66,12 +66,23 @@ const Stack = createNativeStackNavigator<Routes>();
 
 export default function App() {
   const [settings, setSettings] = useState<GlassSettings>(DEFAULT_SETTINGS);
+  const rtl =
+    settings.layoutDirection === 'rtl' ||
+    (settings.layoutDirection === 'system' && I18nManager.isRTL);
   return (
     <GlassSettingsProvider value={settings}>
       <NavigationContainer>
         <Stack.Navigator
           // As a UINavigationController: the new screen slides in from the trailing edge.
-          screenOptions={{ headerShown: false, animation: 'ios_from_right' }}
+          screenOptions={{
+            headerShown: false,
+            animation: Platform.select({
+              android: rtl ? 'ios_from_left' : 'ios_from_right',
+              default: rtl ? 'slide_from_left' : 'default',
+            }),
+            // iOS: the swipe back starts at the leading (right) edge and drives the same slide.
+            animationMatchesGesture: rtl,
+          }}
         >
           <Stack.Screen name="Home">
             {({ navigation }) => (

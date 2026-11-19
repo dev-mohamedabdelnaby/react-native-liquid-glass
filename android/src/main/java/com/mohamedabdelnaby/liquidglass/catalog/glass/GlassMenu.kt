@@ -43,6 +43,8 @@ import com.mohamedabdelnaby.liquidglass.catalog.liquid.LiquidMenuRow
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.LiquidMenuSeparator
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.LiquidMenuTitle
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.menuSourceAlpha
+import androidx.compose.foundation.layout.absoluteOffset
+import androidx.compose.ui.AbsoluteAlignment
 
 /**
  * A glass menu that grows out of its anchor, the parent `Box` this is placed in, like a drop.
@@ -158,7 +160,10 @@ private fun ContextPreview(anchor: Rect, progress: Float, onPreviewSize: (IntSiz
     val density = LocalDensity.current
     Box(
         Modifier
-            .offset { IntOffset(anchor.left.roundToInt(), anchor.top.roundToInt()) }
+            // The anchor is in window pixels: placed from the left edge in either direction.
+            .fillMaxSize()
+            .wrapContentSize(AbsoluteAlignment.TopLeft, unbounded = true)
+            .absoluteOffset { IntOffset(anchor.left.roundToInt(), anchor.top.roundToInt()) }
             .size(with(density) { anchor.width.toDp() }, with(density) { anchor.height.toDp() }),
         contentAlignment = Alignment.Center,
     ) {

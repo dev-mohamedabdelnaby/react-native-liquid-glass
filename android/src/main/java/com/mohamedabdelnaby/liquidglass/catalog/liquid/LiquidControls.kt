@@ -31,6 +31,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.scale
@@ -38,6 +39,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -49,6 +51,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.semantics.toggleableState
 import androidx.compose.ui.state.ToggleableState
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.lerp
@@ -95,6 +98,9 @@ fun LiquidSwitch(
     val onChange by rememberUpdatedState(onCheckedChange)
 
     val dragWidth = with(LocalDensity.current) { 20.dp.toPx() }
+    // RTL: on is at the start (left), as UISwitch; the thumb and the finger move the other way.
+    val dir = if (LocalLayoutDirection.current == LayoutDirection.Rtl) -1f else 1f
+    val currentDir by rememberUpdatedState(dir)
     val animationScope = rememberCoroutineScope()
     var didDrag by remember { mutableStateOf(false) }
     var fraction by remember { mutableFloatStateOf(if (checked) 1f else 0f) }
@@ -118,7 +124,7 @@ fun LiquidSwitch(
             },
             onDrag = { _, dragAmount ->
                 if (!didDrag) didDrag = dragAmount.x != 0f
-                fraction = (fraction + dragAmount.x / dragWidth).fastCoerceIn(0f, 1f)
+                fraction = (fraction + currentDir * dragAmount.x / dragWidth).fastCoerceIn(0f, 1f)
                 updateValue(fraction)
             },
         )
@@ -156,7 +162,7 @@ fun LiquidSwitch(
             Modifier
                 .graphicsLayer {
                     val padding = 2.dp.toPx()
-                    translationX = lerp(padding, padding + dragWidth, drag.value)
+                    translationX = dir * lerp(padding, padding + dragWidth, drag.value)
                 }
                 .drawBackdrop(
                     backdrop = rememberCombinedBackdrop(
@@ -246,6 +252,11 @@ fun LiquidSlider(
         contentAlignment = Alignment.CenterStart,
     ) {
         val trackWidth = constraints.maxWidth
+        // RTL: the value grows from the end (right), as UISlider; x is measured from the start.
+        val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+        val dir = if (rtl) -1f else 1f
+        val currentDir by rememberUpdatedState(dir)
+        fun fromStart(x: Float) = if (rtl) trackWidth - x else x
         val animationScope = rememberCoroutineScope()
         var dragging by remember { mutableStateOf(false) }
 
@@ -260,7 +271,7 @@ fun LiquidSlider(
                 onDragStarted = { dragging = true },
                 onDragStopped = { dragging = false },
                 onDrag = { _, dragAmount ->
-                    val target = (targetValue + (max - min) * (dragAmount.x / trackWidth)).coerceIn(min, max)
+                    val target = (targetValue + (max - min) * (currentDir * dragAmount.x / trackWidth)).coerceIn(min, max)
                     updateValue(target)
                     onChange(target)
                 },
@@ -273,13 +284,13 @@ fun LiquidSlider(
         // A tap anywhere on the 48 dp row jumps there; presses on the thumb belong to its drag.
         if (enabled) {
             Box(
-                Modifier.matchParentSize().pointerInput(drag, trackWidth) {
+                Modifier.matchParentSize().pointerInput(drag, trackWidth, rtl) {
                     var onThumb = false
                     detectTapGestures(
-                        onPress = { onThumb = abs(it.x - trackWidth * drag.progress) < 20.dp.toPx() },
+                        onPress = { onThumb = abs(fromStart(it.x) - trackWidth * drag.progress) < 20.dp.toPx() },
                         onTap = { position ->
                             if (onThumb) return@detectTapGestures
-                            val tapped = min + (max - min) * (position.x / trackWidth).coerceIn(0f, 1f)
+                            val tapped = min + (max - min) * (fromStart(position.x) / trackWidth).coerceIn(0f, 1f)
                             drag.animateToValue(tapped)
                             onChange(tapped)
                         },
@@ -296,9 +307,11 @@ fun LiquidSlider(
                     // The fill is drawn, not laid out, so it follows the thumb on every frame.
                     .drawWithContent {
                         drawContent()
+                        val fill = size.width * drag.progress.coerceIn(0f, 1f)
                         drawRoundRect(
                             color = accentColor,
-                            size = Size(size.width * drag.progress.coerceIn(0f, 1f), size.height),
+                            topLeft = Offset(if (rtl) size.width - fill else 0f, 0f),
+                            size = Size(fill, size.height),
                             cornerRadius = CornerRadius(size.height / 2f),
                         )
                     }
@@ -310,7 +323,8 @@ fun LiquidSlider(
         Box(
             Modifier
                 .graphicsLayer {
-                    translationX = (-size.width / 2f + trackWidth * drag.progress)
+                    // The thumb sits at the start, so the same offset from it is mirrored in RTL.
+                    translationX = dir * (-size.width / 2f + trackWidth * drag.progress)
                         .fastCoerceIn(-size.width / 4f, trackWidth - size.width * 3f / 4f)
                 }
                 .then(if (enabled) drag.modifier else Modifier)

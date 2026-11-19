@@ -11,9 +11,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactContext
 import com.facebook.react.bridge.WritableMap
+import com.facebook.react.modules.i18nmanager.I18nUtil
 import com.facebook.react.uimanager.UIManagerHelper
 import com.facebook.react.uimanager.events.Event
 import com.mohamedabdelnaby.liquidglass.catalog.GlassComponent
@@ -37,6 +40,13 @@ fun screenComponent(id: String): GlassComponent? =
 internal fun appearanceMode(value: String?): AppearanceMode =
   AppearanceMode.entries.firstOrNull { it.name.equals(value, ignoreCase = true) } ?: AppearanceMode.System
 
+/** `'system' | 'ltr' | 'rtl'`, as JS sends it; System follows [systemIsRtl], anything else is LTR. */
+fun layoutDirectionOf(value: String, systemIsRtl: Boolean): LayoutDirection = when (value) {
+  "rtl" -> LayoutDirection.Rtl
+  "system" -> if (systemIsRtl) LayoutDirection.Rtl else LayoutDirection.Ltr
+  else -> LayoutDirection.Ltr
+}
+
 /** `'#RRGGBBAA'`, as the events send colours; `''` for none. */
 internal fun Color?.toRgba(): String = this?.toArgb()?.let { "#%08X".format((it shl 8) or (it ushr 24)) } ?: ""
 
@@ -49,8 +59,8 @@ internal class LiquidGlassScreenView(context: Context) : ComposeHost(context) {
   var screen by mutableStateOf<String?>(null)
   var mode by mutableStateOf(AppearanceMode.System)
   var settings by mutableStateOf(GlassSettings())
-  // The JS `layoutDirection` prop (not View.layoutDirection): Android has no picker, it is only sent back.
-  var jsLayoutDirection = "system"
+  // The JS `layoutDirection` prop (not View.layoutDirection), as JS sends it.
+  var jsLayoutDirection by mutableStateOf("system")
 
   private val onBack: () -> Unit = { emit(EVENT_BACK, null) }
 
@@ -70,15 +80,19 @@ internal class LiquidGlassScreenView(context: Context) : ComposeHost(context) {
           LocalOnBack provides onBack,
           LocalGlassWindowBackdrop provides remember { GlassWindowBackdrop() },
           LocalGlassSettings provides settings,
+          // System is React Native's own direction (I18nManager.isRTL), so it agrees with the JS screens.
+          LocalLayoutDirection provides layoutDirectionOf(jsLayoutDirection, I18nUtil.instance.isRTL(context)),
         ) {
           when (val id = screen) {
             null -> Unit
             HOME -> HomeScreen(
               mode = mode,
-              onModeChange = { emitSettings(it, settings) },
+              onModeChange = { emitSettings(it, settings, jsLayoutDirection) },
               onOpen = { emit(EVENT_OPEN, Arguments.createMap().apply { putString("screen", it.name.replaceFirstChar(Char::lowercase)) }) },
               settings = settings,
-              onSettingsChange = { emitSettings(mode, it) },
+              onSettingsChange = { emitSettings(mode, it, jsLayoutDirection) },
+              direction = jsLayoutDirection,
+              onDirectionChange = { emitSettings(mode, settings, it) },
             )
             else -> screenComponent(id)?.screen?.invoke()
           }
@@ -100,11 +114,11 @@ internal class LiquidGlassScreenView(context: Context) : ComposeHost(context) {
   }
 
   // Only Home's own controls call this, never the prop setters: JS state and props would echo.
-  private fun emitSettings(mode: AppearanceMode, s: GlassSettings) = emit(
+  private fun emitSettings(mode: AppearanceMode, s: GlassSettings, direction: String) = emit(
     EVENT_SETTINGS_CHANGE,
     Arguments.createMap().apply {
       putString("appearance", mode.name.lowercase())
-      putString("layoutDirection", jsLayoutDirection)
+      putString("layoutDirection", direction)
       putString("tint", s.tint.toRgba())
       putBoolean("clear", s.clear)
       putDouble("blur", s.blur.value.toDouble())

@@ -32,6 +32,8 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import kotlin.math.roundToInt
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 
 /**
  * SwiftUI's `withAnimation(.bouncy)` around an `if`: one spring (in place in about 0.27 s, as in the
@@ -61,7 +63,8 @@ fun rememberReveal(visible: Boolean): Reveal {
 }
 
 /**
- * Lays its glass out between [from] (where it grows out of, in this view's coordinates) and its own
+ * Lays its glass out between [from] (where it grows out of, in this view's coordinates, x from the
+ * start edge) and its own
  * bounds as the reveal goes 0 → 1, and back on the way out: the glass rides the same spring as the
  * content, as SwiftUI's matched geometry does inside `withAnimation`.
  */
@@ -75,7 +78,7 @@ fun Modifier.growFrom(reveal: Reveal, from: MeasureScope.(width: Int, height: In
     val right = lerp(a.right.toFloat(), width.toFloat(), p).roundToInt()
     val bottom = lerp(a.bottom.toFloat(), height.toFloat(), p).roundToInt()
     val placeable = measurable.measure(Constraints.fixed((right - left).coerceAtLeast(1), (bottom - top).coerceAtLeast(1)))
-    layout(width, height) { placeable.place(left, top) }
+    layout(width, height) { placeable.placeRelative(left, top) }
 }
 
 /** Content fading in and sharpening from a blur with the reveal, as SwiftUI inserts a view. */
@@ -104,6 +107,7 @@ fun RevealPill(
     onClick: () -> Unit,
 ) {
     val density = LocalDensity.current
+    val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     // Where the button's centre is, from this pill's top-left corner.
     fun buttonCenterY(height: Int) = with(density) { height + below * (height + 12.dp.roundToPx()) + 12.dp.roundToPx() + buttonSize.roundToPx() / 2 }
     Box(Modifier.glassClickable(label = title, onClick = onClick)) {
@@ -132,7 +136,7 @@ fun RevealPill(
                     val scale = lerp(0.5f, 1f, p.coerceIn(0f, 1f))
                     scaleX = scale
                     scaleY = scale
-                    transformOrigin = if (morph) TransformOrigin(1f, 0.5f) else TransformOrigin.Center
+                    transformOrigin = if (morph) TransformOrigin(if (rtl) 0f else 1f, 0.5f) else TransformOrigin.Center
                 }
                 .revealContent(reveal)
                 .padding(horizontal = 18.dp, vertical = 12.dp),

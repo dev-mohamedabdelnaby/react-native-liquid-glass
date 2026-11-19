@@ -72,6 +72,8 @@ import com.mohamedabdelnaby.liquidglass.catalog.glass.ListRow
 import com.mohamedabdelnaby.liquidglass.catalog.glass.PlainBackdrop
 import com.mohamedabdelnaby.liquidglass.catalog.glass.glassEffect
 import com.mohamedabdelnaby.liquidglass.catalog.ui.theme.SystemColors
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.platform.LocalLayoutDirection
 
 private val Places = listOf(
     "Mountains" to Icons.Filled.Landscape,
@@ -150,7 +152,9 @@ private fun SplitViewDemo(onClose: () -> Unit) {
                             Modifier.align(Alignment.TopEnd).padding(8.dp),
                         )
                     }
-                    AnimatedVisibility(inspector, enter = slideInHorizontally { it } + fadeIn(), exit = slideOutHorizontally { it } + fadeOut()) {
+                    // Slides from the trailing edge; the slide offset is not mirrored for us.
+                    val trailing = if (LocalLayoutDirection.current == LayoutDirection.Rtl) -1 else 1
+                    AnimatedVisibility(inspector, enter = slideInHorizontally { it * trailing } + fadeIn(), exit = slideOutHorizontally { it * trailing } + fadeOut()) {
                         Inspector(extension, { extension = it }, Modifier.width(InspectorWidth).fillMaxHeight().glassEffect(Glass.Regular, RoundedCornerShape(28.dp)))
                     }
                 }

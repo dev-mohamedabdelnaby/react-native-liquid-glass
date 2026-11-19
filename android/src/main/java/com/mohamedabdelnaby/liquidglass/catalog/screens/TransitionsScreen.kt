@@ -94,10 +94,10 @@ fun TransitionsScreen() {
                         layout(constraints.maxWidth, height) {
                             val rowStart = (constraints.maxWidth - rowWidth) / 2
                             val avatarX = if (showing) rowStart else (constraints.maxWidth - avatar.width) / 2
-                            avatar.place(avatarX, (height - avatar.height) / 2)
+                            avatar.placeRelative(avatarX, (height - avatar.height) / 2)
                             var x = rowStart + avatar.width + gap
                             items.drop(1).forEach { badge ->
-                                badge.place(x, (height - badge.height) / 2)
+                                badge.placeRelative(x, (height - badge.height) / 2)
                                 x += badge.width + gap
                             }
                         }

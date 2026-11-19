@@ -774,7 +774,8 @@ private fun TabItems(
                             Text(
                                 "${tab.badge}",
                                 Modifier
-                                    .align(AbsoluteAlignment.TopRight)
+                                    // At the icon's trailing top corner, as UITabBar mirrors it in RTL.
+                                    .align(Alignment.TopEnd)
                                     .offset(x = 12.dp, y = (-4).dp)
                                     .defaultMinSize(18.dp, 18.dp)
                                     .background(Color(0xFFFF3B30), RoundedCornerShape(percent = 50))

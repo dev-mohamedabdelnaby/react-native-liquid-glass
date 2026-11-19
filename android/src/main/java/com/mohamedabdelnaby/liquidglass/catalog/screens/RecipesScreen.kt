@@ -114,6 +114,7 @@ import com.mohamedabdelnaby.liquidglass.catalog.glass.glassEffect
 import com.mohamedabdelnaby.liquidglass.catalog.ui.theme.SystemColors
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.backdrop.backdrops.layerBackdrop
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.backdrop.backdrops.rememberLayerBackdrop
+import androidx.compose.ui.unit.LayoutDirection
 
 @Composable
 fun RecipesScreen() {
@@ -158,7 +159,9 @@ private fun SlidingSelector() {
             .padding(4.dp)
             .drawBehind {
                 val segment = size.width / options.size
-                drawRoundRect(indicator, Offset(segment * position, 0f), Size(segment, size.height), CornerRadius(size.height / 2f))
+                // Drawn, so placed by hand: the first choice sits at the start edge.
+                val x = if (layoutDirection == LayoutDirection.Rtl) size.width - segment * (position + 1f) else segment * position
+                drawRoundRect(indicator, Offset(x, 0f), Size(segment, size.height), CornerRadius(size.height / 2f))
             },
     ) {
         options.forEachIndexed { index, option ->

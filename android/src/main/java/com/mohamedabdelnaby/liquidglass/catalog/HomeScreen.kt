@@ -41,6 +41,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mohamedabdelnaby.liquidglass.catalog.glass.EdgeEffect
 import com.mohamedabdelnaby.liquidglass.catalog.glass.Fill
+import com.mohamedabdelnaby.liquidglass.catalog.glass.Footnote
 import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassSegmented
 import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassSettings
 import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassSlider
@@ -61,6 +62,8 @@ fun HomeScreen(
     onOpen: (GlassComponent) -> Unit,
     settings: GlassSettings = GlassSettings(),
     onSettingsChange: (GlassSettings) -> Unit = {},
+    direction: String = "system",
+    onDirectionChange: (String) -> Unit = {},
 ) {
     val insets = WindowInsets.safeDrawing.asPaddingValues()
     GlassSurfaceHost(backdrop = { PlainBackdrop(it) }) {
@@ -87,6 +90,15 @@ fun HomeScreen(
                         selected = mode.ordinal,
                         onSelect = { onModeChange(AppearanceMode.entries[it]) },
                     )
+                    // The iOS Home's "Layout direction" picker: JS `'system' | 'ltr' | 'rtl'`.
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        GlassSegmented(
+                            options = listOf("System", "LTR", "RTL"),
+                            selected = Directions.indexOf(direction).coerceAtLeast(0),
+                            onSelect = { onDirectionChange(Directions[it]) },
+                        )
+                        Footnote("RTL mirrors the whole app, including sheets and full-screen demos.", Modifier.padding(horizontal = 16.dp))
+                    }
                     GlassSettingsPanel(settings, onSettingsChange)
                 }
             }
@@ -123,6 +135,8 @@ fun HomeScreen(
         )
     }
 }
+
+private val Directions = listOf("system", "ltr", "rtl")
 
 private val DropColors = listOf(SystemColors.Blue, SystemColors.Purple, SystemColors.Pink, SystemColors.Orange, SystemColors.Green, SystemColors.Teal)
 

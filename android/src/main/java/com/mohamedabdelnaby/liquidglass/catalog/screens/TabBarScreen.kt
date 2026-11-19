@@ -124,6 +124,8 @@ import com.mohamedabdelnaby.liquidglass.catalog.glass.glassClickable
 import com.mohamedabdelnaby.liquidglass.catalog.glass.glassEffect
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.LiquidTabBar
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.LiquidTabItem
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 
 private enum class Tab(val title: String, val icon: ImageVector, val badge: Int = 0) {
     Home("Home", Icons.Filled.Home),
@@ -298,6 +300,8 @@ private fun SystemTabBarDemo(variant: Variant, minimizeOnScroll: Boolean) {
  */
 @Composable
 private fun SeparatedSearchDemo(minimizeOnScroll: Boolean, searchFullWidth: Boolean) {
+    // The tabs shrink toward the leading edge.
+    val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     var tab by rememberSaveable { mutableStateOf(Tab.Home) }
     var searching by remember { mutableStateOf(false) }
     var minimized by remember { mutableStateOf(false) }
@@ -378,7 +382,7 @@ private fun SeparatedSearchDemo(minimizeOnScroll: Boolean, searchFullWidth: Bool
                                         .fillMaxHeight()
                                         .graphicsLayer {
                                             scaleX = lerp(1f, SeparatedHeight / full, q)
-                                            transformOrigin = TransformOrigin(0f, 0.5f)
+                                            transformOrigin = TransformOrigin(if (rtl) 1f else 0f, 0.5f)
                                             alpha = 1f - q
                                         },
                                 ) { TabsCapsule(tab) { tab = it } }
@@ -458,7 +462,9 @@ private fun TabsCapsule(selected: Tab, onSelect: (Tab) -> Unit) {
     Row(
         Modifier.fillMaxSize().padding(4.dp).drawBehind {
             val w = size.width / MainTabs.size
-            drawRoundRect(highlight, Offset(w * index, 0f), Size(w, size.height), CornerRadius(size.height / 2f))
+            // Drawn, so placed by hand: the first tab sits at the start edge.
+            val x = if (layoutDirection == LayoutDirection.Rtl) size.width - w * (index + 1f) else w * index
+            drawRoundRect(highlight, Offset(x, 0f), Size(w, size.height), CornerRadius(size.height / 2f))
         },
     ) {
         MainTabs.forEach { t ->
@@ -549,6 +555,8 @@ private fun TabBar(
 ) {
     // One spring moves every piece, so the bar, the accessory and the circles change as one.
     val p by animateFloatAsState(if (minimized) 1f else 0f, MinimizeSpring, label = "minimize")
+    // The bar shrinks into the selected tab's circle at the leading edge.
+    val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     Box(Modifier.fillMaxWidth()) {
         ScrollEdge(EdgeEffect.Soft, top = false, Modifier.matchParentSize())
         Box(
@@ -574,7 +582,7 @@ private fun TabBar(
                             val q = p.coerceIn(0f, 1f)
                             scaleX = lerp(1f, MiniCircle.toPx() / size.width, q)
                             scaleY = lerp(1f, MiniCircle.toPx() / size.height, q)
-                            transformOrigin = TransformOrigin(0f, 1f)
+                            transformOrigin = TransformOrigin(if (rtl) 1f else 0f, 1f)
                             alpha = 1f - q
                         },
                 )
