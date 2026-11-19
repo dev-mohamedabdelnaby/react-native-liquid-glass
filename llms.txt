@@ -1,0 +1,27 @@
+# @native-dev-kit/react-native-liquid-glass
+
+> Liquid Glass screens for React Native (New Architecture, React Native CLI). 22 whole native screens: SwiftUI with real Liquid Glass on iOS 27+, Jetpack Compose with a glass engine on Android 8+ (compileSdk 37). Not building blocks: no GlassView or GlassButton, and screens take no children. One `GlassSettingsProvider` sets appearance, tint and the Android glass options for every screen. Expo is not supported yet.
+
+Key rules: give every screen `style={{ flex: 1 }}`; hide the navigator header; wire Home's `onOpen` to `navigation.navigate(id)` and each screen's `onBack` to `navigation.goBack`; feed Home's `onSettingsChange` back into the provider and memoise its `value`.
+
+## Agent context
+
+- [CONTEXT.md](https://github.com/dev-mohamedabdelnaby/react-native-liquid-glass/blob/main/CONTEXT.md): the mental model, exact API, React Navigation recipe, rules, common mistakes and device checks
+- [Agent skill](https://github.com/dev-mohamedabdelnaby/react-native-liquid-glass/blob/main/skills/react-native-liquid-glass/SKILL.md): install and use steps
+
+## Docs
+
+- [README](https://github.com/dev-mohamedabdelnaby/react-native-liquid-glass/blob/main/README.md): overview, requirements, quick start, the 22 screens
+- [Getting started](https://github.com/dev-mohamedabdelnaby/react-native-liquid-glass/blob/main/docs/getting-started.md): install and iOS/Android setup
+- [Screens](https://github.com/dev-mohamedabdelnaby/react-native-liquid-glass/blob/main/docs/screens.md): every component, its props and events, GLASS_SCREENS
+- [Settings](https://github.com/dev-mohamedabdelnaby/react-native-liquid-glass/blob/main/docs/settings.md): GlassSettingsProvider, every setting with its default, which platform reads it, appearance and tint behaviour
+- [React Navigation](https://github.com/dev-mohamedabdelnaby/react-native-liquid-glass/blob/main/docs/react-navigation.md): the native-stack recipe with all screens, back handling, status bar
+- [Troubleshooting](https://github.com/dev-mohamedabdelnaby/react-native-liquid-glass/blob/main/docs/troubleshooting.md): blank screens, settings that do not stick, window-wide appearance on iOS, Android back key, build errors
+
+## Optional
+
+- [Layout direction](https://github.com/dev-mohamedabdelnaby/react-native-liquid-glass/blob/main/docs/layout-direction.md): right-to-left; iOS now, Android in the next version
+- [Android style](https://github.com/dev-mohamedabdelnaby/react-native-liquid-glass/blob/main/docs/android-style.md): Material 3 on Android, coming in the next version
+- [Fonts](https://github.com/dev-mohamedabdelnaby/react-native-liquid-glass/blob/main/docs/fonts.md): custom fonts, coming in the next version
+- [Icons](https://github.com/dev-mohamedabdelnaby/react-native-liquid-glass/blob/main/docs/icons.md): custom icons, coming in the next version
+- [Contributing](https://github.com/dev-mohamedabdelnaby/react-native-liquid-glass/blob/main/AGENTS.md): repository layout and commands
