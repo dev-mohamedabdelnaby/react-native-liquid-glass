@@ -13,5 +13,5 @@ const root = path.resolve(__dirname, '..');
 module.exports = withMetroConfig(getDefaultConfig(__dirname), {
   root,
   dirname: __dirname,
-  conditions: ['mohamed_abd_elnaby-react-native-liquid-glass-source'],
+  conditions: ['native-dev-kit-react-native-liquid-glass-source'],
 });

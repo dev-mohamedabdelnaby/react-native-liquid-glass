@@ -1,12 +1,12 @@
 {
-  "name": "@mohamed_abd_elnaby/react-native-liquid-glass",
+  "name": "@native-dev-kit/react-native-liquid-glass",
   "version": "0.1.0",
   "description": "SwiftUI-style Liquid Glass for React Native: real glass on iOS, the Compose glass engine on Android",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
   "exports": {
     ".": {
-      "mohamed_abd_elnaby-react-native-liquid-glass-source": "./src/index.tsx",
+      "native-dev-kit-react-native-liquid-glass-source": "./src/index.tsx",
       "types": "./lib/typescript/src/index.d.ts",
       "default": "./lib/module/index.js"
     },
@@ -22,6 +22,12 @@
     "LICENSE-AndroidLiquidGlass",
     "LICENSE-Liquid-Glass-Android",
     "react-native.config.js",
+    "CONTEXT.md",
+    "AGENTS.md",
+    "llms.txt",
+    "skills",
+    "docs",
+    "!docs/superpowers",
     "!ios/build",
     "!android/build",
     "!android/gradle",
@@ -34,7 +40,7 @@
     "!**/.*"
   ],
   "scripts": {
-    "example": "yarn workspace @mohamed_abd_elnaby/react-native-liquid-glass-example",
+    "example": "yarn workspace @native-dev-kit/react-native-liquid-glass-example",
     "clean": "del-cli lib",
     "prepare": "bob build",
     "typecheck": "tsc",
@@ -149,7 +155,7 @@
       "customExportConditions": [
         "require",
         "react-native",
-        "mohamed_abd_elnaby-react-native-liquid-glass-source"
+        "native-dev-kit-react-native-liquid-glass-source"
       ]
     },
     "modulePathIgnorePatterns": [

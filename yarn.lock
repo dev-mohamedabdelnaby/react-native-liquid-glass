@@ -2529,9 +2529,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mohamed_abd_elnaby/react-native-liquid-glass-example@workspace:example":
+"@native-dev-kit/react-native-liquid-glass-example@workspace:example":
   version: 0.0.0-use.local
-  resolution: "@mohamed_abd_elnaby/react-native-liquid-glass-example@workspace:example"
+  resolution: "@native-dev-kit/react-native-liquid-glass-example@workspace:example"
   dependencies:
     "@babel/core": "npm:^7.25.2"
     "@babel/preset-env": "npm:^7.25.3"
@@ -2552,9 +2552,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@mohamed_abd_elnaby/react-native-liquid-glass@workspace:.":
+"@native-dev-kit/react-native-liquid-glass@workspace:.":
   version: 0.0.0-use.local
-  resolution: "@mohamed_abd_elnaby/react-native-liquid-glass@workspace:."
+  resolution: "@native-dev-kit/react-native-liquid-glass@workspace:."
   dependencies:
     "@commitlint/config-conventional": "npm:^21.2.4"
     "@eslint/compat": "npm:^2.1.1"

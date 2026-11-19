@@ -31,7 +31,7 @@ import {
   type GlassScreenId,
   type GlassScreenProps,
   type GlassSettings,
-} from '@mohamed_abd_elnaby/react-native-liquid-glass';
+} from '@native-dev-kit/react-native-liquid-glass';
 
 const SCREENS: Record<
   GlassScreenId,
