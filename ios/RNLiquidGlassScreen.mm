@@ -1,6 +1,7 @@
 #import "RNLiquidGlassScreen.h"
 
 #import <React/RCTConversions.h>
+#import <React/RCTMountingTransactionObserving.h>
 
 #import <react/renderer/components/RNLiquidGlassViewSpec/ComponentDescriptors.h>
 #import <react/renderer/components/RNLiquidGlassViewSpec/EventEmitters.h>
@@ -23,6 +24,9 @@ static UIColor *_Nullable RNLiquidGlassScreenColor(const SharedColor &color)
 {
   return color ? RCTUIColorFromSharedColor(color) : nil;
 }
+
+@interface RNLiquidGlassScreen () <RCTMountingTransactionObserving>
+@end
 
 @implementation RNLiquidGlassScreen {
   LiquidGlassScreenHost *_host;
@@ -116,7 +120,16 @@ static UIColor *_Nullable RNLiquidGlassScreenColor(const SharedColor &color)
   [super willMoveToSuperview:newSuperview];
   if (!newSuperview) {
     [_host releaseWindowStyle];
+    [_host detachFromViewController];
   }
+}
+
+// Every transaction: native-stack pushes a screen asynchronously after the transaction that
+// mounted it, so the hosting controller becomes a child of the screen's view controller first.
+- (void)mountingTransactionDidMount:(const MountingTransaction &)transaction
+               withSurfaceTelemetry:(const SurfaceTelemetry &)surfaceTelemetry
+{
+  [_host attachToViewController];
 }
 
 - (void)invalidate

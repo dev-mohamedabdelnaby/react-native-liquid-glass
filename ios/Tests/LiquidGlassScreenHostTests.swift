@@ -58,6 +58,25 @@ final class LiquidGlassScreenHostTests: XCTestCase {
     XCTAssertEqual(host.screen, "home")
   }
 
+  // Native-stack pushes a screen after mounting it: the controller must be a child by then.
+  func testChildFromMountUntilUnmount() {
+    let parent = UIViewController()
+    let container = UIView()
+    let host = LiquidGlassScreenHost(frame: .zero)
+    container.addSubview(host)
+    host.attachToViewController()
+    XCTAssertTrue(parent.children.isEmpty, "no view controller reachable yet")
+
+    parent.view.addSubview(container)
+    host.attachToViewController()
+    host.attachToViewController()
+    XCTAssertEqual(parent.children.count, 1, "a child once mounted, outside any window")
+
+    container.removeFromSuperview()
+    host.detachFromViewController()
+    XCTAssertTrue(parent.children.isEmpty, "unmounted, the child leaves")
+  }
+
   // The window-style tests need a window, and a logic test has no window scene: they use the
   // deprecated UIWindow(frame:) and are marked deprecated themselves so that call does not warn.
 

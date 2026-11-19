@@ -50,9 +50,10 @@ import UIKit
   @available(*, unavailable)
   required init?(coder: NSCoder) { fatalError("init(coder:) is not supported") }
 
-  // A child of the React view controller while on screen, so the screen can present
-  // full-screen covers, sheets, popovers and alerts. Added before the view enters the window
-  // when the view controller is already reachable, so the controller gets its appear callbacks.
+  // A child of the React view controller while on screen (and from mount, see
+  // attachToViewController()), so the screen can present full-screen covers, sheets, popovers
+  // and alerts. Added before the view enters the window when the view controller is already
+  // reachable, so the controller gets its appear callbacks.
   public override func willMove(toWindow newWindow: UIWindow?) {
     super.willMove(toWindow: newWindow)
     guard newWindow !== window else { return }
@@ -80,6 +81,21 @@ import UIKit
     // reachable yet in willMove(toWindow:).
     addControllerToParent()
     if let parent = controller.parent { controller.didMove(toParent: parent) }
+  }
+
+  /// After each React mount (from `RNLiquidGlassScreen.mm`): a child added only when native-stack
+  /// puts the pushed screen in the window misses the safe area the push hands out first, so its
+  /// bars sit under the status bar until the push ends. Mounted before the push starts, it is a
+  /// child in time.
+  @objc public func attachToViewController() {
+    if window == nil { addControllerToParent() }
+  }
+
+  /// Unmounted outside a window: the child added by `attachToViewController()` leaves its parent.
+  @objc public func detachFromViewController() {
+    guard window == nil, controller.parent != nil else { return }
+    controller.willMove(toParent: nil)
+    controller.removeFromParent()
   }
 
   private func addControllerToParent() {
