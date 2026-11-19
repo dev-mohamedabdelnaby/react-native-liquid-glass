@@ -225,6 +225,25 @@ Spec section "Additions → Native Android style".
 - [ ] **Step 3: Device check:** frames before and after for at least 5 screens (one with a large title, one inline, Search, Tab Bar, Floating Header). No header change across the push in any frame, and still 0.01% against the native app.
 - [ ] **Step 4: Commit** — `git commit -m "fix(ios): steady header when a screen is pushed"`
 
+### Task 14: Docs for people and agents (runs now, alongside Task 6; Task 9 becomes the final docs pass + CI)
+
+The user's choices (2026-11-19): npm name `@native-dev-kit/react-native-liquid-glass` (npm account `native-dev-kit`); a README plus `docs/` guides; agent files `CONTEXT.md`, `AGENTS.md`, an agent skill and `llms.txt`; written now and updated by each later feature task.
+
+**Files:**
+- Create: `README.md` (replace), `docs/` guides (`getting-started.md`, `screens.md`, `settings.md`, `react-navigation.md`, `layout-direction.md`, `android-style.md`, `fonts.md`, `icons.md`, `troubleshooting.md`), `CONTEXT.md`, `AGENTS.md`, `skills/react-native-liquid-glass/SKILL.md`, `llms.txt`
+- Modify (last step, only after Task 6 is committed): `package.json` (`name`, `files` to ship `CONTEXT.md`, `AGENTS.md`, `llms.txt`, `skills`, `docs`), and every import of the old name (example, tests, configs).
+
+- [ ] **Step 1: Facts first.** Read `src/`, the spec, and the task reports for what exists and how it behaves on each platform. Every API, prop, default, floor and limit in the docs comes from code or a report, never from memory.
+- [ ] **Step 2: README:** what it is (the native apps' own screens), screenshots or a pointer to them, install (bare RN CLI, New Architecture, iOS 27 / Android 26, compileSdk 37 / AGP 9.1, RN 0.88 verified, `pod install`), a 15-line quick start with React Navigation, the 22 components, links to the guides, the Expo status, and the license.
+- [ ] **Step 3: Guides:** one per topic. Planned features (Material style, fonts, icons) get their guide now, marked "coming in the next version", with the API from the spec.
+- [ ] **Step 4: Agent files.**
+  - `CONTEXT.md`: what an agent must know to use the library correctly. That covers the mental model (native screens, not building blocks), the exact API, settings per platform, the React Navigation recipe, rules (memoise the provider value; feed `onSettingsChange` back; header hidden; Release vs Debug and Metro), common mistakes, and how to verify on a device.
+  - `AGENTS.md`: short; it points to `CONTEXT.md`, plus repo commands for contributors.
+  - `SKILL.md`: front matter with `name` and `description` that trigger on "liquid glass" or "glass screens" in React Native. The body is the install and use steps and points to `CONTEXT.md`.
+  - `llms.txt`: in the llms.txt format, linking the docs.
+- [ ] **Step 5: Check:** every code sample type-checks against `src/`, by pasting them into a scratch `.tsx` under `example/` and running `yarn typecheck`, then deleting it. `npm pack --dry-run` lists the agent files. Links resolve.
+- [ ] **Step 6: Commit** — `git commit -m "docs: readme, guides and agent context"`; then, after Task 6, the rename — `git commit -m "chore: publish as @native-dev-kit/react-native-liquid-glass"`.
+
 ### Task 5: Every native screen through React Navigation
 
 **Files:**
@@ -290,7 +309,7 @@ Spec section "Additions → Icons". Edits to copied code are allowed for this; l
 - [ ] **Step 3: Device check** with `CUSTOMIZE = true`: a vector icon, an SVG and a PNG replace their icons on Home, Buttons, Toolbar, Tab Bar and in a menu, on the phone and the simulator; icons not in the map stay native.
 - [ ] **Step 4: Run** all tests and both builds → PASS. **Commit** — `git add -A src android ios example ReactNativeLiquidGlass.podspec && git commit -m "feat: custom icons for every screen"`
 
-### Task 9: README and CI
+### Task 9: Final docs pass and CI (README and guides are written in Task 14)
 
 **Files:**
 - Create: `README.md` (replace the template's), `.github/workflows/ci.yml` (or extend the template's; remove the Expo `prebuild` and `build:web` steps)
