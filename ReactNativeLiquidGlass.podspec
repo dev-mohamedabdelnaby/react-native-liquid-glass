@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
   # The iOS app's deployment target and Swift settings: its code is copied unchanged into ios/Catalog.
   s.platforms     = { :ios => "27.0" }
   s.swift_version = "5.0"
-  s.source       = { :git => "https://github.com/MohamedAbdElNaby/mohamed_abd_elnaby-react-native-liquid-glass.git", :tag => "v#{s.version}" }
+  s.source       = { :git => "https://github.com/dev-mohamedabdelnaby/react-native-liquid-glass.git", :tag => "v#{s.version}" }
 
   s.source_files = "ios/**/*.{h,m,mm,swift,cpp}"
   s.exclude_files = "ios/Tests/**/*"

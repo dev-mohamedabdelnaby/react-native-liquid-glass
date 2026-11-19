@@ -55,14 +55,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MohamedAbdElNaby/mohamed_abd_elnaby-react-native-liquid-glass.git"
+    "url": "git+https://github.com/dev-mohamedabdelnaby/react-native-liquid-glass.git"
   },
   "author": "AbdElNaby <kamohamedabdelnabyly@gmail.com> (https://github.com/MohamedAbdElNaby)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/MohamedAbdElNaby/mohamed_abd_elnaby-react-native-liquid-glass/issues"
+    "url": "https://github.com/dev-mohamedabdelnaby/react-native-liquid-glass/issues"
   },
-  "homepage": "https://github.com/MohamedAbdElNaby/mohamed_abd_elnaby-react-native-liquid-glass#readme",
+  "homepage": "https://github.com/dev-mohamedabdelnaby/react-native-liquid-glass#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
