@@ -6,7 +6,7 @@ Each component shows one whole native screen. All 22 share one native view, `Liq
 
 | Component | Screen id | What it shows |
 |---|---|---|
-| `GlassHomeScreen` | `home` | The app's start screen: a list of all 21 screens and the settings (appearance, tint, layout direction on iOS, glass options on Android). |
+| `GlassHomeScreen` | `home` | The app's start screen: a list of all 21 screens and the settings (appearance, layout direction, tint, and the glass options on Android). |
 | `GlassEffectScreen` | `glassEffect` | Glass Effect |
 | `GlassViewScreen` | `glassView` | Glass View |
 | `InteractiveGlassScreen` | `interactive` | Interactive Glass |

@@ -87,7 +87,7 @@ There are no other props today (no `children`, no settings props, no `title`).
 type GlassSettings = {
   appearance?: 'system' | 'light' | 'dark';   // iOS + Android
   tint?: ColorValue | null;                   // iOS + Android
-  layoutDirection?: 'system' | 'ltr' | 'rtl'; // iOS now; Android in the next version
+  layoutDirection?: 'system' | 'ltr' | 'rtl'; // iOS + Android
   // Android only (iOS ignores them):
   clear?: boolean; blur?: number; white?: number; black?: number; edgeLight?: number;
   refraction?: { height: number; amount: number }; opaque?: boolean; liquid?: boolean;
@@ -114,7 +114,7 @@ The library does not depend on React Navigation. The verified setup is native-st
 
 ```tsx
 import { useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { I18nManager, Platform, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {
@@ -143,10 +143,24 @@ const Stack = createNativeStackNavigator<Routes>();
 
 export default function App() {
   const [settings, setSettings] = useState<GlassSettings>(DEFAULT_SETTINGS);
+  const rtl =
+    settings.layoutDirection === 'rtl' ||
+    (settings.layoutDirection === 'system' && I18nManager.isRTL);
   return (
     <GlassSettingsProvider value={settings}>
       <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false, animation: 'ios_from_right' }}>
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+            // The new screen slides in from the trailing edge, as on iOS.
+            animation: Platform.select({
+              android: rtl ? 'ios_from_left' : 'ios_from_right',
+              default: rtl ? 'slide_from_left' : 'default',
+            }),
+            // iOS RTL: the swipe from the right edge drives the pop.
+            animationMatchesGesture: rtl,
+          }}
+        >
           <Stack.Screen name="Home">
             {({ navigation }) => (
               <GlassHomeScreen
@@ -182,9 +196,9 @@ If the user wants only a few screens, register only those routes and guard `onOp
 3. **Feed `onSettingsChange` back into the provider** (`onSettingsChange={setSettings}`, `value={settings}`). Home does not keep changes itself; without this, Home's controls do nothing lasting and other screens never see them.
 4. **Memoise the provider `value`.** Pass state or `useMemo`, never an inline object in a component that re-renders. A new object re-sends props to every mounted screen.
 5. **`onBack` → `navigation.goBack`.** Android's hardware back is handled for you: the library sends it to the screen's open sheet/menu/search/cover first, then React Navigation pops. Do not add a `BackHandler` for glass screens.
-6. **`animation: 'ios_from_right'`** gives Android the iOS push slide; without it Android fades.
+6. **Stack animation:** Android `ios_from_right` (`ios_from_left` in RTL) gives the iOS push slide; without it Android fades. iOS: `default` (`slide_from_left` plus `animationMatchesGesture: true` in RTL). An LTR-only app can use `animation: 'ios_from_right'` alone.
 7. **Status bar:** glass screens set their own bar icons. On iOS under native-stack, React Native's `<StatusBar>` is inert; use the native-stack option `statusBarStyle` for your own screens.
-8. **Do not use planned APIs** (`androidStyle`, `fontFamily`, `icons`, `vectorIcon`) or Android RTL: they are not in the package yet (section 8).
+8. **Do not use planned APIs** (`androidStyle`, `fontFamily`, `icons`, `vectorIcon`): they are not in the package yet (section 8).
 
 ## 6. Settings per platform
 
@@ -192,7 +206,7 @@ If the user wants only a few screens, register only those routes and guard `onOp
 |---|---|---|
 | `appearance` | Window-wide: sets the window's `overrideUserInterfaceStyle`, so the whole app (RN views and status bar) follows. | Inside the screen (Compose theme) plus the status/navigation bar icons. RN views unchanged. |
 | `tint` | Glass tint. Home's picker shows None/Blue/Purple/Pink/Orange/Green/Teal; other colours still tint but Home shows None. | Tint of every glass surface without its own. |
-| `layoutDirection` | Mirrors the screens; Home has a picker. | Accepted and sent back, not applied (next version). |
+| `layoutDirection` | Mirrors the screens; Home has a picker. `system` = device direction. Full-screen covers (Tab Bar "With Now Playing Bar") and UIKit pieces (menu rows, the open search field) stay LTR. | Mirrors the screens and controls; Home has the same picker. `system` = React Native's `I18nManager.isRTL`. English punctuation in RTL shows at the sentence start. |
 | Android-only keys | Ignored. | The glass engine's options; Home has controls for them. |
 
 Appearance requests on both platforms: the **latest mounted** screen asking for `'light'` or `'dark'` wins; the app's own value comes back when the last one **unmounts**. A screen keeps its request while mounted even if off screen (under a pushed screen, in an inactive tab). `'system'` never writes the iOS window. On iOS, an `Appearance.setColorScheme` call made while a glass screen holds a request is lost when the request ends.
@@ -217,7 +231,6 @@ Appearance requests on both platforms: the **latest mounted** screen asking for 
 
 ## 8. Coming in the next version (do not use yet)
 
-- `layoutDirection` on Android (Home picker, mirrored controls). RTL stack animations: Android `ios_from_left`, iOS `slide_from_left` with `animationMatchesGesture: true`.
 - `androidStyle?: 'glass' | 'material'` (Material 3 screens on Android; iOS ignores it). In `GlassSettings` and as a screen prop.
 - `fontFamily?: string | { regular?, medium?, semibold?, bold?, heavy? }`. In `GlassSettings` and as a screen prop. iOS context menus, alerts, action sheets and the share sheet keep the system font.
 - `icons?: Record<sfSymbolName, GlassIcon>` with `GlassIcon = { glyph, fontFamily } | { svg } | ImageSourcePropType`, and `vectorIcon(iconSet, name)`.

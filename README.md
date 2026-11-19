@@ -107,7 +107,7 @@ Three rules: hide the navigator's header (each screen draws its own), give every
 - [Screens](docs/screens.md): every component, its props and events.
 - [Settings](docs/settings.md): `GlassSettingsProvider`, every setting, and which platform reads it.
 - [React Navigation](docs/react-navigation.md): the full native-stack recipe.
-- [Layout direction](docs/layout-direction.md): right-to-left. iOS now; Android in the next version.
+- [Layout direction](docs/layout-direction.md): right-to-left on both platforms.
 - [Android style](docs/android-style.md): Material 3 instead of glass on Android. Coming in the next version.
 - [Fonts](docs/fonts.md): your app's fonts in the screens. Coming in the next version.
 - [Icons](docs/icons.md): your own icons in the screens. Coming in the next version.

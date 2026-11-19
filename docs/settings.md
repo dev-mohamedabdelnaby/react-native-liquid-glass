@@ -75,7 +75,7 @@ Each platform reads the settings its native app has and ignores the rest.
 |---|---|---|---|---|
 | `appearance` | `'system'` | yes | yes | Light, dark, or follow the device. |
 | `tint` | `null` | yes | yes | A colour every glass surface without its own tint takes. `null`: no tint. |
-| `layoutDirection` | `'system'` | yes | next version | Left-to-right or right-to-left. See [layout-direction.md](layout-direction.md). |
+| `layoutDirection` | `'system'` | yes | yes | Left-to-right or right-to-left. See [layout-direction.md](layout-direction.md). |
 | `clear` | `true` | no | yes | `true`: nearly clear glass. `false`: frosted (regular) glass. |
 | `blur` | `3` | no | yes | Blur radius in dp. |
 | `white` | `0.25` | no | yes | White wash over the glass, 0 to 1. |
@@ -96,7 +96,7 @@ Each platform reads the settings its native app has and ignores the rest.
 ## What Home shows
 
 - **iOS Home:** Appearance (System, Light, Dark), Glass tint (None, Blue, Purple, Pink, Orange, Green, Teal) and Layout direction (System, LTR, RTL).
-- **Android Home:** Appearance, plus a Glass section with the Android settings above (variant, blur, washes, edge light, refraction, tint, drop colour, opaque, liquid and the per-control switches).
+- **Android Home:** Appearance, Layout direction (System, LTR, RTL), plus a Glass section with the Android settings above (variant, blur, washes, edge light, refraction, tint, drop colour, opaque, liquid and the per-control switches).
 
 ## Appearance
 
@@ -131,4 +131,3 @@ These settings are planned and not in the package yet:
 - `androidStyle?: 'glass' | 'material'`: see [android-style.md](android-style.md).
 - `fontFamily`: see [fonts.md](fonts.md).
 - `icons`: see [icons.md](icons.md).
-- `layoutDirection` on Android: see [layout-direction.md](layout-direction.md).
