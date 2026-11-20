@@ -207,6 +207,12 @@ androidStyle?: 'glass' | 'material';   // default 'glass'; iOS ignores it
   menu, dialog, sheet, search field) switches to its Material counterpart in one place; screens are
   not rewritten.
 - Built before custom fonts and icons, which then apply to both styles.
+- Material switches and sliders use the Material 3 Expressive look (switch thumb with a check / close
+  icon; slider with a value indicator and the thicker track), 48 dp touch targets, spring motion, a
+  light haptic on slider steps, colours from Material tokens with the settings' tint and drop colour
+  as accent, contrast checked in light and dark, and TalkBack state and value announcements.
+- `androidSegmentedCheck?: boolean` (default `true`): the check mark on the selected segment of
+  Material segmented buttons; `false` hides it. Provider setting and per-screen prop, like the others.
 
 ## Out of scope for this version
 
