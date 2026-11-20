@@ -66,6 +66,7 @@ import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassMenu
 import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassEffectContainer
 import com.mohamedabdelnaby.liquidglass.catalog.glass.Fill
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.CornerRadius
@@ -105,6 +106,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.unit.sp
@@ -124,8 +126,6 @@ import com.mohamedabdelnaby.liquidglass.catalog.glass.glassClickable
 import com.mohamedabdelnaby.liquidglass.catalog.glass.glassEffect
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.LiquidTabBar
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.LiquidTabItem
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.LayoutDirection
 
 private enum class Tab(val title: String, val icon: ImageVector, val badge: Int = 0) {
     Home("Home", Icons.Filled.Home),

@@ -54,11 +54,13 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.mohamedabdelnaby.liquidglass.catalog.glass.Footnote
 import com.mohamedabdelnaby.liquidglass.catalog.glass.Glass
@@ -72,8 +74,6 @@ import com.mohamedabdelnaby.liquidglass.catalog.glass.ListRow
 import com.mohamedabdelnaby.liquidglass.catalog.glass.PlainBackdrop
 import com.mohamedabdelnaby.liquidglass.catalog.glass.glassEffect
 import com.mohamedabdelnaby.liquidglass.catalog.ui.theme.SystemColors
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.platform.LocalLayoutDirection
 
 private val Places = listOf(
     "Mountains" to Icons.Filled.Landscape,

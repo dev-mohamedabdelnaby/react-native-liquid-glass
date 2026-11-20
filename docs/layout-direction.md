@@ -31,32 +31,35 @@ export function ForceRtl({ children }: { children: React.ReactNode }) {
 
 ## Screen transitions in RTL
 
-In RTL a pushed screen comes in from the left, as `UINavigationController` does. With native-stack, pick the animation from the direction:
+In RTL a pushed screen comes in from the left, as `UINavigationController` does. With native-stack, give the container the direction and pick the Android animation from it:
 
 ```tsx
 import { I18nManager, Platform } from 'react-native';
 import type { GlassSettings } from '@native-dev-kit/react-native-liquid-glass';
 
+export function isRtl(settings: GlassSettings) {
+  const direction = settings.layoutDirection ?? 'system';
+  return direction === 'rtl' || (direction === 'system' && I18nManager.isRTL);
+}
+
 export function stackOptions(settings: GlassSettings) {
-  const rtl =
-    settings.layoutDirection === 'rtl' ||
-    (settings.layoutDirection === 'system' && I18nManager.isRTL);
   return {
     headerShown: false,
+    // Android's slides are absolute, so they follow the direction by hand.
     animation: Platform.select({
-      android: rtl ? ('ios_from_left' as const) : ('ios_from_right' as const),
-      default: rtl ? ('slide_from_left' as const) : ('default' as const),
+      android: isRtl(settings) ? ('ios_from_left' as const) : ('ios_from_right' as const),
+      default: 'default' as const,
     }),
-    // iOS: the swipe back starts at the leading (right) edge and drives the same slide.
-    animationMatchesGesture: rtl,
   };
 }
 
-// <Stack.Navigator screenOptions={stackOptions(settings)}>
+// <NavigationContainer direction={isRtl(settings) ? 'rtl' : 'ltr'}>
+//   <Stack.Navigator screenOptions={stackOptions(settings)}>
 ```
 
 - **Android:** `ios_from_left` in RTL, `ios_from_right` in LTR. The back key slides the screen out to the left.
-- **iOS:** `slide_from_left` in RTL, the system push (`default`) in LTR. `animationMatchesGesture: rtl` lets the swipe from the right edge drive the pop in RTL.
+- **iOS:** the system push (`default`) in both directions. `direction` sets the `UINavigationController`'s direction, so in RTL UIKit pushes from the left and the edge and content swipes start at the right.
+- **Always pass `direction`.** React Navigation defaults it to `I18nManager.isRTL`. An Arabic app that shows the screens in LTR would then push from the left.
 
 This is what the example app does (`example/src/App.tsx`).
 
@@ -64,5 +67,5 @@ This is what the example app does (`example/src/App.tsx`).
 
 - **iOS full-screen covers stay left-to-right.** The Tab Bar "With Now Playing Bar" cover (tabs, close button, title) is not mirrored on iOS, even though Home's footer says RTL mirrors full-screen demos. Android mirrors it.
 - **iOS pieces drawn by UIKit stay left-to-right:** menu rows stay left-aligned, and the open search field keeps its magnifier on the left. Android mirrors both.
-- **Android, English text in RTL:** punctuation at the end of an English sentence shows at its start (".presets"), because Compose sets an unspecified text direction from the layout direction. SwiftUI uses the text's own direction. Arabic and Hebrew text are not affected.
+- **Android, English text in RTL:** text reads in its own script's direction, as in SwiftUI, so an English sentence keeps its period last. A wrapped English paragraph then aligns left, where iOS keeps it right-aligned. Arabic and Hebrew text are right-aligned on both.
 - **iOS, RTL back to System:** Home's list can stay drawn mirrored until it is laid out again. The native iOS app does the same.

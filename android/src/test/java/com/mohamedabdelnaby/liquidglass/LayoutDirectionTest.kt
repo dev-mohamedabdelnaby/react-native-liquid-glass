@@ -19,7 +19,8 @@ class LayoutDirectionTest {
   }
 
   @Test
-  fun unknownIsLtr() {
+  fun unknownIsSystem() {
     assertEquals(LayoutDirection.Ltr, layoutDirectionOf("bogus", false))
+    assertEquals(LayoutDirection.Rtl, layoutDirectionOf("bogus", true))
   }
 }

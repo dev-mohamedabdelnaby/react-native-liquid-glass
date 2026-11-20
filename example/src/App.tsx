@@ -66,22 +66,22 @@ const Stack = createNativeStackNavigator<Routes>();
 
 export default function App() {
   const [settings, setSettings] = useState<GlassSettings>(DEFAULT_SETTINGS);
+  const direction = settings.layoutDirection ?? 'system';
   const rtl =
-    settings.layoutDirection === 'rtl' ||
-    (settings.layoutDirection === 'system' && I18nManager.isRTL);
+    direction === 'rtl' || (direction === 'system' && I18nManager.isRTL);
   return (
     <GlassSettingsProvider value={settings}>
-      <NavigationContainer>
+      {/* iOS: the stack's direction is UIKit's, which then mirrors its own push and swipes back. */}
+      <NavigationContainer direction={rtl ? 'rtl' : 'ltr'}>
         <Stack.Navigator
           // As a UINavigationController: the new screen slides in from the trailing edge.
           screenOptions={{
             headerShown: false,
+            // Android's slides are absolute, so they follow the direction by hand.
             animation: Platform.select({
               android: rtl ? 'ios_from_left' : 'ios_from_right',
-              default: rtl ? 'slide_from_left' : 'default',
+              default: 'default',
             }),
-            // iOS: the swipe back starts at the leading (right) edge and drives the same slide.
-            animationMatchesGesture: rtl,
           }}
         >
           <Stack.Screen name="Home">

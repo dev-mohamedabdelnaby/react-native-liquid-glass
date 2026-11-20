@@ -14,12 +14,14 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -43,8 +45,6 @@ import com.mohamedabdelnaby.liquidglass.catalog.liquid.LiquidMenuRow
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.LiquidMenuSeparator
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.LiquidMenuTitle
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.menuSourceAlpha
-import androidx.compose.foundation.layout.absoluteOffset
-import androidx.compose.ui.AbsoluteAlignment
 
 /**
  * A glass menu that grows out of its anchor, the parent `Box` this is placed in, like a drop.

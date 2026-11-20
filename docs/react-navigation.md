@@ -79,22 +79,22 @@ const Stack = createNativeStackNavigator<Routes>();
 
 export default function App() {
   const [settings, setSettings] = useState<GlassSettings>(DEFAULT_SETTINGS);
+  const direction = settings.layoutDirection ?? 'system';
   const rtl =
-    settings.layoutDirection === 'rtl' ||
-    (settings.layoutDirection === 'system' && I18nManager.isRTL);
+    direction === 'rtl' || (direction === 'system' && I18nManager.isRTL);
   return (
     <GlassSettingsProvider value={settings}>
-      <NavigationContainer>
+      {/* iOS: the stack's direction is UIKit's, which then mirrors its own push and swipes back. */}
+      <NavigationContainer direction={rtl ? 'rtl' : 'ltr'}>
         <Stack.Navigator
           // As UINavigationController: the new screen slides in from the trailing edge.
           screenOptions={{
             headerShown: false,
+            // Android's slides are absolute, so they follow the direction by hand.
             animation: Platform.select({
               android: rtl ? 'ios_from_left' : 'ios_from_right',
-              default: rtl ? 'slide_from_left' : 'default',
+              default: 'default',
             }),
-            // iOS: the swipe back starts at the leading (right) edge and drives the same slide.
-            animationMatchesGesture: rtl,
           }}
         >
           <Stack.Screen name="Home">
@@ -130,7 +130,8 @@ This is the example app's `example/src/App.tsx`.
 ## Why each line is there
 
 - **`headerShown: false`.** Every glass screen draws its own title bar and back button. A navigator header would add a second bar on top.
-- **`animation`.** On Android, `ios_from_right` gives the iOS slide: the pushed screen comes in from the right and the one below moves a third of the way. Without it, Android shows a fade between screens. On iOS, `default` is the system's own push. In right-to-left, both come from the left (`ios_from_left`, `slide_from_left`), and `animationMatchesGesture` lets the iOS swipe from the right edge drive the pop. If your app is left-to-right only, `animation: 'ios_from_right'` alone is enough. See [layout-direction.md](layout-direction.md).
+- **`animation`.** On Android, `ios_from_right` gives the iOS slide: the pushed screen comes in from the right and the one below moves a third of the way. Without it, Android shows a fade between screens. On iOS, `default` is the system's own push. In right-to-left, Android uses `ios_from_left`; on iOS the push stays `default` and UIKit mirrors it. If your app is left-to-right only, `animation: 'ios_from_right'` alone is enough. See [layout-direction.md](layout-direction.md).
+- **`direction` on `NavigationContainer`.** On iOS it sets the direction of the `UINavigationController`. In right-to-left, UIKit then pushes from the left, and the edge swipe and the content swipe start from the right. Pass it in left-to-right too: React Navigation defaults it to `I18nManager.isRTL`, so an Arabic app that shows the screens left-to-right would otherwise push from the left.
 - **Route name = screen id.** Then `onOpen={(id) => navigation.navigate(id)}` needs no mapping.
 - **`onBack={navigation.goBack}`.** The screen's own back button pops it. Passing `goBack` unbound is safe.
 - **`onSettingsChange={setSettings}` on Home, `value={settings}` on the provider.** Home's controls change every screen, live. See [settings.md](settings.md).

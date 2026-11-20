@@ -40,11 +40,11 @@ fun screenComponent(id: String): GlassComponent? =
 internal fun appearanceMode(value: String?): AppearanceMode =
   AppearanceMode.entries.firstOrNull { it.name.equals(value, ignoreCase = true) } ?: AppearanceMode.System
 
-/** `'system' | 'ltr' | 'rtl'`, as JS sends it; System follows [systemIsRtl], anything else is LTR. */
+/** `'system' | 'ltr' | 'rtl'`, as JS sends it; anything else is System (as on iOS), which follows [systemIsRtl]. */
 fun layoutDirectionOf(value: String, systemIsRtl: Boolean): LayoutDirection = when (value) {
   "rtl" -> LayoutDirection.Rtl
-  "system" -> if (systemIsRtl) LayoutDirection.Rtl else LayoutDirection.Ltr
-  else -> LayoutDirection.Ltr
+  "ltr" -> LayoutDirection.Ltr
+  else -> if (systemIsRtl) LayoutDirection.Rtl else LayoutDirection.Ltr
 }
 
 /** `'#RRGGBBAA'`, as the events send colours; `''` for none. */

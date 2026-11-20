@@ -2,6 +2,7 @@ package com.mohamedabdelnaby.liquidglass.catalog.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
@@ -11,6 +12,8 @@ private fun ios(size: Int, line: Int, tracking: Double, weight: FontWeight = Fon
     lineHeight = line.sp,
     letterSpacing = TextUnit(tracking.toFloat(), androidx.compose.ui.unit.TextUnitType.Sp),
     fontWeight = weight,
+    // As SwiftUI: a paragraph reads in its own script's direction, so English in RTL keeps its period last.
+    textDirection = TextDirection.Content,
 )
 
 /** iOS 26 text styles (SF sizes and tracking) mapped onto the Material roles the screens use. */
