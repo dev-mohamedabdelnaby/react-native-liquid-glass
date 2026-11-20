@@ -136,8 +136,8 @@ in Decisions, and each one is listed in its task report.
   points the other way. Copied engine code that uses left/right instead of start/end is fixed.
 - Screen transitions slide like iOS: the new screen comes in from the trailing edge and the one
   below moves a third of the way (the native Android app's spring slide). In the example this is
-  native-stack's `ios_from_right` on Android (`ios_from_left` in RTL) and `slide_from_left` on iOS
-  in RTL.
+  native-stack's `ios_from_right` on Android (`ios_from_left` in RTL); on iOS the default push with
+  `NavigationContainer direction` set from the setting, which UIKit mirrors in RTL.
 
 ### Fonts
 
