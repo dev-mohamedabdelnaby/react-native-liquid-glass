@@ -244,6 +244,37 @@ The user's choices (2026-11-19): npm name `@native-dev-kit/react-native-liquid-g
 - [ ] **Step 5: Check:** every code sample type-checks against `src/`, by pasting them into a scratch `.tsx` under `example/` and running `yarn typecheck`, then deleting it. `npm pack --dry-run` lists the agent files. Links resolve.
 - [ ] **Step 6: Commit** — `git commit -m "docs: readme, guides and agent context"`; then, after Task 6, the rename — `git commit -m "chore: publish as @native-dev-kit/react-native-liquid-glass"`.
 
+### Task 15: Material segmented buttons in RTL (bug, runs after Task 7)
+
+User, 2026-11-21, with a screenshot (`task-12-shots/round1/material-rtl/home-top.png`): in RTL the Material segmented buttons keep their order mirrored correctly but put the rounded ends on the inner sides (the first segment, at the right, is rounded on its left).
+
+**Files:**
+- Modify: the Material segmented row (`catalog/glass/MaterialBars.kt` `MaterialTabs`) or whatever the root cause turns out to be (find it with superpowers:systematic-debugging; fix it once in shared code).
+- Test: a Compose/JVM test if the cause is a pure function; otherwise the device check is the proof.
+
+- [ ] **Step 1: Reproduce** on the phone (Release build): Home in Material, direction RTL (set at runtime and at launch). Screenshot.
+- [ ] **Step 2: Root cause and fix** in the shared building block; every Material segmented row (Home, Controls, Recipes, Floating Header, Scroll Edge…) gets it. Check other start/end shapes in Material for the same cause (list segments, chips, sheets).
+- [ ] **Step 3: Device check** in RTL and LTR, runtime switch both ways; glass unchanged.
+- [ ] **Step 4: Commit** — `git commit -m "fix(android): material segmented ends in rtl"`
+
+### Task 16: Android control shapes (runs after Task 15, before Task 8)
+
+Spec section "Additions → Android control shapes".
+
+**Files:**
+- Modify: `src/types.ts`, `src/settings.tsx`, `src/screens.tsx`, `src/LiquidGlassScreenNativeComponent.ts` (prop `androidControlShape: string`, `'default'` default), Jest tests; the Android host (reads the prop into `LocalControlShape`, echoes it in `onSettingsChange`); iOS host accepts and ignores the prop; the building blocks for switch, slider, segmented control and bottom tab bar (each renders the shaped control first when the shape is not `default`, in both styles); Home (a shape picker, Android only); `example/`; docs (`docs/android-style.md` or a new `docs/control-shapes.md`, README/CONTEXT/AGENTS/SKILL/llms.txt lines).
+- Create: `android/src/main/java/com/mohamedabdelnaby/liquidglass/catalog/shapes/` (one file per control: `ShapedSwitch.kt`, `ShapedSlider.kt`, `ShapedTabs.kt`, `ShapedTabBar.kt`, plus `ControlShape.kt`).
+- Test: Jest; `android/src/test/.../ControlShapeTest.kt`
+
+**Interfaces:**
+- Produces (JS): `GlassSettings.androidControlShape?: 'default' | 'pill' | 'labeled' | 'squared' | 'glow'`, also a prop on every screen (wins over the provider).
+- Produces (native): `enum class ControlShape { Default, Pill, Labeled, Squared, Glow }`; `fun controlShapeOf(value: String): ControlShape` (unknown → Default); `val LocalControlShape = staticCompositionLocalOf { ControlShape.Default }`.
+
+- [ ] **Step 1: Failing tests:** Jest: provider `androidControlShape: 'glow'` reaches every screen's prop; a screen's own prop wins; default `'default'`; Home's `onSettingsChange` carries it. Kotlin: `controlShapeOf` for each value and `"bogus"` → Default.
+- [ ] **Step 2: Implement** the prop path, then each shaped control per the spec (all four shapes × four controls), keeping the default path byte-identical. Semantics: switch `toggleableState` + label; slider one node with label, value and `setProgress`; tabs `selected` + role Tab. → PASS.
+- [ ] **Step 3: Device check** on the phone: every shape × {glass, material} × {light, dark} × {LTR, RTL} on Controls, Home, Tab Bar, Recipes; `default` pixel-identical to Task 15's head; iOS Release build still passes and looks unchanged.
+- [ ] **Step 4: Commit** — `git commit -m "feat(android): control shapes option"`
+
 ### Task 5: Every native screen through React Navigation
 
 **Files:**

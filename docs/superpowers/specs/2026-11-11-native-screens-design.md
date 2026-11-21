@@ -215,6 +215,31 @@ androidStyle?: 'glass' | 'material';   // default 'glass'; iOS ignores it
 - `androidSegmentedCheck?: boolean` (default `true`): the check mark on the selected segment of
   Material segmented buttons; `false` hides it. Provider setting and per-screen prop, like the others.
 
+### Android control shapes (approved 2026-11-21)
+
+```ts
+androidControlShape?: 'default' | 'pill' | 'labeled' | 'squared' | 'glow'; // default 'default'; iOS ignores it
+```
+
+- Android only; iOS is unchanged (user, 2026-11-21). Provider setting and per-screen prop (wins), like
+  the others. `'default'` is today's look (glass, or Material's stock widgets).
+- Reaches four controls, in both `androidStyle`s: top tabs (segmented control), slider, switch, bottom
+  tab bar. Everything else keeps its style.
+- `pill`: a solid pill in the accent (tint, else the theme's primary). Switch with ON / OFF text
+  inside; top tabs with the selected tab a white pill inside the accent pill; slider a thick rounded
+  track with a white round handle; bottom tabs an accent bar with a white pill behind the selected tab.
+- `labeled`: outlined pills. Switch outlined with ON / OFF text and a filled thumb; top tabs outlined
+  with the selected tab filled; slider a ring handle on a thin track; bottom tabs an outlined bar with
+  the selected tab filled.
+- `squared`: rounded squares in place of circles and capsules — the switch thumb and track, the
+  slider handle, the tab corners and the selection marker.
+- `glow`: the accent as a neon colour with a soft glow — a glowing slider track with a ring handle,
+  the switch glowing when on, the selected top tab and bottom tab glowing.
+- All shapes: colours from the accent and the theme, light and dark; mirrored in RTL; the same
+  TalkBack reading, 48 dp touch targets and slider haptics as the default; motion is a spring slide
+  (no liquid drop). Drawn natively in Compose (no stock Android widget has these looks). ON / OFF
+  are fixed English (custom labels out of scope). Home gets a picker for the shape.
+
 ## Out of scope for this version
 
 Expo (development builds); building blocks (`GlassView`, buttons, controls) as separate React Native
