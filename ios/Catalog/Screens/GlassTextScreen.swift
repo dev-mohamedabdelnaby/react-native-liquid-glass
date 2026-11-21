@@ -15,19 +15,19 @@ struct GlassTextScreen: View {
         ScrollView {
             VStack(spacing: 32) {
                 section("Glass letterforms") {
-                    GlassLettering(text: "Liquid", font: .system(size: 88, weight: .black, design: .rounded))
-                    GlassLettering(text: "GLASS", font: .system(size: 64, weight: .heavy))
+                    GlassLettering(text: "Liquid", size: 88, weight: .black, design: .rounded)
+                    GlassLettering(text: "GLASS", size: 64, weight: .heavy)
                 }
 
                 section("Titles") {
                     Text("Large Title on Glass")
-                        .font(.largeTitle.bold())
+                        .glassFont(.largeTitle, weight: .bold)
                         .padding(.horizontal, 24)
                         .padding(.vertical, 12)
                         .appGlassEffect()
 
                     Text("Tinted headline")
-                        .font(.title2.weight(.semibold))
+                        .glassFont(.title2, weight: .semibold)
                         .padding(.horizontal, 20)
                         .padding(.vertical, 10)
                         .glassEffect(.regular.tint(.purple))
@@ -36,13 +36,13 @@ struct GlassTextScreen: View {
                 section("Paragraph card") {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Liquid Glass")
-                            .font(.headline)
+                            .glassFont(.headline)
                         // Hierarchical styles stay vibrant and legible on glass.
                         Text("A dynamic material that blurs content behind it and reflects surrounding color and light.")
-                            .font(.body)
+                            .glassFont(.body)
                             .foregroundStyle(.secondary)
                         Text("Updated just now")
-                            .font(.caption)
+                            .glassFont(.caption)
                             .foregroundStyle(.tertiary)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -55,7 +55,7 @@ struct GlassTextScreen: View {
                         HStack(spacing: 8) {
                             ForEach(["SwiftUI", "iOS 26", "Design"], id: \.self) { tag in
                                 Text(tag)
-                                    .font(.subheadline.weight(.medium))
+                                    .glassFont(.subheadline, weight: .medium)
                                     .padding(.horizontal, 14)
                                     .padding(.vertical, 8)
                                     .appGlassEffect(.regular.interactive())
@@ -67,7 +67,7 @@ struct GlassTextScreen: View {
                 section("Clear glass with dimming") {
                     // Clear glass needs a dimming layer underneath to keep text legible.
                     Label("Readable over rich backgrounds", systemImage: "eye")
-                        .font(.headline)
+                        .glassFont(.headline)
                         .foregroundStyle(.white)
                         .padding()
                         .background(.black.opacity(0.35), in: .capsule)
@@ -112,7 +112,7 @@ struct GlassTextScreen: View {
     private func section<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
         VStack(spacing: 12) {
             Text(title)
-                .font(.headline)
+                .glassFont(.headline)
                 .foregroundStyle(.primary)
             content()
         }
@@ -126,18 +126,20 @@ struct GlassTextScreen: View {
 /// text and masks it with the text itself, leaving glass only inside the letters.
 private struct GlassLettering: View {
     let text: String
-    let font: Font
+    let size: CGFloat
+    let weight: Font.Weight
+    var design: Font.Design?
 
     var body: some View {
         Text(text)
-            .font(font)
+            .glassFont(size: size, weight: weight, design: design)
             .hidden()
             .overlay {
                 Color.clear
                     .appGlassEffect(.regular, in: .rect)
                     .mask {
                         Text(text)
-                            .font(font)
+                            .glassFont(size: size, weight: weight, design: design)
                     }
             }
             // A subtle stroke-like shadow helps the glass letters stand out.

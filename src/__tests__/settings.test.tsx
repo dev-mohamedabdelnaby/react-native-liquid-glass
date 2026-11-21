@@ -44,6 +44,7 @@ test('defaults are the native apps defaults', async () => {
     segmentedLiquid: true,
     tabBarLiquid: true,
     tabBarDrop: true,
+    fontFamily: '',
   });
 });
 

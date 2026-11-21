@@ -34,7 +34,7 @@ struct GlassFloatingHeaderScreen: View {
                     .pickerStyle(.segmented)
 
                     Text(description)
-                        .font(.footnote)
+                        .glassFont(.footnote)
                         .foregroundStyle(.secondary)
 
                     ForEach(1...30, id: \.self) { index in
@@ -100,9 +100,9 @@ struct GlassFloatingHeaderScreen: View {
         .overlay(alignment: .bottomLeading) {
             VStack(alignment: .leading, spacing: 4) {
                 Text("Floating Header")
-                    .font(.largeTitle.bold())
+                    .glassFont(.largeTitle, weight: .bold)
                 Text("No bar background — just glass buttons")
-                    .font(.subheadline)
+                    .glassFont(.subheadline)
             }
             .foregroundStyle(.white)
             .padding()

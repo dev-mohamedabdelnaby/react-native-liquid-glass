@@ -28,6 +28,12 @@ export interface NativeProps extends ViewProps {
   segmentedLiquid?: CodegenTypes.WithDefault<boolean, true>;
   tabBarLiquid?: CodegenTypes.WithDefault<boolean, true>;
   tabBarDrop?: CodegenTypes.WithDefault<boolean, true>;
+  // The face for each weight, as React Native's `fontFamily` names it; '' is the system font.
+  fontRegular?: CodegenTypes.WithDefault<string, ''>;
+  fontMedium?: CodegenTypes.WithDefault<string, ''>;
+  fontSemibold?: CodegenTypes.WithDefault<string, ''>;
+  fontBold?: CodegenTypes.WithDefault<string, ''>;
+  fontHeavy?: CodegenTypes.WithDefault<string, ''>;
 
   onBack?: CodegenTypes.DirectEventHandler<null>;
   onOpen?: CodegenTypes.DirectEventHandler<Readonly<{ screen: string }>>;

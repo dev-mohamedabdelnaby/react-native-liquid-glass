@@ -12,7 +12,7 @@ struct GlassButtonsScreen: View {
     var body: some View {
         VStack(spacing: 24) {
             Text("Last action: \(lastAction)")
-                .font(.headline)
+                .glassFont(.headline)
                 .foregroundStyle(.primary)
 
             Button("Glass") { lastAction = "Glass" }

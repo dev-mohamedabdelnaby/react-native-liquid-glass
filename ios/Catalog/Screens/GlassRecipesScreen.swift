@@ -16,7 +16,7 @@ struct GlassRecipesScreen: View {
                 recipe("Mini player") { MiniPlayer() }
                 recipe("Floating action menu") {
                     Text("The + button floats at the bottom-right corner. Its actions open upward without moving it.")
-                        .font(.footnote)
+                        .glassFont(.footnote)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
                 }
@@ -38,7 +38,7 @@ struct GlassRecipesScreen: View {
     private func recipe<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
         VStack(spacing: 16) {
             Text(title)
-                .font(.headline)
+                .glassFont(.headline)
             content()
         }
         .frame(maxWidth: .infinity)
@@ -60,7 +60,7 @@ private struct GlassSegmentedSelector: View {
                         withAnimation(.smooth) { selection = option }
                     } label: {
                         Text(option)
-                            .font(.subheadline.weight(.semibold))
+                            .glassFont(.subheadline, weight: .semibold)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 10)
                             .background {
@@ -155,9 +155,9 @@ private struct MiniPlayer: View {
 
                     VStack(alignment: .leading) {
                         Text("Glass Animals")
-                            .font(.headline)
+                            .glassFont(.headline)
                         Text("Heat Waves")
-                            .font(.subheadline)
+                            .glassFont(.subheadline)
                             .foregroundStyle(.secondary)
                     }
 
@@ -217,7 +217,7 @@ private struct FloatingActionMenu: View {
                 if isOpen {
                     ForEach(actions, id: \.title) { action in
                         Label(action.title, systemImage: action.symbol)
-                            .font(.headline)
+                            .glassFont(.headline)
                             .padding(.horizontal, 18)
                             .padding(.vertical, 12)
                             .glassEffect(.regular.tint(action.color.opacity(0.5)).interactive())

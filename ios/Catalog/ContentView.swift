@@ -189,7 +189,7 @@ struct ContentView: View {
                     }
                     .pickerStyle(.segmented)
                 } footer: {
-                    Text("RTL mirrors the whole app, including sheets and full-screen demos.")
+                    Text("RTL mirrors the whole app, including sheets and full-screen demos.").glassFontOnly(.footnote)
                 }
 
                 Section {
@@ -205,10 +205,10 @@ struct ContentView: View {
                         }
                     }
                 } footer: {
-                    Text("Tints every glass in the catalog that has no tint of its own.")
+                    Text("Tints every glass in the catalog that has no tint of its own.").glassFontOnly(.footnote)
                 }
 
-                Section("Components") {
+                Section {
                     ForEach(GlassComponent.allCases) { component in
                         // A NavigationLink's look: primary title, tinted icon, disclosure chevron.
                         Button {
@@ -231,6 +231,8 @@ struct ContentView: View {
                             }
                         }
                     }
+                } header: {
+                    Text("Components").glassFontOnly(.headline)
                 }
             }
             .navigationTitle("Liquid Glass")

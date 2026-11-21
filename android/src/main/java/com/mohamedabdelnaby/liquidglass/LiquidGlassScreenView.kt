@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactContext
 import com.facebook.react.bridge.WritableMap
+import com.facebook.react.common.assets.ReactFontManager
 import com.facebook.react.modules.i18nmanager.I18nUtil
 import com.facebook.react.uimanager.UIManagerHelper
 import com.facebook.react.uimanager.events.Event
@@ -67,6 +68,7 @@ internal class LiquidGlassScreenView(context: Context) : ComposeHost(context) {
   // The JS `layoutDirection` prop (not View.layoutDirection), as JS sends it.
   var jsLayoutDirection by mutableStateOf("system")
   var androidStyle by mutableStateOf(AndroidStyle.Glass)
+  var faces by mutableStateOf(FontFaces())
 
   private val onBack: () -> Unit = { emit(EVENT_BACK, null) }
 
@@ -78,8 +80,13 @@ internal class LiquidGlassScreenView(context: Context) : ComposeHost(context) {
 
   init {
     setContent {
+      // The faces as React Native's own Text loads them (assets/fonts, or fonts the app registered).
+      val fontFamily = remember(faces) {
+        fontFamilyOf(faces) { name, weight -> ReactFontManager.getInstance().getTypeface(name, weight.weight, false, context.assets) }
+      }
+      val glassSettings = remember(settings, fontFamily) { settings.copy(fontFamily = fontFamily) }
       // Outside the theme: Material takes Android's own colors and type, with Home's tint as the accent.
-      CompositionLocalProvider(LocalAndroidStyle provides androidStyle, LocalGlassSettings provides settings) { LiquidGlassTheme(mode) {
+      CompositionLocalProvider(LocalAndroidStyle provides androidStyle, LocalGlassSettings provides glassSettings) { LiquidGlassTheme(mode) {
         // The theme's forced appearance, or the system's.
         val dark = isSystemInDarkTheme()
         SideEffect { bars.appearance(dark) }

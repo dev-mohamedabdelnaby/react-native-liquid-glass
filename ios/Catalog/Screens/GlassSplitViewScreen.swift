@@ -24,7 +24,7 @@ struct GlassSplitViewScreen: View {
             .controlSize(.large)
 
             Text("Best viewed on iPad or in landscape.")
-                .font(.footnote)
+                .glassFont(.footnote)
                 .foregroundStyle(.secondary)
         }
         .padding()
@@ -63,7 +63,7 @@ private struct SplitViewDemo: View {
                 VStack(alignment: .leading, spacing: 16) {
                     header
                     Text(selection ?? "Select a place")
-                        .font(.largeTitle.bold())
+                        .glassFont(.largeTitle, weight: .bold)
                     Text("Toggle the background extension effect from the inspector to compare how the artwork fills the space under the sidebar and inspector.")
                         .foregroundStyle(.secondary)
                 }

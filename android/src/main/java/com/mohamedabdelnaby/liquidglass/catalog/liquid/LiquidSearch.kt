@@ -115,7 +115,7 @@ fun LiquidExpandableSearch(
     val keyboard = LocalSoftwareKeyboardController.current
     val isExpanded by rememberUpdatedState(expanded)
     val onChange by rememberUpdatedState(onExpandedChange)
-    val textStyle = TextStyle(color = labelColor, fontSize = 17.sp)
+    val textStyle = TextStyle(color = labelColor, fontSize = 17.sp, fontFamily = LocalGlassSettings.current.fontFamily)
     val textMeasurer = rememberTextMeasurer()
     val placeholderWidth = remember(placeholder, textMeasurer) {
         textMeasurer.measure(placeholder, textStyle).size.width.toFloat()
@@ -320,7 +320,7 @@ fun LiquidExpandableSearch(
                 ),
             contentAlignment = Alignment.Center,
         ) {
-            BasicText("✕", style = TextStyle(color = labelColor, fontSize = 17.sp))
+            BasicText("✕", style = textStyle)
         }
     }
 }

@@ -11,7 +11,7 @@ import UIKit
   @objc public var onSettingsChange: (([String: String]) -> Void)?
 
   private let model = LiquidGlassScreenModel()
-  private lazy var controller = UIHostingController(rootView: LiquidGlassScreenRoot(model: model, host: self))
+  private lazy var controller = GlassHostingController(rootView: LiquidGlassScreenRoot(model: model, host: self))
 
   /// A `GlassComponent` raw value, or `"home"`.
   @objc public var screen: String {
@@ -38,6 +38,20 @@ import UIKit
   @objc public var glassTint: UIColor? {
     get { model.tint }
     set { model.tint = newValue }
+  }
+
+  /// The face for each weight (`''` = not set), from the `font*` props.
+  @objc public func setFonts(regular: String, medium: String, semibold: String, bold: String, heavy: String) {
+    font = GlassFontSpec(regular: regular, medium: medium, semibold: semibold, bold: bold, heavy: heavy)
+  }
+
+  var font: GlassFontSpec {
+    get { model.font }
+    set {
+      guard newValue != model.font else { return }
+      model.font = newValue
+      GlassFontAppearance.apply(newValue)
+    }
   }
 
   public override init(frame: CGRect) {
@@ -156,6 +170,7 @@ import UIKit
   var appearance = AppearanceMode.system
   var directionMode = LayoutDirectionMode.system
   var tint: UIColor?
+  var font = GlassFontSpec()
 
   /// Home's picker: the choice whose colour is the tint (in light or dark mode), else None.
   var tintChoice: GlassTintChoice {
@@ -277,6 +292,9 @@ struct LiquidGlassScreenRoot: View {
         }
       }
     }
+    // Texts without a font of their own (body), and every `.glassFont` below.
+    .font(model.font.font(.body))
+    .environment(\.glassFont, model.font)
     .environment(\.glassTint, model.glassTint)
     .preferredColorScheme(model.appearance.colorScheme)
     .environment(\.layoutDirection, model.directionMode.layoutDirection ?? systemLayoutDirection)

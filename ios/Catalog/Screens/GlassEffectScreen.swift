@@ -25,7 +25,7 @@ struct GlassEffectScreen: View {
         ScrollView {
             VStack(spacing: 28) {
                 Text("Tap any glass item for its menu")
-                    .font(.footnote)
+                    .glassFont(.footnote)
                     .foregroundStyle(.secondary)
 
                 section("Regular (default capsule)") {
@@ -44,7 +44,7 @@ struct GlassEffectScreen: View {
                         }
                     } label: {
                         Text(greeting)
-                            .font(.title2)
+                            .glassFont(.title2)
                             .padding()
                             .contentTransition(.interpolate)
                     }
@@ -57,7 +57,7 @@ struct GlassEffectScreen: View {
                         Toggle("Dimming Layer", systemImage: "circle.lefthalf.filled", isOn: $isClearDimmed.animation())
                     } label: {
                         Label("Clear glass", systemImage: "drop")
-                            .font(.title3)
+                            .glassFont(.title3)
                             .padding()
                     }
                     .buttonStyle(.plain)
@@ -144,7 +144,7 @@ struct GlassEffectScreen: View {
     private func section<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
         VStack(spacing: 12) {
             Text(title)
-                .font(.headline)
+                .glassFont(.headline)
                 .foregroundStyle(.primary)
             content()
         }

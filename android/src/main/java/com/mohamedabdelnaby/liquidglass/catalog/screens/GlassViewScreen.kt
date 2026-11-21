@@ -70,6 +70,8 @@ import com.mohamedabdelnaby.liquidglass.catalog.glass.LiquidGlassShape
 import com.mohamedabdelnaby.liquidglass.catalog.glass.LiquidGlassView
 import com.mohamedabdelnaby.liquidglass.catalog.glass.glassEffect
 import com.mohamedabdelnaby.liquidglass.catalog.ui.theme.SystemColors
+import androidx.compose.ui.platform.LocalFontFamilyResolver
+import android.graphics.Typeface
 
 private val TintChoices = listOf(
     SystemColors.Blue, SystemColors.Orange, SystemColors.Green, SystemColors.Pink, SystemColors.Purple, SystemColors.Teal,
@@ -237,6 +239,10 @@ internal fun SwitchRow(label: String, checked: Boolean, onChange: (Boolean) -> U
 @Composable
 private fun PlatformGlassView(tinted: Boolean, tint: Color, interactive: Boolean, modifier: Modifier) {
     val label = MaterialTheme.colorScheme.onSurface.toArgb()
+    // The custom font's bold face for the View label (in place of the system font's fake bold).
+    val fontFamily = LocalGlassSettings.current.fontFamily
+    val resolver = LocalFontFamilyResolver.current
+    val typeface = fontFamily?.let { resolver.resolve(it, FontWeight.Bold).value as? Typeface }
     AndroidView(
         modifier = modifier,
         factory = { context ->
@@ -270,7 +276,13 @@ private fun PlatformGlassView(tinted: Boolean, tint: Color, interactive: Boolean
             view.findViewWithTag<View>("tint").setBackgroundColor(
                 (if (tinted) tint.copy(alpha = 0.6f) else Color.White.copy(alpha = 0.35f)).toArgb(),
             )
-            view.findViewWithTag<TextView>("label").setTextColor(label)
+            view.findViewWithTag<TextView>("label").apply {
+                setTextColor(label)
+                if (typeface != null) {
+                    this.typeface = typeface
+                    paint.isFakeBoldText = false
+                }
+            }
             view.setOnTouchListener(
                 if (interactive) View.OnTouchListener { v, event ->
                     when (event.actionMasked) {

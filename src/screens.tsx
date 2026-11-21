@@ -34,6 +34,7 @@ export type GlassScreenProps = {
   // Wins over the provider's androidStyle for this screen.
   androidStyle?: GlassSettings['androidStyle'];
   androidSegmentedCheck?: boolean;
+  fontFamily?: GlassSettings['fontFamily'];
   onBack?: () => void;
   onOpen?: (screen: GlassScreenId) => void;
   onSettingsChange?: (settings: GlassSettings) => void;
@@ -41,17 +42,38 @@ export type GlassScreenProps = {
   testID?: string;
 };
 
+// The native props: a face per weight, '' where none is set.
+function fontFaces(font: GlassSettings['fontFamily']) {
+  const f =
+    typeof font === 'string'
+      ? { regular: font, medium: font, semibold: font, bold: font, heavy: font }
+      : (font ?? {});
+  return {
+    fontRegular: f.regular ?? '',
+    fontMedium: f.medium ?? '',
+    fontSemibold: f.semibold ?? '',
+    fontBold: f.bold ?? '',
+    fontHeavy: f.heavy ?? '',
+  };
+}
+
 function GlassScreen({
   screen,
   androidStyle,
   androidSegmentedCheck,
+  fontFamily,
   onBack,
   onOpen,
   onSettingsChange,
   style,
   testID,
 }: GlassScreenProps & { screen: GlassScreenId | 'home' }) {
-  const { tint, refraction, ...settings } = useGlassSettings();
+  const {
+    tint,
+    refraction,
+    fontFamily: providerFont,
+    ...settings
+  } = useGlassSettings();
   return (
     <LiquidGlassScreen
       {...settings}
@@ -59,6 +81,7 @@ function GlassScreen({
       androidSegmentedCheck={
         androidSegmentedCheck ?? settings.androidSegmentedCheck
       }
+      {...fontFaces(fontFamily ?? providerFont)}
       screen={screen}
       tintColor={tint}
       refractionHeight={refraction.height}
@@ -78,6 +101,8 @@ function GlassScreen({
           tint: n.tint || null,
           dropColor: n.dropColor || null,
           refraction: { height, amount },
+          // Home has no font control, so the provider's font stays.
+          fontFamily: providerFont,
         } as GlassSettings);
       }}
     />

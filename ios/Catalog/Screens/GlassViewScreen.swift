@@ -36,7 +36,7 @@ struct GlassViewScreen: View {
 
                 VStack(spacing: 12) {
                     Text("UIKit · UIGlassEffect")
-                        .font(.headline)
+                        .glassFont(.headline)
                     UIKitGlassView(isTinted: isTinted, tint: UIColor(tint), isInteractive: isInteractive)
                         .frame(height: 100)
                 }
@@ -56,7 +56,7 @@ struct GlassViewScreen: View {
         } else {
             VStack(alignment: .leading, spacing: 8) {
                 Label("Liquid Glass View", systemImage: "drop.fill")
-                    .font(.title3.bold())
+                    .glassFont(.title3, weight: .bold)
                 Text("Any content can sit on a glass surface. Adjust the options below.")
                     .foregroundStyle(.secondary)
             }
@@ -109,7 +109,8 @@ private struct UIKitGlassView: UIViewRepresentable {
 
         let label = UILabel()
         label.text = "UIVisualEffectView + UIGlassEffect"
-        label.font = .preferredFont(forTextStyle: .headline)
+        label.font = context.environment.glassFont.uiFont(size: 17, weight: .semibold, relativeTo: .headline)
+            ?? .preferredFont(forTextStyle: .headline)
         label.adjustsFontForContentSizeCategory = true
         label.translatesAutoresizingMaskIntoConstraints = false
         view.contentView.addSubview(label)

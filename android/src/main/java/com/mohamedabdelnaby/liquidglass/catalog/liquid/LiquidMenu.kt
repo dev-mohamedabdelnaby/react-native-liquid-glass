@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import com.mohamedabdelnaby.liquidglass.catalog.glass.LocalGlassBackdrop
+import com.mohamedabdelnaby.liquidglass.catalog.glass.LocalGlassSettings
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.backdrop.backdrops.emptyBackdrop
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.backdrop.drawBackdrop
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.backdrop.effects.blur
@@ -272,7 +273,7 @@ internal fun LiquidMenuTitle(text: String) {
   BasicText(
     text,
     Modifier.padding(horizontal = 20.dp, vertical = 8.dp).semantics { heading() },
-    style = TextStyle(color = secondaryColor, fontSize = 13.sp, fontWeight = FontWeight.SemiBold),
+    style = TextStyle(color = secondaryColor, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, fontFamily = LocalGlassSettings.current.fontFamily),
   )
 }
 
@@ -319,10 +320,11 @@ internal fun LiquidMenuRow(
     verticalAlignment = Alignment.CenterVertically,
     horizontalArrangement = Arrangement.spacedBy(10.dp),
   ) {
+    val style = TextStyle(color = color, fontSize = 17.sp, fontFamily = LocalGlassSettings.current.fontFamily)
     if (checked) {
-      BasicText("✓", Modifier.clearAndSetSemantics { }, style = TextStyle(color = color, fontSize = 17.sp))
+      BasicText("✓", Modifier.clearAndSetSemantics { }, style = style)
     }
-    BasicText(text, Modifier.weight(1f), style = TextStyle(color = color, fontSize = 17.sp))
+    BasicText(text, Modifier.weight(1f), style = style)
     icon?.let { Icon(it, null, Modifier.size(20.dp), tint = color) }
   }
 }

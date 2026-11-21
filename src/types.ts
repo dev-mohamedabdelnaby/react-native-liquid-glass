@@ -23,4 +23,15 @@ export type GlassSettings = {
   segmentedLiquid?: boolean;
   tabBarLiquid?: boolean;
   tabBarDrop?: boolean;
+  // Every text the screens draw: one family for all weights, or a font per weight. Names as in
+  // React Native's `fontFamily`; '' (the default) keeps the system font.
+  fontFamily?:
+    | string
+    | {
+        regular?: string;
+        medium?: string;
+        semibold?: string;
+        bold?: string;
+        heavy?: string;
+      };
 };

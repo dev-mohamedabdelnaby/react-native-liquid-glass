@@ -21,6 +21,7 @@ export const DEFAULT_SETTINGS: Required<GlassSettings> = {
   segmentedLiquid: true,
   tabBarLiquid: true,
   tabBarDrop: true,
+  fontFamily: '',
 };
 
 const GlassSettingsContext = createContext(DEFAULT_SETTINGS);

@@ -25,13 +25,15 @@ struct GlassSearchScreen: View {
             Section {
                 Toggle("Minimize search field", isOn: $isMinimized)
             } footer: {
-                Text("When minimized, search appears as a glass button until tapped.")
+                Text("When minimized, search appears as a glass button until tapped.").glassFontOnly(.footnote)
             }
 
-            Section("Fruits") {
+            Section {
                 ForEach(results, id: \.self) { fruit in
                     Text(fruit)
                 }
+            } header: {
+                Text("Fruits").glassFontOnly(.headline)
             }
         }
         .navigationTitle("Search")

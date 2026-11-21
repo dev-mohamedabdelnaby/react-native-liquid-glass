@@ -49,7 +49,7 @@ struct GlassZoomTransitionScreen: View {
             ToolbarItem(placement: .principal) {
                 Label("Online", systemImage: "circle.fill")
                     .labelStyle(.titleAndIcon)
-                    .font(.caption.bold())
+                    .glassFont(.caption, weight: .bold)
                     .foregroundStyle(.green)
             }
             .sharedBackgroundVisibility(.hidden)

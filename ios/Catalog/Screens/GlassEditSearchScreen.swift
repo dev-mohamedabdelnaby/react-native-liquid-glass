@@ -94,7 +94,7 @@ struct GlassEditSearchScreen: View {
                             }
                         } label: {
                             Label("Delete \(selection.count)", systemImage: "trash")
-                                .font(.headline)
+                                .glassFont(.headline)
                                 .foregroundStyle(.white)
                                 .padding(.horizontal, 20)
                                 .frame(height: 52)

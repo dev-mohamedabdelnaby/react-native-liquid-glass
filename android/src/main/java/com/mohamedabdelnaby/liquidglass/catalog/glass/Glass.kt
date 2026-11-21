@@ -35,6 +35,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -160,6 +161,8 @@ data class GlassSettings(
     val tabBarDrop: Boolean = true,
     // Android Material only: the check mark on the selected segment of segmented buttons.
     val segmentedCheck: Boolean = true,
+    // Every screen text's family (the theme's type and the texts that build their own style); null is the system font.
+    val fontFamily: FontFamily? = null,
 )
 
 val LocalGlassSettings = staticCompositionLocalOf { GlassSettings() }

@@ -12,7 +12,7 @@ struct InteractiveGlassScreen: View {
     var body: some View {
         VStack(spacing: 32) {
             Text("Press and hold the shapes")
-                .font(.headline)
+                .glassFont(.headline)
                 .foregroundStyle(.primary)
 
             Image(systemName: "hand.tap.fill")
@@ -22,7 +22,7 @@ struct InteractiveGlassScreen: View {
                 .onTapGesture { tapCount += 1 }
 
             Text("Tapped \(tapCount) times")
-                .font(.title3.monospacedDigit())
+                .glassFont(.title3).monospacedDigit()
                 .padding()
                 .glassEffect(.regular.tint(.purple).interactive())
                 .onTapGesture { tapCount += 1 }

@@ -68,6 +68,7 @@ type GlassSettings = {
   segmentedLiquid?: boolean;
   tabBarLiquid?: boolean;
   tabBarDrop?: boolean;
+  fontFamily?: string | { regular?: string; medium?: string; semibold?: string; bold?: string; heavy?: string };
 };
 ```
 
@@ -94,6 +95,7 @@ Each platform reads the settings its native app has and ignores the rest.
 | `segmentedLiquid` | `true` | no | yes | Liquid drop on segmented controls. `false`: the pill slides without the drop. |
 | `tabBarLiquid` | `true` | no | yes | Glass on bottom tab bars. `false`: frosted. |
 | `tabBarDrop` | `true` | no | yes | Liquid drop on bottom tab bars. |
+| `fontFamily` | `''` | yes | yes | The font of every text the screens draw: one family, or a font per weight. `''`: the system font. A screen's `fontFamily` prop wins. See [fonts.md](fonts.md). |
 
 `DEFAULT_SETTINGS` holds exactly these defaults. They are the native apps' defaults.
 
@@ -130,7 +132,6 @@ SwiftUI's dark mode is the window's style, so a screen with `'light'` or `'dark'
 
 ## Coming in the next version
 
-These settings are planned and not in the package yet:
+This setting is planned and not in the package yet:
 
-- `fontFamily`: see [fonts.md](fonts.md).
 - `icons`: see [icons.md](icons.md).

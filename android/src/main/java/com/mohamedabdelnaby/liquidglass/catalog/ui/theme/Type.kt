@@ -2,6 +2,7 @@ package com.mohamedabdelnaby.liquidglass.catalog.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
@@ -42,5 +43,17 @@ val MaterialTypography = Typography().run {
         titleLarge.content(), titleMedium.content(), titleSmall.content(),
         bodyLarge.content(), bodyMedium.content(), bodySmall.content(),
         labelLarge.content(), labelMedium.content(), labelSmall.content(),
+    )
+}
+
+/** Every style of the scale in [family]; null keeps the scale as it is. */
+fun Typography.withFontFamily(family: FontFamily?): Typography = if (family == null) this else {
+    fun TextStyle.f() = copy(fontFamily = family)
+    Typography(
+        displayLarge.f(), displayMedium.f(), displaySmall.f(),
+        headlineLarge.f(), headlineMedium.f(), headlineSmall.f(),
+        titleLarge.f(), titleMedium.f(), titleSmall.f(),
+        bodyLarge.f(), bodyMedium.f(), bodySmall.f(),
+        labelLarge.f(), labelMedium.f(), labelSmall.f(),
     )
 }

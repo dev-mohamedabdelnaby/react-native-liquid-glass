@@ -111,6 +111,11 @@ static UIColor *_Nullable RNLiquidGlassScreenColor(const SharedColor &color)
   _host.appearance = RNLiquidGlassScreenString(p.appearance);
   _host.layoutDirection = RNLiquidGlassScreenString(p.layoutDirection);
   _host.glassTint = RNLiquidGlassScreenColor(p.tintColor);
+  [_host setFontsWithRegular:RNLiquidGlassScreenString(p.fontRegular)
+                      medium:RNLiquidGlassScreenString(p.fontMedium)
+                    semibold:RNLiquidGlassScreenString(p.fontSemibold)
+                        bold:RNLiquidGlassScreenString(p.fontBold)
+                       heavy:RNLiquidGlassScreenString(p.fontHeavy)];
 
   [super updateProps:props oldProps:oldProps];
 }

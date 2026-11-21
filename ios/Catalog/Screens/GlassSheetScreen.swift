@@ -38,7 +38,7 @@ struct GlassSheetScreen: View {
         .sheet(isPresented: $isSheetPresented) {
             VStack(spacing: 16) {
                 Text("Partial-height sheets float on Liquid Glass")
-                    .font(.headline)
+                    .glassFont(.headline)
                     .multilineTextAlignment(.center)
                 Button("Done") { isSheetPresented = false }
                     .buttonStyle(.glass)

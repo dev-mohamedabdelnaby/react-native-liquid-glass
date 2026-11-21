@@ -28,13 +28,15 @@ struct GlassToolbarScreen: View {
                 Toggle("Morph compose button", isOn: $isMorphEnabled)
                 Toggle("Glass behind Share & More", isOn: $isGroupGlassVisible.animation())
             } footer: {
-                Text("These options are also in the ••• menu.")
+                Text("These options are also in the ••• menu.").glassFontOnly(.footnote)
             }
 
-            Section("Rows") {
+            Section {
                 ForEach(1...40, id: \.self) { index in
                     Label("Row \(index)", systemImage: "photo")
                 }
+            } header: {
+                Text("Rows").glassFontOnly(.headline)
             }
         }
         .navigationTitle("Toolbar")
@@ -89,7 +91,7 @@ struct GlassToolbarScreen: View {
                             withAnimation(.bouncy) { isComposeExpanded = false }
                         } label: {
                             Label(action.title, systemImage: action.symbol)
-                                .font(.headline)
+                                .glassFont(.headline)
                                 .padding(.horizontal, 18)
                                 .padding(.vertical, 12)
                         }

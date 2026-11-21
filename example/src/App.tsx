@@ -32,6 +32,7 @@ import {
   type GlassScreenProps,
   type GlassSettings,
 } from '@native-dev-kit/react-native-liquid-glass';
+import { CUSTOMIZE, CUSTOM_SETTINGS } from './customize';
 
 const SCREENS: Record<
   GlassScreenId,
@@ -65,7 +66,9 @@ type Routes = { Home: undefined } & Record<GlassScreenId, undefined>;
 const Stack = createNativeStackNavigator<Routes>();
 
 export default function App() {
-  const [settings, setSettings] = useState<GlassSettings>(DEFAULT_SETTINGS);
+  const [settings, setSettings] = useState<GlassSettings>(
+    CUSTOMIZE ? { ...DEFAULT_SETTINGS, ...CUSTOM_SETTINGS } : DEFAULT_SETTINGS
+  );
   const direction = settings.layoutDirection ?? 'system';
   const rtl =
     direction === 'rtl' || (direction === 'system' && I18nManager.isRTL);

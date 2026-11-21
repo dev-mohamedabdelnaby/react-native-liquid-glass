@@ -49,6 +49,7 @@ import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassScreen
 import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassSlider
 import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassSegmented
 import com.mohamedabdelnaby.liquidglass.catalog.glass.LocalGlassBackdrop
+import com.mohamedabdelnaby.liquidglass.catalog.glass.LocalGlassSettings
 import com.mohamedabdelnaby.liquidglass.catalog.glass.RectShape
 import com.mohamedabdelnaby.liquidglass.catalog.glass.glassEffect
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.backdrop.backdrops.rememberLayerBackdrop
@@ -67,8 +68,9 @@ fun TextScreen() {
     GlassScreen("Text") { padding ->
         DemoColumn(padding, spacing = 32.dp, horizontalAlignment = Alignment.CenterHorizontally) {
             TextSection("Glass letterforms") {
-                GlassLettering("Liquid", TextStyle(fontSize = 88.sp, fontWeight = FontWeight.Black, fontFamily = FontFamily.SansSerif), letterGlass)
-                GlassLettering("GLASS", TextStyle(fontSize = 64.sp, fontWeight = FontWeight.ExtraBold), letterGlass)
+                val fontFamily = LocalGlassSettings.current.fontFamily
+                GlassLettering("Liquid", TextStyle(fontSize = 88.sp, fontWeight = FontWeight.Black, fontFamily = fontFamily ?: FontFamily.SansSerif), letterGlass)
+                GlassLettering("GLASS", TextStyle(fontSize = 64.sp, fontWeight = FontWeight.ExtraBold, fontFamily = fontFamily), letterGlass)
                 val panel = rememberLayerBackdrop()
                 Column(
                     Modifier.fillMaxWidth().glassEffect(Glass.Regular, RoundedCornerShape(24.dp), exportTo = panel).padding(16.dp),

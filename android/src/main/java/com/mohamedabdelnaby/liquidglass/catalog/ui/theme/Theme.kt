@@ -115,6 +115,7 @@ fun LiquidGlassTheme(
     }
     val material = LocalAndroidStyle.current == AndroidStyle.Material
     val context = LocalContext.current
+    val fontFamily = LocalGlassSettings.current.fontFamily
     CompositionLocalProvider(LocalConfiguration provides configuration) {
         if (material) {
             // Android's own colors (the wallpaper's on Android 12+, else Material's baseline), Home's
@@ -129,13 +130,13 @@ fun LiquidGlassTheme(
             val scheme = remember(system, tint, dark) { tint?.let { tintedScheme(system, it, dark) } ?: system }
             MaterialTheme(
                 colorScheme = scheme,
-                typography = MaterialTypography,
+                typography = remember(fontFamily) { MaterialTypography.withFontFamily(fontFamily) },
                 content = content,
             )
         } else {
             MaterialTheme(
                 colorScheme = if (dark) DarkColors else LightColors,
-                typography = Typography,
+                typography = remember(fontFamily) { Typography.withFontFamily(fontFamily) },
                 content = content,
             )
         }

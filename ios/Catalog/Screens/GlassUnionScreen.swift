@@ -32,7 +32,7 @@ struct GlassUnionScreen: View {
     var body: some View {
         VStack(spacing: 32) {
             Text("Day and night symbols are grouped into two unions. Tap a symbol for its menu.")
-                .font(.headline)
+                .glassFont(.headline)
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.primary)
 
@@ -68,7 +68,7 @@ struct GlassUnionScreen: View {
                         .symbolRenderingMode(.multicolor)
                         .font(.system(size: 44))
                     Text(selected.name)
-                        .font(.title2.bold())
+                        .glassFont(.title2, weight: .bold)
                     Text(selected.detail)
                         .foregroundStyle(.secondary)
                 }

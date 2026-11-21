@@ -12,6 +12,8 @@ import {
 const { refraction, ...rest } = DEFAULT_SETTINGS;
 const nativeDefaults = {
   ...rest,
+  // The event carries what Home can change: not the font.
+  fontFamily: undefined,
   tint: '',
   dropColor: '',
   refractionHeight: refraction.height,
@@ -109,6 +111,82 @@ test('androidSegmentedCheck: true by default, the provider reaches every screen,
     expect(r.getByTestId(name).props.androidSegmentedCheck).toBe(false);
     expect(r.getByTestId('own').props.androidSegmentedCheck).toBe(true);
   }
+});
+
+const fonts = (props: object) =>
+  Object.fromEntries(
+    Object.entries(props).filter(([key]) => /^font[A-Z]/.test(key))
+  );
+
+test('fontFamily: none by default, a string fills every weight, a map sets its own', async () => {
+  const plain = await render(<GlassTextScreen testID="s" />);
+  expect(fonts(plain.getByTestId('s').props)).toEqual({
+    fontRegular: '',
+    fontMedium: '',
+    fontSemibold: '',
+    fontBold: '',
+    fontHeavy: '',
+  });
+  const one = await render(
+    <GlassSettingsProvider value={{ fontFamily: 'Cairo' }}>
+      <GlassTextScreen testID="s" />
+    </GlassSettingsProvider>
+  );
+  expect(fonts(one.getByTestId('s').props)).toEqual({
+    fontRegular: 'Cairo',
+    fontMedium: 'Cairo',
+    fontSemibold: 'Cairo',
+    fontBold: 'Cairo',
+    fontHeavy: 'Cairo',
+  });
+  const map = await render(
+    <GlassSettingsProvider
+      value={{ fontFamily: { regular: 'Cairo-Regular', bold: 'Cairo-Bold' } }}
+    >
+      <GlassTextScreen testID="s" />
+    </GlassSettingsProvider>
+  );
+  expect(fonts(map.getByTestId('s').props)).toEqual({
+    fontRegular: 'Cairo-Regular',
+    fontMedium: '',
+    fontSemibold: '',
+    fontBold: 'Cairo-Bold',
+    fontHeavy: '',
+  });
+  expect(map.getByTestId('s').props).not.toHaveProperty('fontFamily');
+});
+
+test("fontFamily: a screen's own prop wins over the provider", async () => {
+  const all = Object.entries(Screens).filter(([name]) =>
+    /Screen$/.test(name)
+  ) as [string, typeof GlassTextScreen][];
+  for (const [name, Screen] of all) {
+    const r = await render(
+      <GlassSettingsProvider value={{ fontFamily: 'Cairo' }}>
+        <Screen testID={name} />
+        <Screen testID="own" fontFamily={{ bold: 'Inter-Bold' }} />
+      </GlassSettingsProvider>
+    );
+    expect(r.getByTestId(name).props.fontBold).toBe('Cairo');
+    expect(r.getByTestId('own').props.fontBold).toBe('Inter-Bold');
+    expect(r.getByTestId('own').props.fontRegular).toBe('');
+  }
+});
+
+test('onSettingsChange from Home keeps the current fontFamily', async () => {
+  const onSettingsChange = jest.fn();
+  const fontFamily = { regular: 'Cairo-Regular', bold: 'Cairo-Bold' };
+  const r = await render(
+    <GlassSettingsProvider value={{ fontFamily }}>
+      <GlassHomeScreen testID="h" onSettingsChange={onSettingsChange} />
+    </GlassSettingsProvider>
+  );
+  await fireEvent(r.getByTestId('h'), 'settingsChange', {
+    nativeEvent: { ...nativeDefaults, blur: 7 },
+  });
+  expect(onSettingsChange).toHaveBeenCalledWith(
+    expect.objectContaining({ blur: 7, fontFamily })
+  );
 });
 
 test('events reach the callbacks', async () => {

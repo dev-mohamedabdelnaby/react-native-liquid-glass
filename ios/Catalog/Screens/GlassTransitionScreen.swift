@@ -65,7 +65,7 @@ struct GlassTransitionScreen: View {
             Spacer()
 
             Text(description)
-                .font(.footnote)
+                .glassFont(.footnote)
                 .multilineTextAlignment(.center)
                 .padding()
                 .appGlassEffect(in: .rect(cornerRadius: 20))

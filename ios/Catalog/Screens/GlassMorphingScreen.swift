@@ -46,7 +46,7 @@ struct GlassMorphingScreen: View {
             Spacer()
 
             Text("Tap the button to morph the tools out of it")
-                .font(.footnote)
+                .glassFont(.footnote)
                 .padding()
                 .appGlassEffect()
         }

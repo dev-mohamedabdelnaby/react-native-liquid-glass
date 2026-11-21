@@ -80,4 +80,4 @@ Use `Platform.OS` if you want Material only on some devices; iOS always shows gl
 - Screens about glass itself (Glass Effect, Glass View, Union, Morphing, Glass Container) show Material surfaces in its place, on the plain page instead of the photo.
 - The other Android glass settings (`clear`, `blur`, `liquid` and the rest) do nothing in `'material'`.
 - `appearance`, `layoutDirection` and the back key work as in glass: back closes an open sheet, dialog, menu or search first.
-- Custom [fonts](fonts.md) and [icons](icons.md) will apply to both styles.
+- Custom [fonts](fonts.md) apply to both styles (glass texts and the Material type scale); custom [icons](icons.md) will too.

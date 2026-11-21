@@ -18,7 +18,7 @@ struct GlassControlsScreen: View {
 
     var body: some View {
         Form {
-            Section("Slider") {
+            Section {
                 Slider(value: $volume) {
                     Text("Volume")
                 } minimumValueLabel: {
@@ -26,19 +26,25 @@ struct GlassControlsScreen: View {
                 } maximumValueLabel: {
                     Image(systemName: "speaker.wave.3")
                 }
+            } header: {
+                Text("Slider").glassFontOnly(.headline)
             }
 
-            Section("Toggle") {
+            Section {
                 Toggle("Notifications", isOn: $isOn)
+            } header: {
+                Text("Toggle").glassFontOnly(.headline)
             }
 
-            Section("Segmented Picker") {
+            Section {
                 Picker("Mode", selection: $segment) {
                     Text("Day").tag(0)
                     Text("Week").tag(1)
                     Text("Month").tag(2)
                 }
                 .pickerStyle(.segmented)
+            } header: {
+                Text("Segmented Picker").glassFontOnly(.headline)
             }
 
             Section {
@@ -58,12 +64,12 @@ struct GlassControlsScreen: View {
                     GlassStepper(value: $stepperValue, range: 0...10)
                 }
             } header: {
-                Text("Stepper")
+                Text("Stepper").glassFontOnly(.headline)
             } footer: {
-                Text("Tap the number in the glass stepper for a menu of presets.")
+                Text("Tap the number in the glass stepper for a menu of presets.").glassFontOnly(.footnote)
             }
 
-            Section("Menu Picker") {
+            Section {
                 // Menu pickers present their options in a glass menu.
                 Picker("Flavor", selection: $flavor) {
                     ForEach(["Vanilla", "Chocolate", "Strawberry"], id: \.self) { flavor in
@@ -71,19 +77,25 @@ struct GlassControlsScreen: View {
                     }
                 }
                 .pickerStyle(.menu)
+            } header: {
+                Text("Menu Picker").glassFontOnly(.headline)
             }
 
-            Section("Date & Color Pickers") {
+            Section {
                 DatePicker("Date", selection: $date, displayedComponents: .date)
                 DatePicker("Time", selection: $date, displayedComponents: .hourAndMinute)
                 ColorPicker("Accent", selection: $color)
+            } header: {
+                Text("Date & Color Pickers").glassFontOnly(.headline)
             }
 
-            Section("Progress") {
+            Section {
                 ProgressView(value: progress)
                     .tint(color)
                 Slider(value: $progress)
                     .tint(color)
+            } header: {
+                Text("Progress").glassFontOnly(.headline)
             }
         }
         .navigationTitle("Controls")
@@ -118,7 +130,7 @@ private struct GlassStepper: View {
                 }
             } label: {
                 Text("\(value)")
-                    .font(.headline.monospacedDigit())
+                    .glassFont(.headline).monospacedDigit()
                     .contentTransition(.numericText())
                     .frame(minWidth: 36)
             }

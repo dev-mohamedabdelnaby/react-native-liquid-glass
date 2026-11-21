@@ -14,7 +14,7 @@ struct GlassAlertsScreen: View {
     var body: some View {
         VStack(spacing: 24) {
             Text("Last action: \(lastAction)")
-                .font(.headline)
+                .glassFont(.headline)
 
             Button("Show Alert", systemImage: "exclamationmark.triangle") {
                 isAlertPresented = true
@@ -49,7 +49,7 @@ struct GlassAlertsScreen: View {
                 }
 
             Text("Long-press the artwork for a context menu")
-                .font(.footnote)
+                .glassFont(.footnote)
                 .foregroundStyle(.secondary)
         }
         .padding()

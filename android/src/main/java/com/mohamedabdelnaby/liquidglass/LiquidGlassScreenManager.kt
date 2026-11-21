@@ -86,6 +86,20 @@ internal class LiquidGlassScreenManager :
 
   override fun setTabBarDrop(view: LiquidGlassScreenView, value: Boolean) = update(view) { copy(tabBarDrop = value) }
 
+  override fun setFontRegular(view: LiquidGlassScreenView, value: String?) = faces(view) { copy(regular = value.orEmpty()) }
+
+  override fun setFontMedium(view: LiquidGlassScreenView, value: String?) = faces(view) { copy(medium = value.orEmpty()) }
+
+  override fun setFontSemibold(view: LiquidGlassScreenView, value: String?) = faces(view) { copy(semibold = value.orEmpty()) }
+
+  override fun setFontBold(view: LiquidGlassScreenView, value: String?) = faces(view) { copy(bold = value.orEmpty()) }
+
+  override fun setFontHeavy(view: LiquidGlassScreenView, value: String?) = faces(view) { copy(heavy = value.orEmpty()) }
+
+  private fun faces(view: LiquidGlassScreenView, change: FontFaces.() -> FontFaces) {
+    view.faces = view.faces.change()
+  }
+
   private fun update(view: LiquidGlassScreenView, change: GlassSettings.() -> GlassSettings) {
     view.settings = view.settings.change()
   }
