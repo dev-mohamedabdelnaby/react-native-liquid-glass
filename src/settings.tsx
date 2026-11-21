@@ -5,6 +5,8 @@ export const DEFAULT_SETTINGS: Required<GlassSettings> = {
   appearance: 'system',
   tint: null,
   layoutDirection: 'system',
+  androidStyle: 'glass',
+  androidSegmentedCheck: true,
   clear: true,
   blur: 3,
   white: 0.25,

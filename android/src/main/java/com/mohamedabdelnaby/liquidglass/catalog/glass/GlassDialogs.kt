@@ -62,6 +62,7 @@ fun GlassBottomSheet(
     sheetState: SheetState = rememberModalBottomSheetState(),
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    if (isMaterial) return MaterialBottomSheet(onDismissRequest, sheetState, content)
     GlassOverlay { ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,
@@ -96,6 +97,7 @@ fun GlassAlertDialog(
     onDismissRequest: () -> Unit,
     actions: @Composable ColumnScope.() -> Unit,
 ) {
+    if (isMaterial) return MaterialAlertDialog(title, message, onDismissRequest, actions)
     // iOS alerts are modal, so only back dismisses, not an outside tap.
     GlassOverlay { BasicAlertDialog(onDismissRequest = onDismissRequest, properties = DialogProperties(dismissOnClickOutside = false)) {
         Column(
@@ -117,6 +119,7 @@ fun GlassAlertDialog(
 /** Full-width dialog action, prominent or plain (frosted) glass. */
 @Composable
 fun DialogAction(text: String, onClick: () -> Unit, prominent: Boolean = false, destructive: Boolean = false) {
+    if (isMaterial) return MaterialDialogAction(text, onClick, destructive)
     val modifier = Modifier.fillMaxWidth()
     when {
         prominent -> GlassProminentButton(onClick, modifier, tint = if (destructive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary) { Text(text) }
@@ -135,6 +138,7 @@ fun DialogAction(text: String, onClick: () -> Unit, prominent: Boolean = false, 
  */
 @Composable
 fun GlassPopover(expanded: Boolean, onDismissRequest: () -> Unit, content: @Composable ColumnScope.() -> Unit) {
+    if (isMaterial) return MaterialPopover(expanded, onDismissRequest, content)
     val pop = remember { Animatable(0f) }
     var shown by remember { mutableStateOf(false) }
     LaunchedEffect(expanded) {

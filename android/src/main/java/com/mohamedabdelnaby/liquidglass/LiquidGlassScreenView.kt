@@ -21,6 +21,8 @@ import com.facebook.react.uimanager.UIManagerHelper
 import com.facebook.react.uimanager.events.Event
 import com.mohamedabdelnaby.liquidglass.catalog.GlassComponent
 import com.mohamedabdelnaby.liquidglass.catalog.HomeScreen
+import com.mohamedabdelnaby.liquidglass.catalog.glass.AndroidStyle
+import com.mohamedabdelnaby.liquidglass.catalog.glass.LocalAndroidStyle
 import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassSettings
 import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassWindowBackdrop
 import com.mohamedabdelnaby.liquidglass.catalog.glass.LocalGlassSettings
@@ -47,6 +49,9 @@ fun layoutDirectionOf(value: String, systemIsRtl: Boolean): LayoutDirection = wh
   else -> if (systemIsRtl) LayoutDirection.Rtl else LayoutDirection.Ltr
 }
 
+/** `'glass' | 'material'`, as JS sends it; anything else is Glass. */
+fun androidStyleOf(value: String): AndroidStyle = if (value == "material") AndroidStyle.Material else AndroidStyle.Glass
+
 /** `'#RRGGBBAA'`, as the events send colours; `''` for none. */
 internal fun Color?.toRgba(): String = this?.toArgb()?.let { "#%08X".format((it shl 8) or (it ushr 24)) } ?: ""
 
@@ -61,6 +66,7 @@ internal class LiquidGlassScreenView(context: Context) : ComposeHost(context) {
   var settings by mutableStateOf(GlassSettings())
   // The JS `layoutDirection` prop (not View.layoutDirection), as JS sends it.
   var jsLayoutDirection by mutableStateOf("system")
+  var androidStyle by mutableStateOf(AndroidStyle.Glass)
 
   private val onBack: () -> Unit = { emit(EVENT_BACK, null) }
 
@@ -72,14 +78,14 @@ internal class LiquidGlassScreenView(context: Context) : ComposeHost(context) {
 
   init {
     setContent {
-      LiquidGlassTheme(mode) {
+      // Outside the theme: Material takes Android's own colors and type, with Home's tint as the accent.
+      CompositionLocalProvider(LocalAndroidStyle provides androidStyle, LocalGlassSettings provides settings) { LiquidGlassTheme(mode) {
         // The theme's forced appearance, or the system's.
         val dark = isSystemInDarkTheme()
         SideEffect { bars.appearance(dark) }
         CompositionLocalProvider(
           LocalOnBack provides onBack,
           LocalGlassWindowBackdrop provides remember { GlassWindowBackdrop() },
-          LocalGlassSettings provides settings,
           // System is React Native's own direction (I18nManager.isRTL), so it agrees with the JS screens.
           LocalLayoutDirection provides layoutDirectionOf(jsLayoutDirection, I18nUtil.instance.isRTL(context)),
         ) {
@@ -87,17 +93,19 @@ internal class LiquidGlassScreenView(context: Context) : ComposeHost(context) {
             null -> Unit
             HOME -> HomeScreen(
               mode = mode,
-              onModeChange = { emitSettings(it, settings, jsLayoutDirection) },
+              onModeChange = { emitSettings(it, settings, jsLayoutDirection, androidStyle) },
               onOpen = { emit(EVENT_OPEN, Arguments.createMap().apply { putString("screen", it.name.replaceFirstChar(Char::lowercase)) }) },
               settings = settings,
-              onSettingsChange = { emitSettings(mode, it, jsLayoutDirection) },
+              onSettingsChange = { emitSettings(mode, it, jsLayoutDirection, androidStyle) },
               direction = jsLayoutDirection,
-              onDirectionChange = { emitSettings(mode, settings, it) },
+              onDirectionChange = { emitSettings(mode, settings, it, androidStyle) },
+              style = androidStyle,
+              onStyleChange = { emitSettings(mode, settings, jsLayoutDirection, it) },
             )
             else -> screenComponent(id)?.screen?.invoke()
           }
         }
-      }
+      } }
     }
   }
 
@@ -114,11 +122,13 @@ internal class LiquidGlassScreenView(context: Context) : ComposeHost(context) {
   }
 
   // Only Home's own controls call this, never the prop setters: JS state and props would echo.
-  private fun emitSettings(mode: AppearanceMode, s: GlassSettings, direction: String) = emit(
+  private fun emitSettings(mode: AppearanceMode, s: GlassSettings, direction: String, style: AndroidStyle) = emit(
     EVENT_SETTINGS_CHANGE,
     Arguments.createMap().apply {
       putString("appearance", mode.name.lowercase())
       putString("layoutDirection", direction)
+      putString("androidStyle", style.name.lowercase())
+      putBoolean("androidSegmentedCheck", s.segmentedCheck)
       putString("tint", s.tint.toRgba())
       putBoolean("clear", s.clear)
       putDouble("blur", s.blur.value.toDouble())

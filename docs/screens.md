@@ -38,6 +38,8 @@ type GlassScreenProps = {
   onBack?: () => void;
   onOpen?: (screen: GlassScreenId) => void;
   onSettingsChange?: (settings: GlassSettings) => void;
+  androidStyle?: 'glass' | 'material';
+  androidSegmentedCheck?: boolean;
   style?: StyleProp<ViewStyle>;
   testID?: string;
 };
@@ -48,10 +50,12 @@ type GlassScreenProps = {
 | `style` | Size and place of the screen. **There is no default size**: pass `{ flex: 1 }` or the screen is 0 × 0. |
 | `onBack` | The screen's own back (or close) button was tapped. Call `navigation.goBack()` here. Home has no back button. |
 | `onOpen` | Home only: a row was tapped. You get the screen id, for example `'buttons'`. Push that screen. |
+| `androidStyle` | Android only: `'material'` draws this screen with Material 3, `'glass'` with glass. Wins over the provider's `androidStyle`. See [android-style.md](android-style.md). |
+| `androidSegmentedCheck` | Android Material only: `false` hides the check mark on the selected segment of segmented buttons. Wins over the provider's. |
 | `onSettingsChange` | Home only: the user changed a setting on Home. You get the full `GlassSettings`. Store it and pass it back to `GlassSettingsProvider`. |
 | `testID` | Passed to the native view, for tests. |
 
-Screens take no children. Settings do not come in as props; they come from the nearest `GlassSettingsProvider` (see [settings.md](settings.md)).
+Screens take no children. Settings do not come in as props (except `androidStyle` and `androidSegmentedCheck`); they come from the nearest `GlassSettingsProvider` (see [settings.md](settings.md)).
 
 ## Back on each platform
 

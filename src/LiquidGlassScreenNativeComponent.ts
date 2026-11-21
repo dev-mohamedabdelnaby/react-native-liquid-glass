@@ -10,6 +10,8 @@ export interface NativeProps extends ViewProps {
   screen?: string;
   appearance?: CodegenTypes.WithDefault<string, 'system'>;
   layoutDirection?: CodegenTypes.WithDefault<string, 'system'>;
+  androidStyle?: CodegenTypes.WithDefault<string, 'glass'>;
+  androidSegmentedCheck?: CodegenTypes.WithDefault<boolean, true>;
   tintColor?: ColorValue;
   clear?: CodegenTypes.WithDefault<boolean, true>;
   blur?: CodegenTypes.WithDefault<CodegenTypes.Float, 3>;
@@ -34,6 +36,8 @@ export interface NativeProps extends ViewProps {
     Readonly<{
       appearance: string;
       layoutDirection: string;
+      androidStyle: string;
+      androidSegmentedCheck: boolean;
       tint: string;
       clear: boolean;
       blur: CodegenTypes.Float;

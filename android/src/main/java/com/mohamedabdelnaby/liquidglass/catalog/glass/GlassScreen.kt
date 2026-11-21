@@ -70,10 +70,11 @@ val LocalOnBack = staticCompositionLocalOf<() -> Unit> { {} }
 enum class EdgeEffect { Soft, Hard, Hidden, StatusBar }
 
 /** iOS `systemBackground`: a plain `ScrollView` page. */
-val SystemBackground: Color @Composable get() = if (isSystemInDarkTheme()) Color.Black else Color.White
+val SystemBackground: Color @Composable get() = if (isMaterial) MaterialTheme.colorScheme.surface else if (isSystemInDarkTheme()) Color.Black else Color.White
 
 /** iOS `.background.secondary`: cards on a [SystemBackground] page. */
-val SecondarySystemBackground: Color @Composable get() = if (isSystemInDarkTheme()) Color(0xFF1C1C1E) else Color(0xFFF2F2F7)
+val SecondarySystemBackground: Color @Composable get() =
+    if (isMaterial) MaterialTheme.colorScheme.surfaceContainerHigh else if (isSystemInDarkTheme()) Color(0xFF1C1C1E) else Color(0xFFF2F2F7)
 
 /** A flat background for screens that bring their own colorful content; grouped-list gray by default. */
 @Composable
@@ -169,6 +170,9 @@ fun GlassScreen(
     overlay: @Composable BoxScope.() -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
 ) {
+    if (isMaterial) return MaterialScreen(
+        modifier, actions, titleContent, bottomBar, floatingActionButton, topEdge, topAccessory, closeButton, showTopBar, backdrop, overlay, content,
+    )
     GlassSurfaceHost(modifier, backdrop) {
         Scaffold(
             containerColor = Color.Transparent,
@@ -193,15 +197,17 @@ fun GlassScreen(
 /** A navigation stack's large title: `.largeTitle.bold()`, leading, as the first item under the bar. */
 @Composable
 fun LargeTitle(text: String, modifier: Modifier = Modifier) =
-    Text(text, modifier.padding(bottom = 4.dp), fontSize = 34.sp, lineHeight = 41.sp, fontWeight = FontWeight.Bold)
+    if (isMaterial) MaterialLargeTitle(text, modifier) else Text(text, modifier.padding(bottom = 4.dp), fontSize = 34.sp, lineHeight = 41.sp, fontWeight = FontWeight.Bold)
 
 /** The bar title of a large-title page: it appears once the large title has scrolled away. */
 @Composable
 fun CollapsedBarTitle(text: String, scrolled: Boolean) =
-    AnimatedVisibility(scrolled, enter = fadeIn(), exit = fadeOut()) { BarTitle(text) }
+    // Material: a top app bar always shows its title (the screen drops its large title).
+    if (isMaterial) MaterialBarTitle(text) else AnimatedVisibility(scrolled, enter = fadeIn(), exit = fadeOut()) { BarTitle(text) }
 
 @Composable
 fun BarTitle(text: String) {
+    if (isMaterial) return MaterialBarTitle(text)
     Text(
         text,
         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold, fontSize = 17.sp),
@@ -272,6 +278,7 @@ fun GlassBottomBar(
     edge: EdgeEffect = EdgeEffect.Soft,
     content: @Composable RowScope.() -> Unit,
 ) {
+    if (isMaterial) return MaterialBottomBar(modifier, content)
     Box(modifier.fillMaxWidth()) {
         Crossfade(edge, Modifier.matchParentSize(), label = "bottom edge") { ScrollEdge(it, top = false, Modifier.fillMaxSize()) }
         Row(
@@ -323,6 +330,8 @@ private fun EdgeMaterial(modifier: Modifier, mask: Brush) {
 /** The fade where scrolling content meets a bar: progressive blur, an opaque band, or nothing. */
 @Composable
 fun ScrollEdge(edge: EdgeEffect, top: Boolean, modifier: Modifier = Modifier) {
+    // Material bars are opaque: no fade.
+    if (isMaterial) return
     LocalGlassBackdrop.current ?: return
     val background = MaterialTheme.colorScheme.background
     when (edge) {

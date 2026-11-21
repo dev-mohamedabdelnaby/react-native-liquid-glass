@@ -57,7 +57,8 @@ fun GlassDropdownMenu(
     modifier: Modifier = Modifier,
     @Suppress("UNUSED_PARAMETER") offset: DpOffset = DpOffset(0.dp, 8.dp),
     content: @Composable ColumnScope.() -> Unit,
-) = LiquidDropdown(expanded, onDismissRequest, modifier, onProgress = {}, onClosed = {}, content = content)
+) = if (isMaterial) MaterialDropdownMenu(expanded, onDismissRequest, modifier, offset, content)
+else LiquidDropdown(expanded, onDismissRequest, modifier, onProgress = {}, onClosed = {}, content = content)
 
 /**
  * SwiftUI's `Menu { } label: { }`: [anchor] gets `open`, [items] get `dismiss`. With a [preview]
@@ -72,6 +73,8 @@ fun GlassMenu(
     anchor: @Composable (open: () -> Unit) -> Unit,
     items: @Composable ColumnScope.(dismiss: () -> Unit) -> Unit,
 ) {
+    // A context menu's lifted preview is iOS's: Material opens the menu at the anchor.
+    if (isMaterial) return MaterialMenu(modifier, onClosed, anchor, items)
     var expanded by remember { mutableStateOf(false) }
     // The anchor fades as the drop covers it, and back as the menu shrinks into it.
     var anchorAlpha by remember { mutableFloatStateOf(1f) }
@@ -191,10 +194,10 @@ fun GlassMenuItem(
     icon: ImageVector? = null,
     destructive: Boolean = false,
     checked: Boolean = false,
-) = LiquidMenuRow(text, onClick, icon, destructive, checked)
+) = if (isMaterial) MaterialMenuItem(text, onClick, icon, destructive, checked) else LiquidMenuRow(text, onClick, icon, destructive, checked)
 
 @Composable
-fun GlassMenuHeader(text: String) = LiquidMenuTitle(text)
+fun GlassMenuHeader(text: String) = if (isMaterial) MaterialMenuHeader(text) else LiquidMenuTitle(text)
 
 @Composable
-fun GlassMenuDivider() = LiquidMenuSeparator()
+fun GlassMenuDivider() = if (isMaterial) MaterialMenuDivider() else LiquidMenuSeparator()

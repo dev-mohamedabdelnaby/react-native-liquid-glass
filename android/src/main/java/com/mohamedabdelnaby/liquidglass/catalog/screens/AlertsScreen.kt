@@ -12,6 +12,7 @@ import androidx.compose.runtime.getValue
 import com.mohamedabdelnaby.liquidglass.catalog.glass.glassClickable
 import com.mohamedabdelnaby.liquidglass.catalog.glass.TertiaryFill
 import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassPopover
+import com.mohamedabdelnaby.liquidglass.catalog.glass.isMaterial
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Color
@@ -89,7 +90,8 @@ fun AlertsScreen() {
                     Text("Show Confirmation Dialog")
                 }
                 // iOS 27: a popover above the button, its actions as pills; tapping outside cancels.
-                GlassPopover(dialog, { dialog = false; lastAction = "Cancelled" }) {
+                // Material: a confirmation is an alert dialog (below).
+                if (!isMaterial) GlassPopover(dialog, { dialog = false; lastAction = "Cancelled" }) {
                     Column(
                         Modifier.width(240.dp).padding(12.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -142,6 +144,17 @@ fun AlertsScreen() {
         }
     }
 
+    if (dialog && isMaterial) {
+        GlassAlertDialog(
+            title = "Delete this photo?",
+            message = "",
+            onDismissRequest = { dialog = false; lastAction = "Cancelled" },
+        ) {
+            DialogAction("Delete", { lastAction = "Deleted"; dialog = false }, destructive = true)
+            DialogAction("Archive", { lastAction = "Archived"; dialog = false })
+            DialogAction("Cancel", { lastAction = "Cancelled"; dialog = false })
+        }
+    }
     if (alert) {
         GlassAlertDialog(
             title = "Enable Notifications?",

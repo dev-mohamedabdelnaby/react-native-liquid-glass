@@ -80,7 +80,8 @@ fun DemoColumn(
 @Composable
 fun DemoSection(title: String, modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text(title, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        if (isMaterial) MaterialSectionHeader(title)
+        else Text(title, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         content()
     }
 }
@@ -120,6 +121,7 @@ fun GlassListSection(
     glass: Boolean = true,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    if (isMaterial) return MaterialListSection(modifier, header, footer, content)
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         header?.let {
             Text(
@@ -145,6 +147,7 @@ fun ListRow(
     divider: Boolean = true,
     content: @Composable RowScope.() -> Unit,
 ) {
+    if (isMaterial) return MaterialListRow(modifier, content)
     Column(modifier) {
         Row(
             Modifier.fillMaxWidth().heightIn(min = 52.dp).padding(horizontal = 16.dp, vertical = 8.dp),
@@ -163,6 +166,7 @@ fun RowScope.Fill() = Spacer(Modifier.weight(1f))
 /** An opaque row of an iOS-style grouped list: only the first and last rows round their corners. */
 @Composable
 fun Modifier.groupedRow(index: Int, count: Int, radius: Dp = 26.dp): Modifier {
+    if (isMaterial) return materialSegment(index, count)
     val top = if (index == 0) radius else 0.dp
     val bottom = if (index == count - 1) radius else 0.dp
     return clip(RoundedCornerShape(top, top, bottom, bottom)).background(MaterialTheme.colorScheme.surface)

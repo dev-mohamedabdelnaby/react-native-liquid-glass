@@ -1,6 +1,7 @@
 import { expect, jest, test } from '@jest/globals';
 import { fireEvent, render } from '@testing-library/react-native';
 import { DEFAULT_SETTINGS, GlassSettingsProvider } from '../index';
+import * as Screens from '../screens';
 import {
   GLASS_SCREENS,
   GlassButtonsScreen,
@@ -71,6 +72,43 @@ test('provider settings reach the native props and update live', async () => {
   });
   await r.rerender(tree({ tint: null }));
   expect(r.getByTestId('s').props.tintColor).toBeNull();
+});
+
+test('androidStyle: glass by default, the provider reaches every screen, a prop wins', async () => {
+  const all = Object.entries(Screens).filter(([name]) =>
+    /Screen$/.test(name)
+  ) as [string, typeof GlassTextScreen][];
+  expect(all).toHaveLength(22);
+  for (const [name, Screen] of all) {
+    const plain = await render(<Screen testID={name} />);
+    expect(plain.getByTestId(name).props.androidStyle).toBe('glass');
+    const r = await render(
+      <GlassSettingsProvider value={{ androidStyle: 'material' }}>
+        <Screen testID={name} />
+        <Screen testID="own" androidStyle="glass" />
+      </GlassSettingsProvider>
+    );
+    expect(r.getByTestId(name).props.androidStyle).toBe('material');
+    expect(r.getByTestId('own').props.androidStyle).toBe('glass');
+  }
+});
+
+test('androidSegmentedCheck: true by default, the provider reaches every screen, a prop wins', async () => {
+  const all = Object.entries(Screens).filter(([name]) =>
+    /Screen$/.test(name)
+  ) as [string, typeof GlassTextScreen][];
+  for (const [name, Screen] of all) {
+    const plain = await render(<Screen testID={name} />);
+    expect(plain.getByTestId(name).props.androidSegmentedCheck).toBe(true);
+    const r = await render(
+      <GlassSettingsProvider value={{ androidSegmentedCheck: false }}>
+        <Screen testID={name} />
+        <Screen testID="own" androidSegmentedCheck />
+      </GlassSettingsProvider>
+    );
+    expect(r.getByTestId(name).props.androidSegmentedCheck).toBe(false);
+    expect(r.getByTestId('own').props.androidSegmentedCheck).toBe(true);
+  }
 });
 
 test('events reach the callbacks', async () => {

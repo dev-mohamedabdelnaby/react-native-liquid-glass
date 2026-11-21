@@ -4,6 +4,8 @@
 package com.mohamedabdelnaby.liquidglass.catalog.liquid
 
 import com.mohamedabdelnaby.liquidglass.catalog.glass.opaqueFill
+import com.mohamedabdelnaby.liquidglass.catalog.glass.isMaterial
+import com.mohamedabdelnaby.liquidglass.catalog.glass.MaterialTabs
 import com.mohamedabdelnaby.liquidglass.catalog.glass.LocalGlassSettings
 import com.mohamedabdelnaby.liquidglass.catalog.glass.DropTintAlpha
 import com.mohamedabdelnaby.liquidglass.catalog.glass.dropColorOf
@@ -502,6 +504,7 @@ fun LiquidTabBar(
     // false: the pill only slides, no drop lifts; null follows the setting.
     showDrop: Boolean? = null,
 ) {
+    if (isMaterial) return MaterialTabs(selectedIndex, onSelect, tabs, modifier, segmented, color)
     val dark = isSystemInDarkTheme()
     val drop = dropColorOf(dropColor)
     val glassSettings = LocalGlassSettings.current

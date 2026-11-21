@@ -32,3 +32,15 @@ val Typography = Typography(
     labelMedium = ios(12, 16, 0.0), // caption
     labelSmall = ios(11, 13, 0.06), // caption2
 )
+
+/** Material 3's own type scale (Android's Roboto sizes), each paragraph in its own script's direction. */
+val MaterialTypography = Typography().run {
+    fun TextStyle.content() = copy(textDirection = TextDirection.Content)
+    Typography(
+        displayLarge.content(), displayMedium.content(), displaySmall.content(),
+        headlineLarge.content(), headlineMedium.content(), headlineSmall.content(),
+        titleLarge.content(), titleMedium.content(), titleSmall.content(),
+        bodyLarge.content(), bodyMedium.content(), bodySmall.content(),
+        labelLarge.content(), labelMedium.content(), labelSmall.content(),
+    )
+}

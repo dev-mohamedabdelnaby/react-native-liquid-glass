@@ -20,6 +20,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import com.mohamedabdelnaby.liquidglass.catalog.glass.LargeTitle
+import com.mohamedabdelnaby.liquidglass.catalog.glass.isMaterial
+import androidx.compose.material3.FloatingActionButton
 import com.mohamedabdelnaby.liquidglass.catalog.glass.CollapsedBarTitle
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -95,6 +97,7 @@ fun ToolbarScreen() {
     val context = LocalContext.current
     val listState = rememberLazyListState()
     val scrolled by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
+    val material = isMaterial
 
     GlassScreen(
         title = "Toolbar",
@@ -147,7 +150,8 @@ fun ToolbarScreen() {
                 bottom = padding.calculateBottomPadding() + 96.dp,
             ),
         ) {
-            item { LargeTitle("Toolbar", Modifier.padding(bottom = 12.dp)) }
+            // Material: the top app bar shows the title.
+            if (!material) item { LargeTitle("Toolbar", Modifier.padding(bottom = 12.dp)) }
             item {
                 Column(Modifier.padding(bottom = 28.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Column {
@@ -198,7 +202,12 @@ private fun ComposeButton(open: Boolean, morph: Boolean, onToggle: () -> Unit, o
                         RevealPill(title, icon, Glass.Regular.interactive(), reveal, below = ComposeActions.size - 1 - index, morph = morph) { onAction(title) }
                     }
                 }
-                Box(
+                // Material: Android's floating action button.
+                if (isMaterial) FloatingActionButton(onToggle) {
+                    AnimatedContent(open, transitionSpec = { (scaleIn() + fadeIn()) togetherWith (scaleOut() + fadeOut()) }, label = "compose") {
+                        Icon(if (it) Icons.Filled.Close else Icons.Filled.EditNote, if (it) "Close" else "Compose")
+                    }
+                } else Box(
                     Modifier
                         .size(60.dp)
                         .glassEffect(Glass.Regular.tint(SystemColors.Blue.copy(alpha = 0.85f)).interactive(), GlassCircle)

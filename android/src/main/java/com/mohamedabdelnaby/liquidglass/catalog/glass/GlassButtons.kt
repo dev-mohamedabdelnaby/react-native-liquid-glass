@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ripple
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -38,11 +40,12 @@ enum class GlassControlSize(val minHeight: Dp, val horizontal: Dp, val vertical:
     Large(52.dp, 24.dp, 10.dp, 17.sp),
 }
 
-/** A click with no ripple: the glass itself is the press feedback. [label] names icon-only controls. */
+/** A click with no ripple: the glass itself is the press feedback (Material: its ripple). [label] names icon-only controls. */
+@Composable
 fun Modifier.glassClickable(enabled: Boolean = true, label: String? = null, onClick: () -> Unit): Modifier =
     (if (label != null) semantics { contentDescription = label } else this).clickable(
         interactionSource = null,
-        indication = null,
+        indication = if (isMaterial) ripple() else null,
         enabled = enabled,
         onClickLabel = label,
         role = Role.Button,
@@ -64,6 +67,7 @@ fun GlassButton(
     unionId: Any? = null,
     content: @Composable RowScope.() -> Unit,
 ) {
+    if (isMaterial) return MaterialButton(onClick, modifier, prominent = false, glass, contentColor, shape, size, enabled, content)
     GlassButtonSurface(onClick, modifier, glass, shape, size, enabled, contentColor, transition, unionId, content)
 }
 
@@ -80,6 +84,7 @@ fun GlassProminentButton(
     unionId: Any? = null,
     content: @Composable RowScope.() -> Unit,
 ) {
+    if (isMaterial) return MaterialButton(onClick, modifier, prominent = true, Glass.Regular, tint, shape, size, enabled, content)
     GlassButtonSurface(
         onClick, modifier, Glass.Regular.tint(tint).copy(prominent = true), shape, size, enabled, Color.White,
         transition, unionId, content,
@@ -130,6 +135,7 @@ fun GlassIconButton(
     transition: GlassTransition = GlassTransition.MatchedGeometry,
     unionId: Any? = null,
 ) {
+    if (isMaterial) return MaterialIconButton(icon, contentDescription, onClick, modifier, size, tint, enabled)
     Box(
         modifier
             .size(size)
@@ -151,6 +157,7 @@ fun BarIcon(
     modifier: Modifier = Modifier,
     tint: Color = MaterialTheme.colorScheme.onSurface,
 ) {
+    if (isMaterial) return IconButton(onClick, modifier) { Icon(androidIcon(icon), contentDescription, tint = tint) }
     val source = remember { MutableInteractionSource() }
     Box(
         modifier

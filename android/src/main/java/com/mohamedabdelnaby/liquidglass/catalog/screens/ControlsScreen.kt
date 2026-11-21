@@ -7,6 +7,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import com.mohamedabdelnaby.liquidglass.catalog.glass.nativeIcon
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -157,7 +158,7 @@ fun ControlsScreen() {
                     GlassMenu(anchor = { open ->
                         Row(Modifier.glassClickable(label = "Flavor: $flavor", onClick = open), verticalAlignment = Alignment.CenterVertically) {
                             Text(flavor, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            Icon(Icons.Filled.UnfoldMore, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Icon(nativeIcon(Icons.Filled.UnfoldMore), null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }) { dismiss ->
                         Flavors.forEach { option -> GlassMenuItem(option, { flavor = option; dismiss() }, checked = option == flavor) }

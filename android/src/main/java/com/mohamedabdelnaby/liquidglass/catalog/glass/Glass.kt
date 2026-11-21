@@ -158,6 +158,8 @@ data class GlassSettings(
     // Bottom tab bars: their glass (frosted when off) and, separately, the drop.
     val tabBarLiquid: Boolean = true,
     val tabBarDrop: Boolean = true,
+    // Android Material only: the check mark on the selected segment of segmented buttons.
+    val segmentedCheck: Boolean = true,
 )
 
 val LocalGlassSettings = staticCompositionLocalOf { GlassSettings() }
@@ -236,6 +238,7 @@ fun Modifier.glassEffect(
     // Records this glass (without its content) for glass drawn on it to refract, outside a container.
     exportTo: LayerBackdrop? = null,
 ): Modifier {
+    if (isMaterial) return materialSurface(glass.tint, shape)
     val backdrop = LocalGlassBackdrop.current ?: return this
     val settings = LocalGlassSettings.current
     val glass = remember(glass, settings) { glass.styled(settings) }
@@ -308,6 +311,7 @@ private fun BackdropEffectScope.glassEffects(glass: Glass, shape: RoundedCornerS
 /** Frosted material in any [shape]: the glass's blur, frost and tint without the liquid lens. */
 @Composable
 fun Modifier.frostedGlass(glass: Glass = Glass.Regular, shape: Shape = CapsuleShape, shadow: Boolean = true, exportTo: LayerBackdrop? = null): Modifier {
+    if (isMaterial) return materialSurface(glass.tint, shape)
     val backdrop = LocalGlassBackdrop.current ?: return this
     val styled = glass.styled(LocalGlassSettings.current).copy(variant = Glass.Variant.Regular)
     val dark = isSystemInDarkTheme()
@@ -667,7 +671,7 @@ fun GlassEffectContainer(
     content: @Composable () -> Unit,
 ) {
     val backdrop = LocalGlassBackdrop.current
-    if (backdrop == null || !lensSupported) {
+    if (backdrop == null || !lensSupported || isMaterial) {
         Box(modifier) { content() }
         return
     }

@@ -52,6 +52,8 @@ type GlassSettings = {
   appearance?: 'system' | 'light' | 'dark';
   tint?: ColorValue | null;
   layoutDirection?: 'system' | 'ltr' | 'rtl';
+  androidStyle?: 'glass' | 'material';
+  androidSegmentedCheck?: boolean;
   clear?: boolean;
   blur?: number;
   white?: number;
@@ -76,6 +78,8 @@ Each platform reads the settings its native app has and ignores the rest.
 | `appearance` | `'system'` | yes | yes | Light, dark, or follow the device. |
 | `tint` | `null` | yes | yes | A colour every glass surface without its own tint takes. `null`: no tint. |
 | `layoutDirection` | `'system'` | yes | yes | Left-to-right or right-to-left. See [layout-direction.md](layout-direction.md). |
+| `androidStyle` | `'glass'` | no | yes | `'material'`: Material 3 components instead of glass. A screen's `androidStyle` prop wins. See [android-style.md](android-style.md). |
+| `androidSegmentedCheck` | `true` | no | yes | Material only: the check mark on the selected segment of segmented buttons. `false` hides it. A screen's `androidSegmentedCheck` prop wins. |
 | `clear` | `true` | no | yes | `true`: nearly clear glass. `false`: frosted (regular) glass. |
 | `blur` | `3` | no | yes | Blur radius in dp. |
 | `white` | `0.25` | no | yes | White wash over the glass, 0 to 1. |
@@ -96,7 +100,7 @@ Each platform reads the settings its native app has and ignores the rest.
 ## What Home shows
 
 - **iOS Home:** Appearance (System, Light, Dark), Glass tint (None, Blue, Purple, Pink, Orange, Green, Teal) and Layout direction (System, LTR, RTL).
-- **Android Home:** Appearance, Layout direction (System, LTR, RTL), plus a Glass section with the Android settings above (variant, blur, washes, edge light, refraction, tint, drop colour, opaque, liquid and the per-control switches).
+- **Android Home:** Appearance, Layout direction (System, LTR, RTL), Android style (Glass, Material) and, in Material, a "Check on the selected segment" switch, plus a Glass section with the Android settings above (variant, blur, washes, edge light, refraction, tint, drop colour, opaque, liquid and the per-control switches).
 
 ## Appearance
 
@@ -122,12 +126,11 @@ SwiftUI's dark mode is the window's style, so a screen with `'light'` or `'dark'
 `tint` takes any React Native colour (`'#AF52DE'`, `'purple'`, `'rgba(175, 82, 222, 0.35)'`), or `null` for none.
 
 - **iOS:** the glass takes the colour. Home's tint picker shows the named choice that matches the colour (Blue, Purple, Pink, Orange, Green, Teal), or None when no choice matches. A colour that matches no choice still tints the glass. When the user picks a choice on Home, `onSettingsChange` sends the colour as `'#RRGGBBAA'`; None sends `null`.
-- **Android:** every glass surface without its own tint takes the colour. Home's colour picker sends `'#RRGGBBAA'` too.
+- **Android:** every glass surface without its own tint takes the colour. With `androidStyle: 'material'` it is the Material scheme's primary (the accent) instead. Home's colour picker sends `'#RRGGBBAA'` too.
 
 ## Coming in the next version
 
 These settings are planned and not in the package yet:
 
-- `androidStyle?: 'glass' | 'material'`: see [android-style.md](android-style.md).
 - `fontFamily`: see [fonts.md](fonts.md).
 - `icons`: see [icons.md](icons.md).

@@ -31,6 +31,9 @@ export const GLASS_SCREENS = [
 export type GlassScreenId = (typeof GLASS_SCREENS)[number]['id'];
 
 export type GlassScreenProps = {
+  // Wins over the provider's androidStyle for this screen.
+  androidStyle?: GlassSettings['androidStyle'];
+  androidSegmentedCheck?: boolean;
   onBack?: () => void;
   onOpen?: (screen: GlassScreenId) => void;
   onSettingsChange?: (settings: GlassSettings) => void;
@@ -40,6 +43,8 @@ export type GlassScreenProps = {
 
 function GlassScreen({
   screen,
+  androidStyle,
+  androidSegmentedCheck,
   onBack,
   onOpen,
   onSettingsChange,
@@ -50,6 +55,10 @@ function GlassScreen({
   return (
     <LiquidGlassScreen
       {...settings}
+      androidStyle={androidStyle ?? settings.androidStyle}
+      androidSegmentedCheck={
+        androidSegmentedCheck ?? settings.androidSegmentedCheck
+      }
       screen={screen}
       tintColor={tint}
       refractionHeight={refraction.height}

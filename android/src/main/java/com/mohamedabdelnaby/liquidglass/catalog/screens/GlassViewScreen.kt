@@ -46,6 +46,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.semantics.Role
+import androidx.compose.foundation.selection.toggleable
+import com.mohamedabdelnaby.liquidglass.catalog.glass.MaterialSwitch
+import com.mohamedabdelnaby.liquidglass.catalog.glass.isMaterial
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -208,6 +211,15 @@ private fun PercentSlider(label: String, value: Float, onChange: (Float) -> Unit
 
 @Composable
 internal fun SwitchRow(label: String, checked: Boolean, onChange: (Boolean) -> Unit) {
+    // Material: the whole row toggles, so TalkBack reads the label with the switch's state.
+    if (isMaterial) return Row(
+        Modifier.fillMaxWidth().toggleable(checked, role = Role.Switch, onValueChange = onChange),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(label)
+        Fill()
+        MaterialSwitch(checked, null, Modifier)
+    }
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(label)
         Fill()

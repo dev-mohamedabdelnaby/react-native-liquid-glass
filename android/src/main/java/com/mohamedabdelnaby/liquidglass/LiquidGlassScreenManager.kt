@@ -48,6 +48,12 @@ internal class LiquidGlassScreenManager :
     view.jsLayoutDirection = value ?: "system"
   }
 
+  override fun setAndroidStyle(view: LiquidGlassScreenView, value: String?) {
+    view.androidStyle = androidStyleOf(value ?: "glass")
+  }
+
+  override fun setAndroidSegmentedCheck(view: LiquidGlassScreenView, value: Boolean) = update(view) { copy(segmentedCheck = value) }
+
   override fun setTintColor(view: LiquidGlassScreenView, value: Int?) = update(view) { copy(tint = value?.let { Color(it) }) }
 
   override fun setClear(view: LiquidGlassScreenView, value: Boolean) = update(view) { copy(clear = value) }

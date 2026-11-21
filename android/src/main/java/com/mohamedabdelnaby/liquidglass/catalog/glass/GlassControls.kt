@@ -71,12 +71,12 @@ fun GlassSlider(
     dropColor: Color? = null,
     // false: no liquid lift for this slider; null follows Home's setting.
     liquid: Boolean? = null,
-) = LiquidSlider(value, onValueChange, modifier, valueRange, tint = tint, contentDescription = contentDescription, dropColor = dropColor, liquid = liquid)
+) = if (isMaterial) MaterialSlider(value, onValueChange, modifier, valueRange, tint, contentDescription) else LiquidSlider(value, onValueChange, modifier, valueRange, tint = tint, contentDescription = contentDescription, dropColor = dropColor, liquid = liquid)
 
 /** The iOS 26 switch: its thumb lifts into a glass lens while pressed (react-native-liquid). */
 @Composable
 fun GlassSwitch(checked: Boolean, onCheckedChange: (Boolean) -> Unit, modifier: Modifier = Modifier, dropColor: Color? = null, liquid: Boolean? = null) =
-    LiquidSwitch(checked, onCheckedChange, modifier, onTint = SystemColors.Green, dropColor = dropColor, liquid = liquid)
+    if (isMaterial) MaterialSwitch(checked, onCheckedChange, modifier) else LiquidSwitch(checked, onCheckedChange, modifier, onTint = SystemColors.Green, dropColor = dropColor, liquid = liquid)
 
 /** The inside of a glass search field: magnifier, text, and a clear button once there is text. */
 @Composable
@@ -113,11 +113,13 @@ fun SearchFieldContent(
 }
 
 /** iOS `tertiarySystemFill`: the gray behind segmented controls, steppers and compact pickers. */
-val TertiaryFill: Color @Composable get() = Color(0xFF767680).copy(alpha = if (isSystemInDarkTheme()) 0.24f else 0.12f)
+val TertiaryFill: Color @Composable get() =
+    if (isMaterial) MaterialTheme.colorScheme.surfaceContainerHighest else Color(0xFF767680).copy(alpha = if (isSystemInDarkTheme()) 0.24f else 0.12f)
 
 /** UIStepper: a gray capsule split into − and +, each dimmed at its end of [range]. */
 @Composable
 fun SystemStepper(value: Int, onValueChange: (Int) -> Unit, range: IntRange) {
+    if (isMaterial) return MaterialStepper(value, onValueChange, range)
     Row(Modifier.size(94.dp, 32.dp).background(TertiaryFill, CircleShape), verticalAlignment = Alignment.CenterVertically) {
         StepperHalf(Icons.Filled.Remove, "Decrease", value > range.first) { onValueChange(value - 1) }
         Box(Modifier.size(0.5.dp, 18.dp).background(MaterialTheme.colorScheme.outlineVariant))

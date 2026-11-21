@@ -1,5 +1,9 @@
 package com.mohamedabdelnaby.liquidglass.catalog
 
+import com.mohamedabdelnaby.liquidglass.catalog.glass.AndroidStyle
+import com.mohamedabdelnaby.liquidglass.catalog.glass.MaterialHomeScaffold
+import com.mohamedabdelnaby.liquidglass.catalog.glass.MaterialSectionHeader
+import com.mohamedabdelnaby.liquidglass.catalog.glass.isMaterial
 import com.mohamedabdelnaby.liquidglass.catalog.screens.SwitchRow
 import com.mohamedabdelnaby.liquidglass.catalog.ui.theme.SystemColors
 import androidx.compose.ui.semantics.semantics
@@ -64,22 +68,22 @@ fun HomeScreen(
     onSettingsChange: (GlassSettings) -> Unit = {},
     direction: String = "system",
     onDirectionChange: (String) -> Unit = {},
+    // JS `androidStyle`: Glass, or Android's own Material 3 components.
+    style: AndroidStyle = AndroidStyle.Glass,
+    onStyleChange: (AndroidStyle) -> Unit = {},
 ) {
     val insets = WindowInsets.safeDrawing.asPaddingValues()
-    GlassSurfaceHost(backdrop = { PlainBackdrop(it) }) {
-        GlassContent(Modifier.fillMaxSize()) { LazyColumn(
+    val material = isMaterial
+    @Composable
+    fun Content(padding: PaddingValues) = LazyColumn(
             Modifier.fillMaxSize(),
             state = rememberLazyListState(),
-            contentPadding = PaddingValues(
-                start = 16.dp,
-                end = 16.dp,
-                top = insets.calculateTopPadding() + 24.dp,
-                bottom = insets.calculateBottomPadding() + 24.dp,
-            ),
+            contentPadding = padding,
         ) {
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.padding(bottom = 28.dp)) {
-                    Text(
+                    // Material: the title is the large top app bar's.
+                    if (!material) Text(
                         "Liquid Glass",
                         style = MaterialTheme.typography.displaySmall,
                         fontWeight = FontWeight.Bold,
@@ -99,11 +103,24 @@ fun HomeScreen(
                         )
                         Footnote("RTL mirrors the whole app, including sheets and full-screen demos.", Modifier.padding(horizontal = 16.dp))
                     }
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        GlassSegmented(
+                            options = AndroidStyle.entries.map { it.name },
+                            selected = style.ordinal,
+                            onSelect = { onStyleChange(AndroidStyle.entries[it]) },
+                        )
+                        Footnote("Material draws every screen with Android's own components.", Modifier.padding(horizontal = 16.dp))
+                        // JS `androidSegmentedCheck`: only Material segmented buttons have the check.
+                        if (style == AndroidStyle.Material) Box(Modifier.padding(horizontal = 16.dp)) {
+                            SwitchRow("Check on the selected segment", settings.segmentedCheck) { onSettingsChange(settings.copy(segmentedCheck = it)) }
+                        }
+                    }
                     GlassSettingsPanel(settings, onSettingsChange)
                 }
             }
             item {
-                Text(
+                if (material) MaterialSectionHeader("Components", Modifier.padding(start = 16.dp, bottom = 8.dp))
+                else Text(
                     "Components",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -118,16 +135,38 @@ fun HomeScreen(
                 ) {
                     Icon(component.icon, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(22.dp))
                     Text(component.title, style = MaterialTheme.typography.bodyLarge)
-                    Fill()
-                    Icon(
-                        Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                        modifier = Modifier.size(20.dp),
-                    )
+                    // Material rows open without a chevron.
+                    if (!material) {
+                        Fill()
+                        Icon(
+                            Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
                 }
             }
-        } }
+        }
+    GlassSurfaceHost(backdrop = { PlainBackdrop(it) }) {
+        if (material) {
+            MaterialHomeScaffold("Liquid Glass") { bar ->
+                GlassContent(Modifier.fillMaxSize()) {
+                    Content(PaddingValues(start = 16.dp, end = 16.dp, top = bar.calculateTopPadding() + 8.dp, bottom = insets.calculateBottomPadding() + 24.dp))
+                }
+            }
+            return@GlassSurfaceHost
+        }
+        GlassContent(Modifier.fillMaxSize()) {
+            Content(
+                PaddingValues(
+                    start = 16.dp,
+                    end = 16.dp,
+                    top = insets.calculateTopPadding() + 24.dp,
+                    bottom = insets.calculateBottomPadding() + 24.dp,
+                ),
+            )
+        }
         ScrollEdge(
             EdgeEffect.Soft,
             top = true,
@@ -167,7 +206,8 @@ private fun ColorChoices(picked: Color?, label: String, onPick: (Color?) -> Unit
 @Composable
 private fun GlassSettingsPanel(settings: GlassSettings, onChange: (GlassSettings) -> Unit) {
     GlassListSection(header = "Glass", footer = "Every component follows these, like the Glass Lab in LiquidPlayground.") {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        // Material: the panel is one segment of the group.
+        Column((if (isMaterial) Modifier.background(MaterialTheme.colorScheme.surfaceContainerHigh) else Modifier).padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             GlassSegmented(listOf("Regular", "Clear"), if (settings.clear) 1 else 0, { onChange(settings.copy(clear = it == 1)) })
             Text("Blur: ${settings.blur.value.toInt()} dp", Modifier.padding(top = 8.dp))
             GlassSlider(settings.blur.value, { onChange(settings.copy(blur = it.dp)) }, valueRange = 0f..40f, contentDescription = "Glass blur")

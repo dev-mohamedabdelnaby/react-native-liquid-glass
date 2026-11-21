@@ -106,6 +106,8 @@ import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassScreen
 import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassSlider
 import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassTransition
 import com.mohamedabdelnaby.liquidglass.catalog.glass.LocalGlassBackdrop
+import com.mohamedabdelnaby.liquidglass.catalog.glass.isMaterial
+import androidx.compose.material3.FloatingActionButton
 import com.mohamedabdelnaby.liquidglass.catalog.glass.RevealPill
 import com.mohamedabdelnaby.liquidglass.catalog.glass.growFrom
 import com.mohamedabdelnaby.liquidglass.catalog.glass.rememberReveal
@@ -332,7 +334,10 @@ private fun FloatingActionMenu(modifier: Modifier = Modifier) {
                         RevealPill(title, icon, Glass.Regular.tint(color.copy(alpha = 0.5f)), reveal, below = actions.size - 1 - index) { open = false }
                     }
                 }
-                Box(
+                // Material: Android's floating action button.
+                if (isMaterial) FloatingActionButton({ open = !open }) {
+                    Icon(Icons.Filled.Add, if (open) "Close menu" else "Open menu", Modifier.rotate(rotation))
+                } else Box(
                     Modifier
                         .size(60.dp)
                         .glassEffect(Glass.Regular.tint(MaterialTheme.colorScheme.primary.copy(alpha = 0.88f)).copy(prominent = true).interactive(), GlassCircle)

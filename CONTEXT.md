@@ -74,12 +74,14 @@ type GlassScreenProps = {
   onBack?: () => void;                                   // the screen's back/close button
   onOpen?: (screen: GlassScreenId) => void;              // Home only: a row was tapped
   onSettingsChange?: (settings: GlassSettings) => void;  // Home only: user changed a setting
+  androidStyle?: 'glass' | 'material';                   // Android only; wins over the provider
+  androidSegmentedCheck?: boolean;                       // Android Material only; wins over the provider
   style?: StyleProp<ViewStyle>;                          // REQUIRED in practice: no default size
   testID?: string;
 };
 ```
 
-There are no other props today (no `children`, no settings props, no `title`).
+There are no other props today (no `children`, no other settings props, no `title`).
 
 ### Settings
 
@@ -89,6 +91,8 @@ type GlassSettings = {
   tint?: ColorValue | null;                   // iOS + Android
   layoutDirection?: 'system' | 'ltr' | 'rtl'; // iOS + Android
   // Android only (iOS ignores them):
+  androidStyle?: 'glass' | 'material';        // 'material': Material 3 components, no glass
+  androidSegmentedCheck?: boolean;            // Material segmented buttons: check on the selected one
   clear?: boolean; blur?: number; white?: number; black?: number; edgeLight?: number;
   refraction?: { height: number; amount: number }; opaque?: boolean; liquid?: boolean;
   dropColor?: ColorValue | null; sliderLiquid?: boolean; switchLiquid?: boolean;
@@ -96,7 +100,7 @@ type GlassSettings = {
 };
 
 DEFAULT_SETTINGS = {
-  appearance: 'system', tint: null, layoutDirection: 'system', clear: true, blur: 3,
+  appearance: 'system', tint: null, layoutDirection: 'system', androidStyle: 'glass', androidSegmentedCheck: true, clear: true, blur: 3,
   white: 0.25, black: 0.05, edgeLight: 0.15, refraction: { height: 14, amount: 24 },
   opaque: false, liquid: true, dropColor: null, sliderLiquid: true, switchLiquid: true,
   segmentedLiquid: true, tabBarLiquid: true, tabBarDrop: true,
@@ -197,7 +201,7 @@ If the user wants only a few screens, register only those routes and guard `onOp
 5. **`onBack` → `navigation.goBack`.** Android's hardware back is handled for you: the library sends it to the screen's open sheet/menu/search/cover first, then React Navigation pops. Do not add a `BackHandler` for glass screens.
 6. **Stack animation:** Android `ios_from_right` (`ios_from_left` in RTL) gives the iOS push slide; without it Android fades. iOS: `default` in both directions, with `NavigationContainer direction={rtl ? 'rtl' : 'ltr'}` so UIKit mirrors the push and the swipes. Always pass `direction`: it defaults to `I18nManager.isRTL`, which would push from the left in an Arabic app showing LTR screens. An LTR-only app can use `animation: 'ios_from_right'` alone.
 7. **Status bar:** glass screens set their own bar icons. On iOS under native-stack, React Native's `<StatusBar>` is inert; use the native-stack option `statusBarStyle` for your own screens.
-8. **Do not use planned APIs** (`androidStyle`, `fontFamily`, `icons`, `vectorIcon`): they are not in the package yet (section 8).
+8. **Do not use planned APIs** (`fontFamily`, `icons`, `vectorIcon`): they are not in the package yet (section 8).
 
 ## 6. Settings per platform
 
@@ -206,7 +210,8 @@ If the user wants only a few screens, register only those routes and guard `onOp
 | `appearance` | Window-wide: sets the window's `overrideUserInterfaceStyle`, so the whole app (RN views and status bar) follows. | Inside the screen (Compose theme) plus the status/navigation bar icons. RN views unchanged. |
 | `tint` | Glass tint. Home's picker shows None/Blue/Purple/Pink/Orange/Green/Teal; other colours still tint but Home shows None. | Tint of every glass surface without its own. |
 | `layoutDirection` | Mirrors the screens; Home has a picker. `system` = device direction. Full-screen covers (Tab Bar "With Now Playing Bar") and UIKit pieces (menu rows, the open search field) stay LTR. | Mirrors the screens and controls; Home has the same picker. `system` = React Native's `I18nManager.isRTL`. Text reads in its own script's direction (English keeps its period last), so a wrapped English paragraph aligns left in RTL where iOS aligns it right. |
-| Android-only keys | Ignored. | The glass engine's options; Home has controls for them. |
+| `androidStyle` | Ignored: always glass. | `'material'`: the same screens drawn with Material 3 (top app bar with the back arrow, buttons, switches, sliders, segmented buttons, navigation bar, sheets, dialogs, menus, search bar, Android colors, type and ripples). Home has a Glass / Material picker. A screen's `androidStyle` prop wins over the provider. `androidSegmentedCheck` (default `true`, Material only; Home's switch in Material): `false` hides the check on the selected segment; also a screen prop. |
+| Other Android-only keys | Ignored. | The glass engine's options; Home has controls for them. They do nothing in `'material'`. |
 
 Appearance requests on both platforms: the **latest mounted** screen asking for `'light'` or `'dark'` wins; the app's own value comes back when the last one **unmounts**. A screen keeps its request while mounted even if off screen (under a pushed screen, in an inactive tab). `'system'` never writes the iOS window. On iOS, an `Appearance.setColorScheme` call made while a glass screen holds a request is lost when the request ends.
 
@@ -230,11 +235,10 @@ Appearance requests on both platforms: the **latest mounted** screen asking for 
 
 ## 8. Coming in the next version (do not use yet)
 
-- `androidStyle?: 'glass' | 'material'` (Material 3 screens on Android; iOS ignores it). In `GlassSettings` and as a screen prop.
 - `fontFamily?: string | { regular?, medium?, semibold?, bold?, heavy? }`. In `GlassSettings` and as a screen prop. iOS context menus, alerts, action sheets and the share sheet keep the system font.
 - `icons?: Record<sfSymbolName, GlassIcon>` with `GlassIcon = { glyph, fontFamily } | { svg } | ImageSourcePropType`, and `vectorIcon(iconSet, name)`.
 
-Details: `docs/android-style.md`, `docs/fonts.md`, `docs/icons.md`, `docs/layout-direction.md`.
+Details: `docs/fonts.md`, `docs/icons.md`. Shipped: `docs/android-style.md`, `docs/layout-direction.md`.
 
 ## 9. Known limits
 

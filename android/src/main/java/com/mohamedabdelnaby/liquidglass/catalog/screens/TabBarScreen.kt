@@ -14,6 +14,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -122,6 +124,8 @@ import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassScreen
 import com.mohamedabdelnaby.liquidglass.catalog.glass.LocalOnBack
 import com.mohamedabdelnaby.liquidglass.catalog.glass.ScrollEdge
 import com.mohamedabdelnaby.liquidglass.catalog.glass.SearchFieldContent
+import com.mohamedabdelnaby.liquidglass.catalog.glass.isMaterial
+import com.mohamedabdelnaby.liquidglass.catalog.glass.nativeIcon
 import com.mohamedabdelnaby.liquidglass.catalog.glass.glassClickable
 import com.mohamedabdelnaby.liquidglass.catalog.glass.glassEffect
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.LiquidTabBar
@@ -213,7 +217,7 @@ fun TabBarScreen() {
                             horizontalArrangement = Arrangement.spacedBy(4.dp),
                         ) {
                             Text(if (searchFullWidth) "Full Width" else "With Active Tab", fontSize = 17.sp)
-                            Icon(Icons.Filled.UnfoldMore, null, tint = MaterialTheme.colorScheme.primary)
+                            Icon(nativeIcon(Icons.Filled.UnfoldMore), null, tint = MaterialTheme.colorScheme.primary)
                         }
                     }) { dismiss ->
                         GlassMenuItem("With Active Tab", { searchFullWidth = false; dismiss() }, checked = !searchFullWidth)
@@ -323,7 +327,23 @@ private fun SeparatedSearchDemo(minimizeOnScroll: Boolean, searchFullWidth: Bool
         title = title,
         closeButton = true,
         titleContent = { CollapsedBarTitle(title, scrolled) },
-        bottomBar = {
+        bottomBar = bar@{
+            // Material: a navigation bar with Search as its last tab, the search bar above it while searching.
+            if (isMaterial) return@bar Column(Modifier.background(NavigationBarDefaults.containerColor).imePadding()) {
+                if (searching) SearchFieldContent(
+                    query, { query = it }, "Search",
+                    Modifier.padding(16.dp, 8.dp).fillMaxWidth().glassEffect(Glass.Regular, CapsuleShape).height(56.dp).padding(horizontal = 16.dp),
+                    focus,
+                )
+                val items = MainTabs + Tab.Search
+                LiquidTabBar(
+                    selectedIndex = if (searching) items.lastIndex else items.indexOf(tab),
+                    onSelect = { i -> if (i == items.lastIndex) searching = true else { exitSearch(); tab = items[i] } },
+                    tabs = items.map { LiquidTabItem(it.title, it.icon, it.badge) },
+                    modifier = Modifier.fillMaxWidth(),
+                    color = LocalBarColor.current,
+                )
+            }
             Box(Modifier.fillMaxWidth()) {
                 ScrollEdge(EdgeEffect.Soft, top = false, Modifier.matchParentSize())
                 GlassEffectContainer(
@@ -493,13 +513,15 @@ private fun TabsCapsule(selected: Tab, onSelect: (Tab) -> Unit) {
 
 @Composable
 private fun TabList(title: String, padding: PaddingValues, state: LazyListState) {
+    val material = isMaterial
     LazyColumn(
         Modifier.fillMaxSize(),
         state = state,
         contentPadding = PaddingValues(16.dp, padding.calculateTopPadding(), 16.dp, padding.calculateBottomPadding() + 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        item { LargeTitle(title) }
+        // Material: the top app bar shows the title.
+        if (!material) item { LargeTitle(title) }
         items(30) { index ->
             Box(
                 Modifier
@@ -517,6 +539,7 @@ private fun TabList(title: String, padding: PaddingValues, state: LazyListState)
 private fun SearchTab(padding: PaddingValues, state: LazyListState, external: String? = null) {
     var own by remember { mutableStateOf("") }
     val query = external ?: own
+    val material = isMaterial
     val results = (1..20).map { "Result $it" }.filter { it.contains(query, ignoreCase = true) }
     LazyColumn(
         Modifier.fillMaxSize(),
@@ -524,7 +547,7 @@ private fun SearchTab(padding: PaddingValues, state: LazyListState, external: St
         contentPadding = PaddingValues(16.dp, padding.calculateTopPadding(), 16.dp, padding.calculateBottomPadding() + 16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        item { LargeTitle("Search") }
+        if (!material) item { LargeTitle("Search") }
         if (external == null) item {
             SearchFieldContent(
                 own, { own = it }, "Search",
@@ -553,6 +576,24 @@ private fun TabBar(
     searchRole: Boolean,
     onSelect: (Tab) -> Unit,
 ) {
+    // Material: the Now Playing row over a navigation bar, which stays put while scrolling.
+    if (isMaterial) return Column {
+        if (accessory) Row(
+            Modifier.padding(16.dp, 8.dp).fillMaxWidth().height(AccessoryHeight).barSurface().glassClickable(label = "Now Playing") {},
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(Icons.Filled.MusicNote, null, tint = BarContent)
+            Text("Now Playing", color = BarContent)
+        }
+        LiquidTabBar(
+            selectedIndex = tabs.indexOf(selected),
+            onSelect = { onSelect(tabs[it]) },
+            tabs = tabs.map { LiquidTabItem(it.title, it.icon, it.badge) },
+            modifier = Modifier.fillMaxWidth(),
+            color = LocalBarColor.current,
+        )
+    }
     // One spring moves every piece, so the bar, the accessory and the circles change as one.
     val p by animateFloatAsState(if (minimized) 1f else 0f, MinimizeSpring, label = "minimize")
     // The bar shrinks into the selected tab's circle at the leading edge.

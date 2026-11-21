@@ -42,6 +42,8 @@ import com.mohamedabdelnaby.liquidglass.catalog.glass.SearchFieldContent
 import com.mohamedabdelnaby.liquidglass.catalog.glass.glassEffect
 import com.mohamedabdelnaby.liquidglass.catalog.glass.groupedRow
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.LiquidExpandableSearch
+import com.mohamedabdelnaby.liquidglass.catalog.glass.MaterialSectionHeader
+import com.mohamedabdelnaby.liquidglass.catalog.glass.isMaterial
 
 private val Fruits = listOf(
     "Apple", "Apricot", "Banana", "Blueberry", "Cherry", "Coconut", "Date", "Fig",
@@ -68,6 +70,7 @@ fun SearchScreen() {
     }
 
     val searching = minimize && (expanded || query.isNotEmpty())
+    val material = isMaterial
     // No back button while searching, as on iOS: back closes the search first.
     BackHandler(searching) { expanded = false; query = "" }
 
@@ -130,7 +133,8 @@ fun SearchScreen() {
                     Footnote("When minimized, search appears as a glass button until tapped.", Modifier.padding(horizontal = 16.dp))
                 }
             }
-            item {
+            if (material) item { MaterialSectionHeader("Fruits", Modifier.padding(start = 16.dp, bottom = 8.dp)) }
+            else item {
                 // iOS 26 section headers: title case, headline weight (as GlassListSection).
                 Text(
                     "Fruits",

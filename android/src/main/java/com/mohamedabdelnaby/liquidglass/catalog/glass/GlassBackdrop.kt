@@ -23,6 +23,8 @@ import com.mohamedabdelnaby.liquidglass.catalog.ui.theme.LiquidGlassTheme
  */
 @Composable
 fun GlassBackdrop(modifier: Modifier = Modifier, @DrawableRes photo: Int = R.drawable.backdrop_fjord) {
+    // Material has no glass to show off: the plain page.
+    if (isMaterial) return PlainBackdrop(modifier, MaterialTheme.colorScheme.surface)
     Box(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Image(painterResource(photo), contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
         if (isSystemInDarkTheme()) Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.3f)))
