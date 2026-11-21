@@ -46,6 +46,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -97,6 +101,21 @@ internal fun MaterialScreen(
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val scroll = TopAppBarDefaults.pinnedScrollBehavior()
+    // No edge effect asked: the bar is see-through over the page until content scrolls under it.
+    val seeThrough = topEdge == EdgeEffect.Hidden || topEdge == EdgeEffect.StatusBar
+    val defaults = TopAppBarDefaults.topAppBarColors()
+    val scrolled by remember(scroll) { derivedStateOf { scroll.state.overlappedFraction > 0.01f } }
+    // The bar and its accessory share one background, so the accessory takes the bar's scrolled
+    // color with it, with no seam.
+    val barColor by animateColorAsState(
+        when {
+            scrolled -> defaults.scrolledContainerColor
+            seeThrough -> defaults.containerColor.copy(alpha = 0f)
+            else -> defaults.containerColor
+        },
+        label = "top bar",
+    )
+    val page = MaterialTheme.colorScheme.surface
     GlassSurfaceHost(modifier, backdrop) {
         Scaffold(
             Modifier.nestedScroll(scroll.nestedScrollConnection),
@@ -108,7 +127,10 @@ internal fun MaterialScreen(
                     enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
                     exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
                 ) {
-                    Column {
+                    Column(Modifier.background(barColor)) { Box {
+                        // See-through over content (a header photo): a scrim of the page color keeps the
+                        // bar's icons readable.
+                        if (seeThrough && !scrolled) Box(Modifier.matchParentSize().background(Brush.verticalGradient(listOf(page.copy(alpha = 0.8f), page.copy(alpha = 0f)))))
                         TopAppBar(
                             title = titleContent,
                             navigationIcon = {
@@ -120,12 +142,11 @@ internal fun MaterialScreen(
                                 }
                             },
                             actions = { CompositionLocalProvider(LocalMaterialBar provides true) { actions() } },
-                            // No edge effect: the bar is see-through over the page until it scrolls under.
-                            colors = if (topEdge == EdgeEffect.Hidden || topEdge == EdgeEffect.StatusBar)
-                                TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent) else TopAppBarDefaults.topAppBarColors(),
+                            colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent, scrolledContainerColor = Color.Transparent),
                             scrollBehavior = scroll,
                         )
-                        topAccessory?.let { Box(Modifier.background(MaterialTheme.colorScheme.surface)) { it() } }
+                        }
+                        topAccessory?.invoke()
                     }
                 }
             },
@@ -165,8 +186,10 @@ internal fun MaterialTabs(selectedIndex: Int, onSelect: (Int) -> Unit, tabs: Lis
         }
         return
     }
-    // A picked bar color fills the bar; on a dark one the items turn white.
-    val onDark = color != null && color.luminance() < 0.5f
+    // A picked bar color fills the bar; its items take whichever of the surface and on-surface
+    // colors reads better on it.
+    val scheme = MaterialTheme.colorScheme
+    val on = color?.let { moreContrasting(it, scheme.surface, scheme.onSurface) }
     NavigationBar(modifier, containerColor = color ?: NavigationBarDefaults.containerColor) {
         tabs.forEachIndexed { index, tab ->
             NavigationBarItem(
@@ -176,53 +199,34 @@ internal fun MaterialTabs(selectedIndex: Int, onSelect: (Int) -> Unit, tabs: Lis
                     BadgedBox(badge = { if (tab.badge > 0) Badge { Text("${tab.badge}") } }) { tab.icon?.let { Icon(it, null) } }
                 },
                 label = { Text(tab.label) },
-                colors = if (onDark) NavigationBarItemDefaults.colors(
-                    selectedIconColor = Color.Black,
-                    selectedTextColor = Color.White,
-                    indicatorColor = Color.White,
-                    unselectedIconColor = Color.White.copy(alpha = 0.75f),
-                    unselectedTextColor = Color.White.copy(alpha = 0.75f),
-                ) else NavigationBarItemDefaults.colors(),
+                colors = if (on == null) NavigationBarItemDefaults.colors() else NavigationBarItemDefaults.colors(
+                    selectedIconColor = on,
+                    selectedTextColor = on,
+                    indicatorColor = on.copy(alpha = 0.24f),
+                    unselectedIconColor = on.copy(alpha = 0.75f),
+                    unselectedTextColor = on.copy(alpha = 0.75f),
+                ),
             )
         }
     }
 }
 
 /**
- * The expandable search: [content] with a search icon button, which opens Material's search bar in
- * their place; its ✕ closes it.
+ * Material's search bar at the top of a screen (under its top app bar): a search icon, the field
+ * with its placeholder, and a clear button once there is text (or [onClose], when given).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun MaterialExpandableSearch(
-    expanded: Boolean,
-    onExpandedChange: (Boolean) -> Unit,
+internal fun MaterialSearchField(
     query: String,
     onQueryChange: (String) -> Unit,
     placeholder: String,
-    modifier: Modifier,
-    content: @Composable RowScope.() -> Unit,
+    autoFocus: Boolean = false,
+    onClose: (() -> Unit)? = null,
 ) {
-    // One node for the caller's modifier in both states: a screen's focus listener on it must not
-    // see a fresh, unfocused node the moment the bar opens (that closed it again).
-    Box(modifier) {
-        if (!expanded) {
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                content()
-                IconButton({ onExpandedChange(true) }) { Icon(Icons.Filled.Search, "Search") }
-            }
-        } else {
-            MaterialSearchBar(query, onQueryChange, placeholder) { onExpandedChange(false) }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun MaterialSearchBar(query: String, onQueryChange: (String) -> Unit, placeholder: String, onClose: () -> Unit) {
     val focus = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
-    LaunchedEffect(Unit) { focus.requestFocus() }
+    if (autoFocus) LaunchedEffect(Unit) { focus.requestFocus() }
     DockedSearchBar(
         inputField = {
             SearchBarDefaults.InputField(
@@ -234,14 +238,16 @@ private fun MaterialSearchBar(query: String, onQueryChange: (String) -> Unit, pl
                 modifier = Modifier.focusRequester(focus),
                 placeholder = { Text(placeholder) },
                 leadingIcon = { Icon(Icons.Filled.Search, null) },
-                trailingIcon = {
-                    IconButton({ focusManager.clearFocus(); onClose() }) { Icon(Icons.Filled.Close, "Close search") }
+                trailingIcon = when {
+                    onClose != null -> { { IconButton({ focusManager.clearFocus(); onClose() }) { Icon(Icons.Filled.Close, "Close search") } } }
+                    query.isNotEmpty() -> { { IconButton({ onQueryChange("") }) { Icon(Icons.Filled.Close, "Clear") } } }
+                    else -> null
                 },
             )
         },
         expanded = false,
         onExpandedChange = {},
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
     ) {}
 }
 

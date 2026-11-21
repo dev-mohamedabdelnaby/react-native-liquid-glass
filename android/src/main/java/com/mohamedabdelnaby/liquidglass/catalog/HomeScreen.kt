@@ -205,9 +205,19 @@ private fun ColorChoices(picked: Color?, label: String, onPick: (Color?) -> Unit
 /** The Glass Lab controls every component in the catalog follows. */
 @Composable
 private fun GlassSettingsPanel(settings: GlassSettings, onChange: (GlassSettings) -> Unit) {
+    // Material has no glass: only the two colors it uses.
+    if (isMaterial) return GlassListSection(header = "Colors", footer = "The tint is every screen's accent; the drop color fills slider handles.") {
+        ListRow { Column(Modifier.padding(vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("Tint")
+            ColorChoices(settings.tint?.copy(alpha = 1f), "Glass tint") { onChange(settings.copy(tint = it?.copy(alpha = GlassTintAlpha))) }
+        } }
+        ListRow { Column(Modifier.padding(vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("Drop color")
+            ColorChoices(settings.dropColor, "Drop color") { onChange(settings.copy(dropColor = it)) }
+        } }
+    }
     GlassListSection(header = "Glass", footer = "Every component follows these, like the Glass Lab in LiquidPlayground.") {
-        // Material: the panel is one segment of the group.
-        Column((if (isMaterial) Modifier.background(MaterialTheme.colorScheme.surfaceContainerHigh) else Modifier).padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             GlassSegmented(listOf("Regular", "Clear"), if (settings.clear) 1 else 0, { onChange(settings.copy(clear = it == 1)) })
             Text("Blur: ${settings.blur.value.toInt()} dp", Modifier.padding(top = 8.dp))
             GlassSlider(settings.blur.value, { onChange(settings.copy(blur = it.dp)) }, valueRange = 0f..40f, contentDescription = "Glass blur")

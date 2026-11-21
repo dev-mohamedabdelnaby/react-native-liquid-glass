@@ -1,5 +1,7 @@
 package com.mohamedabdelnaby.liquidglass.catalog.screens
 
+import com.mohamedabdelnaby.liquidglass.catalog.glass.platformCopy
+import com.mohamedabdelnaby.liquidglass.catalog.glass.platformTextStyle
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -56,7 +58,7 @@ import com.mohamedabdelnaby.liquidglass.catalog.ui.theme.SystemColors
 private enum class TopEdge(val title: String, val edge: EdgeEffect, val description: String) {
     StatusBar("Status Bar", EdgeEffect.StatusBar, "Only the status bar area gets a fade, so the clock and battery stay legible."),
     Soft("Soft", EdgeEffect.Soft, "A soft scroll edge effect fades content under the whole top bar."),
-    None("None", EdgeEffect.Hidden, "No edge effect at all: content scrolls fully visible under the glass buttons."),
+    None("None", EdgeEffect.Hidden, "No edge effect at all: content scrolls fully visible under the bar buttons."),
 }
 
 @Composable
@@ -104,7 +106,7 @@ fun FloatingHeaderScreen() {
                 ) {
                     // .title2 symbol, .body text.
                     Icon(Icons.Outlined.Image, null, Modifier.size(26.dp), tint = MaterialTheme.colorScheme.primary)
-                    Text("Row ${index + 1}", fontSize = 17.sp)
+                    Text("Row ${index + 1}", style = platformTextStyle(17.sp, MaterialTheme.typography.bodyLarge))
                 }
             }
         }
@@ -122,8 +124,12 @@ private fun Header() {
     ) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             // .largeTitle.bold() and .subheadline.
-            Text("Floating Header", fontSize = 34.sp, lineHeight = 41.sp, fontWeight = FontWeight.Bold, color = Color.White)
-            Text("No bar background — just glass buttons", fontSize = 15.sp, lineHeight = 20.sp, color = Color.White)
+            Text("Floating Header", style = platformTextStyle(34.sp, MaterialTheme.typography.headlineLarge, 41.sp), fontWeight = FontWeight.Bold, color = Color.White)
+            Text(
+                platformCopy("No bar background — just glass buttons", "A see-through top app bar over the header"),
+                style = platformTextStyle(15.sp, MaterialTheme.typography.bodyMedium, 20.sp),
+                color = Color.White,
+            )
         }
     }
 }

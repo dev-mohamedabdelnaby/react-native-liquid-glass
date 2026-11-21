@@ -59,7 +59,8 @@ internal fun MaterialSectionHeader(text: String, modifier: Modifier = Modifier) 
 internal fun MaterialListRow(modifier: Modifier, content: @Composable RowScope.() -> Unit) {
     val segment = if (LocalMaterialSection.current) Modifier.clip(RoundedCornerShape(SegmentCorner)).background(MaterialTheme.colorScheme.surfaceContainerHigh) else Modifier
     Row(
-        modifier.then(segment).fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 16.dp, vertical = 8.dp),
+        // The segment first, so a clickable row's ripple follows its corners.
+        segment.then(modifier).fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         content = content,

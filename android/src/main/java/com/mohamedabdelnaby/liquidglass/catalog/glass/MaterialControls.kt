@@ -69,6 +69,14 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.FilterChip
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.material3.ripple
+import androidx.compose.ui.draw.shadow
+import androidx.compose.foundation.indication
+import androidx.compose.foundation.hoverable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -95,7 +103,8 @@ internal fun MaterialButton(
     modifier: Modifier,
     prominent: Boolean,
     glass: Glass,
-    color: Color,
+    // The button's own color (an error-red label, a prominent tint); null takes the role's.
+    color: Color?,
     shape: Shape,
     size: GlassControlSize,
     enabled: Boolean,
@@ -104,12 +113,12 @@ internal fun MaterialButton(
     val sized = modifier.defaultMinSize(minHeight = size.minHeight)
     if (prominent) {
         val scheme = MaterialTheme.colorScheme
-        val label = if (color == scheme.primary) scheme.onPrimary else moreContrasting(color, scheme.surface, scheme.onSurface)
-        Button(onClick, sized, enabled, shape, ButtonDefaults.buttonColors(containerColor = color, contentColor = label), content = content)
+        val colors = if (color == null) ButtonDefaults.buttonColors()
+        else ButtonDefaults.buttonColors(containerColor = color, contentColor = moreContrasting(color, scheme.surface, scheme.onSurface))
+        Button(onClick, sized, enabled, shape, colors, content = content)
         return
     }
-    // A glass button's own label color (an error red) stays; the default takes the role's.
-    val own = color.takeIf { it != MaterialTheme.colorScheme.onSurface }
+    val own = color
     when {
         !glass.liquid -> TextButton(onClick, sized, enabled, colors = own?.let { ButtonDefaults.textButtonColors(contentColor = it) } ?: ButtonDefaults.textButtonColors(), content = content)
         glass.clear -> OutlinedButton(onClick, sized, enabled, colors = own?.let { ButtonDefaults.outlinedButtonColors(contentColor = it) } ?: ButtonDefaults.outlinedButtonColors(), content = content)
@@ -133,8 +142,9 @@ fun nativeIcon(icon: ImageVector): ImageVector = if (isMaterial) androidIcon(ico
 
 /** An icon button: plain in a bar, filled tonal on its own. */
 @Composable
-internal fun MaterialIconButton(icon: ImageVector, contentDescription: String, onClick: () -> Unit, modifier: Modifier, size: Dp, tint: Color, enabled: Boolean) {
-    val own = tint.takeIf { it != MaterialTheme.colorScheme.onSurface }
+internal fun MaterialIconButton(icon: ImageVector, contentDescription: String, onClick: () -> Unit, modifier: Modifier, size: Dp, tint: Color?, enabled: Boolean) {
+    // A button's own tint; null takes the role's content color.
+    val own = tint
     val android = androidIcon(icon)
     if (LocalMaterialBar.current) {
         IconButton(onClick, modifier, enabled) { Icon(android, contentDescription, tint = own ?: LocalContentColor.current) }
@@ -164,8 +174,8 @@ internal fun moreContrasting(background: Color, first: Color, second: Color): Co
     if (contrast(background, first) >= contrast(background, second)) first else second
 
 /**
- * Material 3 Expressive's slider: the thicker 24 dp track, a 44 dp handle that narrows while
- * pressed, a value indicator above it while held, and a light haptic each tenth of the way.
+ * Material 3's classic slider: a round handle on a thin track (the user's pick over material3
+ * 1.4's default bar handle, built from its public parts), and a light haptic each tenth of the way.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -187,11 +197,7 @@ internal fun MaterialSlider(
     )
     val haptics = LocalHapticFeedback.current
     val interaction = remember { MutableInteractionSource() }
-    val held = interaction.collectIsPressedAsState().value || interaction.collectIsDraggedAsState().value
     val label = sliderLabel(value, valueRange)
-    // "Remove animations" (animator scale 0): the indicator shows and hides at once.
-    val context = LocalContext.current
-    val still = remember { Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f }
     // One node for TalkBack, the slider's own replaced: its label, value ("Blur, 3") and adjust action.
     Box(modifier.clearAndSetSemantics {
         contentDescription?.let { this.contentDescription = it }
@@ -210,33 +216,25 @@ internal fun MaterialSlider(
         colors = colors,
         interactionSource = interaction,
         thumb = {
-            Box(contentAlignment = Alignment.Center) {
-                SliderDefaults.Thumb(interaction, colors = colors, thumbSize = DpSize(4.dp, 44.dp))
-                AnimatedVisibility(
-                    held,
-                    // Above the handle, without changing the slider's size.
-                    Modifier.layout { measurable, _ ->
-                        val p = measurable.measure(Constraints())
-                        layout(0, 0) { p.place(-p.width / 2, -p.height - 30.dp.roundToPx()) }
-                    },
-                    enter = if (still) EnterTransition.None else scaleIn(spring(dampingRatio = 0.6f, stiffness = 800f), transformOrigin = TransformOrigin(0.5f, 1f)) + fadeIn(),
-                    exit = if (still) ExitTransition.None else scaleOut(spring(stiffness = 800f), transformOrigin = TransformOrigin(0.5f, 1f)) + fadeOut(),
-                ) {
-                    Surface(shape = CircleShape, color = scheme.inverseSurface, contentColor = scheme.inverseOnSurface) {
-                        Text(label, Modifier.padding(horizontal = 12.dp, vertical = 6.dp), style = MaterialTheme.typography.labelLarge)
-                    }
-                }
-            }
+            // The pressed state is the ripple's halo around the handle.
+            Box(
+                Modifier
+                    .size(20.dp)
+                    .hoverable(interaction)
+                    .indication(interaction, ripple(bounded = false, radius = 20.dp))
+                    .shadow(1.dp, CircleShape)
+                    .background(colors.thumbColor, CircleShape),
+            )
         },
-        track = { SliderDefaults.Track(it, Modifier.height(24.dp), colors = colors, thumbTrackGapSize = 6.dp, trackInsideCornerSize = 4.dp) },
+        track = { SliderDefaults.Track(it, Modifier.height(4.dp), colors = colors, drawStopIndicator = null, thumbTrackGapSize = 0.dp, trackInsideCornerSize = 0.dp) },
     ) }
 }
 
-/** Material 3 Expressive's switch: a check or ✕ on the thumb, in the theme's accent. */
+/** Material 3's switch: a check on the thumb while on, nothing while off, in the theme's accent. */
 @Composable
 internal fun MaterialSwitch(checked: Boolean, onCheckedChange: ((Boolean) -> Unit)?, modifier: Modifier) = Switch(
     checked, onCheckedChange, modifier,
-    thumbContent = { Icon(if (checked) Icons.Filled.Check else Icons.Filled.Close, null, Modifier.size(SwitchDefaults.IconSize)) },
+    thumbContent = if (checked) { { Icon(Icons.Filled.Check, null, Modifier.size(SwitchDefaults.IconSize)) } } else null,
 )
 
 /** A stepper as Material has none: − and + tonal icon buttons, each disabled at its end of [range]. */
@@ -245,5 +243,20 @@ internal fun MaterialStepper(value: Int, onValueChange: (Int) -> Unit, range: In
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         FilledTonalIconButton({ onValueChange(value - 1) }, enabled = value > range.first) { Icon(Icons.Filled.Remove, "Decrease") }
         FilledTonalIconButton({ onValueChange(value + 1) }, enabled = value < range.last) { Icon(Icons.Filled.Add, "Increase") }
+    }
+}
+
+/** A single choice among a few options as Material's filter chips, the chosen one checked. */
+@Composable
+fun MaterialChoiceChips(options: List<String>, selected: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier) {
+    Row(modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        options.forEachIndexed { index, option ->
+            FilterChip(
+                selected = index == selected,
+                onClick = { onSelect(index) },
+                label = { Text(option) },
+                leadingIcon = if (index == selected) { { Icon(Icons.Filled.Check, null, Modifier.size(FilterChipDefaults.IconSize)) } } else null,
+            )
+        }
     }
 }

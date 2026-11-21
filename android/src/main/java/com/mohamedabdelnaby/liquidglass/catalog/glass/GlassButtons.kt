@@ -61,14 +61,14 @@ fun GlassButton(
     shape: RoundedCornerShape = CapsuleShape,
     size: GlassControlSize = GlassControlSize.Regular,
     enabled: Boolean = true,
-    // iOS and react-native-liquid label glass buttons in the label color, not the accent.
-    contentColor: Color = MaterialTheme.colorScheme.onSurface,
+    // iOS and react-native-liquid label glass buttons in the label color (null), not the accent.
+    contentColor: Color? = null,
     transition: GlassTransition = GlassTransition.MatchedGeometry,
     unionId: Any? = null,
     content: @Composable RowScope.() -> Unit,
 ) {
     if (isMaterial) return MaterialButton(onClick, modifier, prominent = false, glass, contentColor, shape, size, enabled, content)
-    GlassButtonSurface(onClick, modifier, glass, shape, size, enabled, contentColor, transition, unionId, content)
+    GlassButtonSurface(onClick, modifier, glass, shape, size, enabled, contentColor ?: MaterialTheme.colorScheme.onSurface, transition, unionId, content)
 }
 
 /** `.buttonStyle(.glassProminent)`: glass tinted with the accent and a white label. */
@@ -76,7 +76,8 @@ fun GlassButton(
 fun GlassProminentButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    tint: Color = MaterialTheme.colorScheme.primary,
+    // null: the accent.
+    tint: Color? = null,
     shape: RoundedCornerShape = CapsuleShape,
     size: GlassControlSize = GlassControlSize.Regular,
     enabled: Boolean = true,
@@ -86,7 +87,7 @@ fun GlassProminentButton(
 ) {
     if (isMaterial) return MaterialButton(onClick, modifier, prominent = true, Glass.Regular, tint, shape, size, enabled, content)
     GlassButtonSurface(
-        onClick, modifier, Glass.Regular.tint(tint).copy(prominent = true), shape, size, enabled, Color.White,
+        onClick, modifier, Glass.Regular.tint(tint ?: MaterialTheme.colorScheme.primary).copy(prominent = true), shape, size, enabled, Color.White,
         transition, unionId, content,
     )
 }
@@ -130,7 +131,8 @@ fun GlassIconButton(
     modifier: Modifier = Modifier,
     glass: Glass = Glass.Regular,
     size: Dp = 44.dp,
-    tint: Color = MaterialTheme.colorScheme.onSurface,
+    // null: the label color.
+    tint: Color? = null,
     enabled: Boolean = true,
     transition: GlassTransition = GlassTransition.MatchedGeometry,
     unionId: Any? = null,
@@ -144,7 +146,7 @@ fun GlassIconButton(
             .glassClickable(enabled, contentDescription, onClick),
         contentAlignment = Alignment.Center,
     ) {
-        Icon(icon, contentDescription, tint = tint, modifier = Modifier.size(size * 0.45f))
+        Icon(icon, contentDescription, tint = tint ?: MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(size * 0.45f))
     }
 }
 

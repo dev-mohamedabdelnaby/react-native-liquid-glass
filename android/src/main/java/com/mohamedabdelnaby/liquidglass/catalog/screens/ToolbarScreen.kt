@@ -1,5 +1,7 @@
 package com.mohamedabdelnaby.liquidglass.catalog.screens
 
+import com.mohamedabdelnaby.liquidglass.catalog.glass.MaterialSectionHeader
+import com.mohamedabdelnaby.liquidglass.catalog.glass.platformCopy
 import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassTransition
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
@@ -163,10 +165,11 @@ fun ToolbarScreen() {
                         ListRow(Modifier.groupedRow(1, 3)) { SwitchRow("Morph compose button", morph) { morph = it } }
                         ListRow(Modifier.groupedRow(2, 3), divider = false) { SwitchRow("Glass behind Share & More", groupGlass) { groupGlass = it } }
                     }
-                    Footnote("These options are also in the ••• menu.", Modifier.padding(horizontal = 16.dp))
+                    Footnote(platformCopy("These options are also in the ••• menu.", "These options are also in the More menu."), Modifier.padding(horizontal = 16.dp))
                 }
             }
-            item {
+            if (material) item { MaterialSectionHeader("Rows", Modifier.padding(start = 16.dp, bottom = 8.dp)) }
+            else item {
                 // Section("Rows"): iOS 26 headers are title case, headline weight.
                 Text(
                     "Rows",

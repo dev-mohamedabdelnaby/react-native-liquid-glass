@@ -7,7 +7,7 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.lerp
 import com.mohamedabdelnaby.liquidglass.catalog.glass.LocalGlassSettings
-import com.mohamedabdelnaby.liquidglass.catalog.glass.moreContrasting
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
@@ -54,22 +54,42 @@ private val DarkColors = darkColorScheme(
     error = Color(0xFFFF453A),
 )
 
+/** [color] blended toward white or black until its relative luminance is [target]. */
+internal fun toLuminance(color: Color, target: Float): Color {
+    val from = color.copy(alpha = 1f)
+    val toward = if (from.luminance() < target) Color.White else Color.Black
+    var lo = 0f
+    var hi = 1f
+    repeat(24) {
+        val mid = (lo + hi) / 2f
+        val reached = lerp(from, toward, mid).luminance().let { if (toward == Color.White) it >= target else it <= target }
+        if (reached) hi = mid else lo = mid
+    }
+    return lerp(from, toward, hi)
+}
+
 /**
- * Home's tint as the Material scheme's accent: primary, and the containers it tints (tonal buttons,
- * the selected segment, the navigation bar's indicator), with on-colors picked for contrast.
- * shortcut: a blend, not a full tonal palette from the tint as seed; use material-color-utilities
- * if the other roles should follow the tint too.
+ * Home's tint as the scheme's primary roles, in tones like Material's (as relative luminance):
+ * light mode darkens it until white reads on it (4.5:1); dark mode lifts it to a light tone with a
+ * dark on-color. Containers, on-colors and the inverse take the tint's other tones. Secondary,
+ * tertiary and the surfaces stay the system's.
+ * shortcut: tones are blends toward white or black, not a full tonal palette (no
+ * material-color-utilities); hue and chroma drift a little at the extremes.
  */
-private fun ColorScheme.tinted(tint: Color): ColorScheme {
-    val primaryContainer = lerp(surface, tint, 0.3f)
-    val secondaryContainer = lerp(surface, tint, 0.22f)
-    return copy(
-        primary = tint,
-        onPrimary = moreContrasting(tint, surface, onSurface),
-        primaryContainer = primaryContainer,
-        onPrimaryContainer = moreContrasting(primaryContainer, surface, onSurface),
-        secondaryContainer = secondaryContainer,
-        onSecondaryContainer = moreContrasting(secondaryContainer, surface, onSurface),
+internal fun tintedScheme(base: ColorScheme, tint: Color, dark: Boolean): ColorScheme {
+    val t = tint.copy(alpha = 1f)
+    val primary = if (dark) {
+        if (t.luminance() >= 0.5f) t else toLuminance(t, 0.5f)
+    } else {
+        if (t.luminance() <= 0.17f) t else toLuminance(t, 0.17f)
+    }
+    return base.copy(
+        primary = primary,
+        onPrimary = toLuminance(t, if (dark) 0.03f else 1f),
+        primaryContainer = toLuminance(t, if (dark) 0.06f else 0.75f),
+        onPrimaryContainer = toLuminance(t, if (dark) 0.75f else 0.012f),
+        inversePrimary = toLuminance(t, if (dark) 0.11f else 0.5f),
+        surfaceTint = primary,
     )
 }
 
@@ -97,15 +117,18 @@ fun LiquidGlassTheme(
     val context = LocalContext.current
     CompositionLocalProvider(LocalConfiguration provides configuration) {
         if (material) {
-            // Android's own colors (the wallpaper's on Android 12+, else Material's baseline) and type.
-            // shortcut: MaterialExpressiveTheme and MotionScheme.expressive() are internal in material3
-            // 1.4.0 (BOM 2026.09.00); use them once a BOM ships them public.
-            val scheme = when {
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> if (dark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-                else -> if (dark) darkColorScheme() else lightColorScheme()
+            // Android's own colors (the wallpaper's on Android 12+, else Material's baseline), Home's
+            // tint as the primary roles, and Material's type.
+            val system = remember(dark, context) {
+                when {
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> if (dark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+                    else -> if (dark) darkColorScheme() else lightColorScheme()
+                }
             }
+            val tint = LocalGlassSettings.current.tint
+            val scheme = remember(system, tint, dark) { tint?.let { tintedScheme(system, it, dark) } ?: system }
             MaterialTheme(
-                colorScheme = LocalGlassSettings.current.tint?.let { scheme.tinted(it.copy(alpha = 1f)) } ?: scheme,
+                colorScheme = scheme,
                 typography = MaterialTypography,
                 content = content,
             )

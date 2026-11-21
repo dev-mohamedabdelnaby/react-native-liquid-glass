@@ -55,9 +55,10 @@ Use `Platform.OS` if you want Material only on some devices; iOS always shows gl
 | Prominent / glass / clear / frosted button | `Button` (in the prominent button's tint) / `FilledTonalButton` / `OutlinedButton` / `TextButton` |
 | Floating glass compose / add button (Toolbar, Recipes) | `FloatingActionButton` |
 | Glass icon button | `FilledTonalIconButton`; `IconButton` inside a bar |
-| Liquid switch | `Switch` with Material 3 Expressive's check / ✕ on the thumb |
-| Liquid slider | `Slider` with the Expressive look: a 24 dp track, a 44 dp handle that narrows while pressed, a value indicator above it while held, and a light haptic each tenth of the way (not continuously) |
-| Segmented control | `SingleChoiceSegmentedButtonRow` (check mark per `androidSegmentedCheck`) |
+| Liquid switch | Material 3's stock `Switch`, with a check on the thumb while it is on |
+| Liquid slider | Material 3's classic `Slider`: a round handle on a thin track, and a light haptic each tenth of the way (not continuously) |
+| Segmented control (and the Recipes selector) | Material 3's stock `SingleChoiceSegmentedButtonRow` (check mark per `androidSegmentedCheck`) |
+| Scroll Edge's filters and edge styles | `FilterChip` rows |
 | Bottom tab bar | `NavigationBar` with badges |
 | Glass bottom bar | `BottomAppBar` |
 | Menu, context menu | `DropdownMenu` (a context menu opens at the long-pressed item, with no lifted preview) |
@@ -65,16 +66,17 @@ Use `Platform.OS` if you want Material only on some devices; iOS always shows gl
 | Confirmation popover (Alerts) | `AlertDialog` |
 | Alert | `AlertDialog` with text buttons in a row, the confirming one at the end |
 | Sheet | `ModalBottomSheet` with its drag handle |
-| Expanding search | `DockedSearchBar` |
-| Stepper | − and + tonal icon buttons |
+| Search in the bottom toolbar (Search, Edit & Search) | A search bar at the top, under the top app bar; on Edit & Search it opens from the bar's search action, and editing turns the bar into a contextual one (Delete, Done). The iOS "Minimize search field" switch is hidden |
+| Stepper (and the custom "Quick pick" stepper) | − and + tonal icon buttons |
 | Any other glass surface (cards, pills, the glass demos) | A tonal surface (`surfaceContainerHigh`), or solid in the glass's own tint |
 | iOS gray fills and page colors | `surface`, `surfaceContainerHigh`, `surfaceContainerHighest` |
 | iOS-style symbols in bars and pickers (`···`, the share box, `‹ ›`, the up-down picker arrows) | `MoreVert`, `Share`, `ArrowBack` / `ArrowForward`, `ArrowDropDown` |
 
-- Colors are the device's dynamic colors (Android 12+), else Material's baseline. `tint` becomes the scheme's primary, and tints the primary and secondary containers, with on-colors picked for contrast. Text uses Material's type scale. Presses show ripples.
+- Colors are the device's dynamic colors (Android 12+), else Material's baseline. `tint` becomes the scheme's primary roles: in light mode it is darkened until white reads on it, in dark mode lifted to a light tone with a dark on-color; the containers, on-colors and inverse primary are lighter or darker tones of it. It is a blend toward white or black, not a full tonal palette; secondary, tertiary and the surfaces stay the device's. Text uses Material's type scale, also for the screens' own texts. Presses show ripples.
+- Android Home shows only the settings Material uses: Appearance, Layout direction, Android style, the segmented check, `tint` and `dropColor`.
 - Sliders take `dropColor` for their handle; a slider's own tint wins over the primary.
 - TalkBack: a switch row reads its label with the switch's state; a slider reads its label and value ("Blur, 3", "White, 25%").
-- Touch targets are at least 48 dp. With "Remove animations" on, the slider's value indicator shows and hides without animating; the Material components' own animations are Compose's.
+- Touch targets are at least 48 dp. Animations are the Material components' own.
 - Screens about glass itself (Glass Effect, Glass View, Union, Morphing, Glass Container) show Material surfaces in its place, on the plain page instead of the photo.
 - The other Android glass settings (`clear`, `blur`, `liquid` and the rest) do nothing in `'material'`.
 - `appearance`, `layoutDirection` and the back key work as in glass: back closes an open sheet, dialog, menu or search first.

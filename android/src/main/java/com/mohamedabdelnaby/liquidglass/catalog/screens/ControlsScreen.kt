@@ -1,5 +1,7 @@
 package com.mohamedabdelnaby.liquidglass.catalog.screens
 
+import com.mohamedabdelnaby.liquidglass.catalog.glass.platformTextStyle
+import com.mohamedabdelnaby.liquidglass.catalog.glass.isMaterial
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -127,7 +129,8 @@ fun ControlsScreen() {
             GlassListSection(glass = false, header = "Segmented Picker") {
                 ListRow(divider = false) { GlassSegmented(listOf("Day", "Week", "Month"), segment, { segment = it }) }
             }
-            GlassListSection(glass = false, header = "Stepper", footer = "Tap the number in the glass stepper for a menu of presets.") {
+            // Material: the quick pick is a plain stepper, with no presets menu to mention.
+            GlassListSection(glass = false, header = "Stepper", footer = if (isMaterial) null else "Tap the number in the glass stepper for a menu of presets.") {
                 ListRow {
                     Text("Cups: $cups")
                     Fill()
@@ -148,7 +151,7 @@ fun ControlsScreen() {
                 ListRow(divider = false) {
                     Text("Quick pick")
                     Fill()
-                    GlassStepper(cups, 0..10) { cups = it }
+                    if (isMaterial) SystemStepper(cups, { cups = it }, 0..10) else GlassStepper(cups, 0..10) { cups = it }
                 }
             }
             GlassListSection(glass = false, header = "Menu Picker") {
@@ -283,7 +286,7 @@ private fun CompactPicker(value: String, onClick: () -> Unit) {
     Text(
         value,
         Modifier.background(TertiaryFill, CircleShape).glassClickable(onClick = onClick).padding(horizontal = 12.dp, vertical = 6.dp),
-        fontSize = 17.sp,
+        style = platformTextStyle(17.sp, MaterialTheme.typography.bodyLarge),
     )
 }
 

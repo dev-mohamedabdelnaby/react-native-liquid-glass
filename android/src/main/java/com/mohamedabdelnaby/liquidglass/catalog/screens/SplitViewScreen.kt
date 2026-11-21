@@ -1,5 +1,6 @@
 package com.mohamedabdelnaby.liquidglass.catalog.screens
 
+import com.mohamedabdelnaby.liquidglass.catalog.glass.platformCopy
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -104,7 +105,10 @@ fun SplitViewScreen() {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                "The sidebar and inspector float on Liquid Glass. The header artwork mirrors and blurs beneath them with the background extension effect.",
+                platformCopy(
+                    "The sidebar and inspector float on Liquid Glass. The header artwork mirrors and blurs beneath them with the background extension effect.",
+                    "The sidebar and inspector sit beside the content on wide screens.",
+                ),
                 Modifier.glassEffect(Glass.Regular, RoundedCornerShape(24.dp)).padding(16.dp),
                 textAlign = TextAlign.Center,
             )

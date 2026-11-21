@@ -1,5 +1,7 @@
 package com.mohamedabdelnaby.liquidglass.catalog.screens
 
+import com.mohamedabdelnaby.liquidglass.catalog.glass.MaterialChoiceChips
+import com.mohamedabdelnaby.liquidglass.catalog.glass.isMaterial
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -62,10 +64,13 @@ fun ScrollEdgeScreen() {
         backdrop = { PlainBackdrop(it, SystemBackground) },
         // safeAreaBar(edge: .top): a custom bar that insets content and carries the edge effect.
         topAccessory = {
-            GlassSegmented(listOf("All", "Recent", "Shared"), category, { category = it }, Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+            // Material: filter chips.
+            if (isMaterial) MaterialChoiceChips(listOf("All", "Recent", "Shared"), category, { category = it }, Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+            else GlassSegmented(listOf("All", "Recent", "Shared"), category, { category = it }, Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
         },
         bottomBar = {
-            GlassBottomBar(edge = style.edge) {
+            if (isMaterial) GlassBottomBar { MaterialChoiceChips(EdgeStyle.entries.map { it.title }, style.ordinal, { style = EdgeStyle.entries[it] }) }
+            else GlassBottomBar(edge = style.edge) {
                 GlassEffectContainer(Modifier.fillMaxWidth(), spacing = 8.dp) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)) {
                         EdgeStyle.entries.forEach { option ->

@@ -1,5 +1,6 @@
 package com.mohamedabdelnaby.liquidglass.catalog.screens
 
+import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassSegmented
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
@@ -126,7 +127,8 @@ fun RecipesScreen() {
         overlay = { FloatingActionMenu(Modifier.align(Alignment.BottomEnd).navigationBarsPadding().padding(16.dp)) },
     ) { padding ->
         DemoColumn(padding, spacing = 40.dp, horizontalAlignment = Alignment.CenterHorizontally) {
-            Recipe("Sliding selector") { SlidingSelector() }
+            // Material: segmented buttons.
+            Recipe("Sliding selector") { if (isMaterial) MaterialSelector() else SlidingSelector() }
             Recipe("Map controls") { MapControls() }
             Recipe("Mini player") { MiniPlayer() }
             Recipe("Floating action menu") {
@@ -144,6 +146,12 @@ private fun Recipe(title: String, content: @Composable ColumnScope.() -> Unit) {
         Text(title, style = MaterialTheme.typography.titleMedium)
         content()
     }
+}
+
+@Composable
+private fun MaterialSelector() {
+    var selected by remember { mutableIntStateOf(0) }
+    GlassSegmented(listOf("Day", "Week", "Month", "Year"), selected, { selected = it })
 }
 
 @Composable

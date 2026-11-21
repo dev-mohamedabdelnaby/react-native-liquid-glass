@@ -43,6 +43,7 @@ import com.mohamedabdelnaby.liquidglass.catalog.glass.glassEffect
 import com.mohamedabdelnaby.liquidglass.catalog.glass.groupedRow
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.LiquidExpandableSearch
 import com.mohamedabdelnaby.liquidglass.catalog.glass.MaterialSectionHeader
+import com.mohamedabdelnaby.liquidglass.catalog.glass.MaterialSearchField
 import com.mohamedabdelnaby.liquidglass.catalog.glass.isMaterial
 
 private val Fruits = listOf(
@@ -76,10 +77,13 @@ fun SearchScreen() {
 
     GlassScreen(
         title = "Search",
-        showTopBar = !searching,
+        // Material: search sits at the top, under the top app bar, and Sort and Add are bar actions.
+        showTopBar = material || !searching,
         backdrop = { PlainBackdrop(it) },
+        actions = { if (material) { sort(); add() } },
+        topAccessory = if (material) { { MaterialSearchField(query, { query = it }, "Search fruits") } } else null,
         bottomBar = {
-            GlassBottomBar {
+            if (!material) GlassBottomBar {
                 if (minimize) {
                     // The glass button morphs into the field; Sort and Add fade out beside it.
                     LiquidExpandableSearch(
@@ -127,7 +131,8 @@ fun SearchScreen() {
                 padding.calculateBottomPadding() + 8.dp,
             ),
         ) {
-            item {
+            // iOS only: Material's search bar is always open.
+            if (!material) item {
                 Column(Modifier.padding(bottom = 28.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     ListRow(Modifier.groupedRow(0, 1), divider = false) { SwitchRow("Minimize search field", minimize) { minimize = it } }
                     Footnote("When minimized, search appears as a glass button until tapped.", Modifier.padding(horizontal = 16.dp))

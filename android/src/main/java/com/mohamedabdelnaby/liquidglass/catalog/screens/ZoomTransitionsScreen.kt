@@ -1,5 +1,7 @@
 package com.mohamedabdelnaby.liquidglass.catalog.screens
 
+import com.mohamedabdelnaby.liquidglass.catalog.glass.platformTextStyle
+import com.mohamedabdelnaby.liquidglass.catalog.glass.platformCopy
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
@@ -139,7 +141,10 @@ fun ZoomTransitionsScreen() {
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    "Tap the toolbar buttons — their sheets zoom out of the glass button that presented them.",
+                    platformCopy(
+                        "Tap the toolbar buttons — their sheets zoom out of the glass button that presented them.",
+                        "Tap the bar buttons — their sheets grow out of the button that opened them.",
+                    ),
                     Modifier.glassEffect(Glass.Regular, RoundedCornerShape(24.dp)).padding(16.dp),
                     textAlign = TextAlign.Center,
                 )
@@ -157,7 +162,7 @@ fun ZoomTransitionsScreen() {
                     Modifier.fillMaxWidth().glassEffect(Glass.Regular, RoundedCornerShape(20.dp)).padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text("Unread badge: $unread", fontSize = 17.sp)
+                    Text("Unread badge: $unread", style = platformTextStyle(17.sp, MaterialTheme.typography.bodyLarge))
                     Fill()
                     SystemStepper(unread, { unread = it }, 0..99)
                 }

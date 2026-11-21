@@ -1,5 +1,6 @@
 package com.mohamedabdelnaby.liquidglass.catalog.screens
 
+import com.mohamedabdelnaby.liquidglass.catalog.glass.platformTextStyle
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
@@ -66,6 +67,10 @@ import com.mohamedabdelnaby.liquidglass.catalog.glass.glassClickable
 import com.mohamedabdelnaby.liquidglass.catalog.glass.glassEffect
 import com.mohamedabdelnaby.liquidglass.catalog.glass.groupedRow
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.LiquidExpandableSearch
+import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassIconButton
+import com.mohamedabdelnaby.liquidglass.catalog.glass.MaterialSearchField
+import com.mohamedabdelnaby.liquidglass.catalog.glass.isMaterial
+import androidx.activity.compose.BackHandler
 import com.mohamedabdelnaby.liquidglass.catalog.ui.theme.SystemColors
 
 private enum class Mode { Idle, Searching, Editing }
@@ -96,11 +101,32 @@ fun EditSearchScreen() {
         Mode.Editing -> if (selection.isEmpty()) "Select Items" else "${selection.size} Selected"
     }
 
+    // Material: Search and Edit are top app bar actions; search opens a search bar under the bar and
+    // editing turns the bar into a contextual one (Delete, Done). Back leaves either first.
+    val material = isMaterial
+    BackHandler(material && mode != Mode.Idle) { if (mode == Mode.Searching) closeSearch() else { selection.clear(); mode = Mode.Idle } }
+
     GlassScreen(
         title = title,
         backdrop = { PlainBackdrop(it) },
+        actions = {
+            if (material) when (mode) {
+                Mode.Idle -> {
+                    GlassIconButton(Icons.Filled.Search, "Search", { mode = Mode.Searching })
+                    GlassIconButton(Icons.Filled.Edit, "Edit", { mode = Mode.Editing })
+                }
+                Mode.Searching -> Unit
+                Mode.Editing -> {
+                    if (selection.isNotEmpty()) GlassIconButton(Icons.Filled.Delete, "Delete ${selection.size}", { items.removeAll(selection); selection.clear() })
+                    GlassIconButton(Icons.Filled.Check, "Done", { selection.clear(); mode = Mode.Idle })
+                }
+            }
+        },
+        topAccessory = if (material && mode == Mode.Searching) {
+            { MaterialSearchField(query, { query = it }, "Search notes", autoFocus = true, onClose = ::closeSearch) }
+        } else null,
         bottomBar = {
-            GlassBottomBar {
+            if (!material) GlassBottomBar {
                 ActionBar(
                     mode = mode,
                     query = query,
@@ -181,7 +207,7 @@ private fun ActionBar(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(Icons.Filled.Delete, null, tint = Color.White)
-                    Text("Delete $selected", color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
+                    Text("Delete $selected", color = Color.White, style = platformTextStyle(17.sp, MaterialTheme.typography.bodyLarge), fontWeight = FontWeight.SemiBold)
                 }
             }
             Fill()

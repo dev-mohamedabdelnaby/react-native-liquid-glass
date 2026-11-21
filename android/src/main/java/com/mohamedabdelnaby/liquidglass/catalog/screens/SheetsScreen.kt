@@ -1,5 +1,6 @@
 package com.mohamedabdelnaby.liquidglass.catalog.screens
 
+import com.mohamedabdelnaby.liquidglass.catalog.glass.platformCopy
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassPopover
@@ -52,7 +53,7 @@ fun SheetsScreen() {
             Box {
                 GlassButton({ popover = true }) { Text("Show Popover") }
                 GlassPopover(popover, { popover = false }) {
-                    Text("A glass popover", Modifier.padding(horizontal = 16.dp, vertical = 14.dp))
+                    Text(platformCopy("A glass popover", "A popover"), Modifier.padding(horizontal = 16.dp, vertical = 14.dp))
                 }
             }
             GlassMenu(anchor = { open -> GlassButton(open) { Text("Menu: $selection") } }) { dismiss ->
@@ -72,7 +73,7 @@ fun SheetsScreen() {
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    "Partial-height sheets float on Liquid Glass",
+                    platformCopy("Partial-height sheets float on Liquid Glass", "A bottom sheet at half height; drag it up for more"),
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center,
                 )

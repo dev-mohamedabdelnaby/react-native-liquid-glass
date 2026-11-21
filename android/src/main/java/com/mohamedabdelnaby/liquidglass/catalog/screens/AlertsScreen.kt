@@ -1,5 +1,6 @@
 package com.mohamedabdelnaby.liquidglass.catalog.screens
 
+import com.mohamedabdelnaby.liquidglass.catalog.glass.platformCopy
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -158,7 +159,7 @@ fun AlertsScreen() {
     if (alert) {
         GlassAlertDialog(
             title = "Enable Notifications?",
-            message = "Alerts in iOS 26 and later use Liquid Glass.",
+            message = platformCopy("Alerts in iOS 26 and later use Liquid Glass.", "Get notified when something changes."),
             onDismissRequest = { alert = false; lastAction = "Not now" },
         ) {
             DialogAction("Enable", { alert = false; lastAction = "Enabled" }, prominent = true)

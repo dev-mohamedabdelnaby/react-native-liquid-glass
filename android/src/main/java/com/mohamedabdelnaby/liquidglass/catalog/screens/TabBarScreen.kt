@@ -1,5 +1,9 @@
 package com.mohamedabdelnaby.liquidglass.catalog.screens
 
+import com.mohamedabdelnaby.liquidglass.catalog.glass.ListRow
+import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassListSection
+import com.mohamedabdelnaby.liquidglass.catalog.glass.platformTextStyle
+import com.mohamedabdelnaby.liquidglass.catalog.glass.platformCopy
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.border
@@ -194,41 +198,55 @@ fun TabBarScreen() {
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    "Floating glass tab bars. Pick a layout below.",
+                    platformCopy("Floating glass tab bars. Pick a layout below.", "Navigation bar layouts. Pick one below."),
                     Modifier.glassEffect(Glass.Regular, RoundedCornerShape(24.dp)).padding(16.dp),
-                    fontSize = 17.sp,
+                    style = platformTextStyle(17.sp, MaterialTheme.typography.bodyLarge),
                     textAlign = TextAlign.Center,
                 )
-                Column(
-                    Modifier.fillMaxWidth().glassEffect(Glass.Regular, RoundedCornerShape(20.dp)).padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
+                val minimizeRow = @Composable {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         Icon(Icons.Filled.CloseFullscreen, null)
                         Box(Modifier.weight(1f)) { SwitchRow("Minimize on scroll", minimizeOnScroll) { minimizeOnScroll = it } }
                     }
-                    HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
-                    // Applies to "Search Separated": the field can fill the bar or keep the active tab beside it.
+                }
+                // Applies to "Search Separated": the field can fill the bar or keep the active tab beside it.
+                val searchFieldRow = @Composable {
                     GlassMenu(anchor = { open ->
                         Row(
                             Modifier.glassClickable(label = "Search field", onClick = open).padding(vertical = 4.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(4.dp),
                         ) {
-                            Text(if (searchFullWidth) "Full Width" else "With Active Tab", fontSize = 17.sp)
+                            Text(if (searchFullWidth) "Full Width" else "With Active Tab", style = platformTextStyle(17.sp, MaterialTheme.typography.bodyLarge))
                             Icon(nativeIcon(Icons.Filled.UnfoldMore), null, tint = MaterialTheme.colorScheme.primary)
                         }
                     }) { dismiss ->
                         GlassMenuItem("With Active Tab", { searchFullWidth = false; dismiss() }, checked = !searchFullWidth)
                         GlassMenuItem("Full Width", { searchFullWidth = true; dismiss() }, checked = searchFullWidth)
                     }
-                    HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
-                    // Bar color: Glass keeps the liquid glass; a swatch fills every bar piece instead.
+                }
+                // Bar color: Glass keeps the liquid glass; a swatch fills every bar piece instead.
+                val colorRow = @Composable {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                         BarSwatch(null, barColor == null) { barColor = null }
                         BarColors.forEach { c -> BarSwatch(c, barColor == c) { barColor = c } }
                     }
+                }
+                // Material: a settings group, each row its own segment.
+                if (isMaterial) GlassListSection {
+                    ListRow { Box(Modifier.weight(1f)) { minimizeRow() } }
+                    ListRow { Text("Search field"); Fill(); searchFieldRow() }
+                    ListRow { colorRow() }
+                } else Column(
+                    Modifier.fillMaxWidth().glassEffect(Glass.Regular, RoundedCornerShape(20.dp)).padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    minimizeRow()
+                    HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
+                    searchFieldRow()
+                    HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
+                    colorRow()
                 }
                 Variant.entries.forEach { variant ->
                     GlassProminentButton({ shown = variant; presented = variant }, Modifier.fillMaxWidth(), size = GlassControlSize.Large) {
@@ -529,7 +547,7 @@ private fun TabList(title: String, padding: PaddingValues, state: LazyListState)
                     .heightIn(min = 60.dp)
                     .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.6f), RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center,
-            ) { Text("$title item ${index + 1}", fontSize = 17.sp) }
+            ) { Text("$title item ${index + 1}", style = platformTextStyle(17.sp, MaterialTheme.typography.bodyLarge)) }
         }
     }
 }

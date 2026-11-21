@@ -4,8 +4,6 @@
 package com.mohamedabdelnaby.liquidglass.catalog.liquid
 
 import com.mohamedabdelnaby.liquidglass.catalog.glass.opaqueFill
-import com.mohamedabdelnaby.liquidglass.catalog.glass.isMaterial
-import com.mohamedabdelnaby.liquidglass.catalog.glass.MaterialExpandableSearch
 import com.mohamedabdelnaby.liquidglass.catalog.glass.LocalGlassSettings
 import android.os.Build
 import androidx.compose.animation.core.Animatable
@@ -95,7 +93,6 @@ fun LiquidExpandableSearch(
     collapsedBias: Float = 1f,
     content: @Composable RowScope.() -> Unit = {},
 ) {
-    if (isMaterial) return MaterialExpandableSearch(expanded, onExpandedChange, query, onQueryChange, placeholder, modifier, content)
     val dark = isSystemInDarkTheme()
     val labelColor = if (dark) Color.White else Color.Black
     val secondaryColor = if (dark) Color(0x99EBEBF5) else Color(0x993C3C43)
