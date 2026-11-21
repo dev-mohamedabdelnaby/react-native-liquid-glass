@@ -527,13 +527,23 @@ internal fun MaterialExpandableSearch(
     modifier: Modifier,
     content: @Composable RowScope.() -> Unit,
 ) {
-    if (!expanded) {
-        Row(modifier, verticalAlignment = Alignment.CenterVertically) {
-            content()
-            IconButton({ onExpandedChange(true) }) { Icon(Icons.Filled.Search, "Search") }
+    // One node for the caller's modifier in both states: a screen's focus listener on it must not
+    // see a fresh, unfocused node the moment the bar opens (that closed it again).
+    Box(modifier) {
+        if (!expanded) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                content()
+                IconButton({ onExpandedChange(true) }) { Icon(Icons.Filled.Search, "Search") }
+            }
+        } else {
+            MaterialSearchBar(query, onQueryChange, placeholder) { onExpandedChange(false) }
         }
-        return
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun MaterialSearchBar(query: String, onQueryChange: (String) -> Unit, placeholder: String, onClose: () -> Unit) {
     val focus = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     LaunchedEffect(Unit) { focus.requestFocus() }
@@ -549,13 +559,13 @@ internal fun MaterialExpandableSearch(
                 placeholder = { Text(placeholder) },
                 leadingIcon = { Icon(Icons.Filled.Search, null) },
                 trailingIcon = {
-                    IconButton({ focusManager.clearFocus(); onExpandedChange(false) }) { Icon(Icons.Filled.Close, "Close search") }
+                    IconButton({ focusManager.clearFocus(); onClose() }) { Icon(Icons.Filled.Close, "Close search") }
                 },
             )
         },
         expanded = false,
         onExpandedChange = {},
-        modifier = modifier,
+        modifier = Modifier.fillMaxWidth(),
     ) {}
 }
 
