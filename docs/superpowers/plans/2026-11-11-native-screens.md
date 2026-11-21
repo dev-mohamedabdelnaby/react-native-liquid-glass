@@ -275,6 +275,18 @@ Spec section "Additions → Android control shapes".
 - [ ] **Step 3: Device check** on the phone: every shape × {glass, material} × {light, dark} × {LTR, RTL} on Controls, Home, Tab Bar, Recipes; `default` pixel-identical to Task 15's head; iOS Release build still passes and looks unchanged.
 - [ ] **Step 4: Commit** — `git commit -m "feat(android): control shapes option"`
 
+### Task 17: iOS bottom tab bar minimize follows the scroll (bug, runs now)
+
+User, 2026-11-21: on iPhone, the first scroll down minimizes the bottom tab bar, but after that it does not restore, or restores without animation. Minimize and expand must follow the scroll, animated, including when the finger stays down and scrolls back. Fix in BOTH places (user: "Both"): the library's `ios/Catalog/Screens/GlassTabBarScreen.swift` and the native app's `/Users/mohamedabdelnaby/Developer/ios/liquidGlass/liquidGlass/Screens/GlassTabBarScreen.swift` get the same change (native app: edit only, no commit).
+
+**Files:**
+- Modify: both `GlassTabBarScreen.swift` copies (`TabBarDemo` / `DemoTabContent`: the `isScrollingUp` switch between `.onScrollDown` and `.never` is the suspect); the library's host only if the root cause is in hosting.
+
+- [ ] **Step 1: Reproduce** on the simulator in the native app and in the example (Release): every tab bar variant, scroll down, up, down; finger held while reversing.
+- [ ] **Step 2: Root cause** (superpowers:systematic-debugging) and fix so the system's own interactive minimize/expand drives the bar, animated both ways, every time, in all four variants.
+- [ ] **Step 3: Check** both apps on the simulator (screen recordings or frame sequences of minimize → expand → minimize, and of a held-finger reversal), LTR and RTL; Android untouched.
+- [ ] **Step 4: Commit** (library only) — `git commit -m "fix(ios): tab bar minimize follows the scroll"`
+
 ### Task 5: Every native screen through React Navigation
 
 **Files:**
