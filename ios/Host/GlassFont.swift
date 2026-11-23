@@ -2,7 +2,7 @@ import SwiftUI
 import UIKit
 
 /// The `font*` props: each weight's face, as React Native's `fontFamily` names it; `""` is not set.
-struct GlassFontSpec: Equatable {
+struct GlassFontSpec: Hashable {
   var regular = ""
   var medium = ""
   var semibold = ""
@@ -127,57 +127,63 @@ private struct GlassFontModifier: ViewModifier {
   func body(content: Content) -> some View { content.font(custom(spec) ?? system) }
 }
 
-/// The bars and controls UIKit draws for the screens (navigation and large titles, bar buttons, tab
-/// bar items, segmented controls, search fields), through appearance proxies scoped to
-/// `GlassFontHostingController`: a screen's controller is one only while the screen has a font, so
-/// a screen without one (even one mounted after a screen with one) keeps UIKit's own look, untouched.
-/// shortcut: the bars of sheets and covers a screen presents are outside its controller and keep the
-/// system font (styling them would need each presented bar styled directly).
-/// shortcut: proxies are per class, so screens with fonts mounted together share the last font set,
-/// and bars already on screen keep theirs until they are created again; per-screen fonts would need
-/// each bar styled directly.
-enum GlassFontAppearance {
-  private static var applied = GlassFontSpec()
+/// The screen's font as a UIKit trait, set on its hosting controller: its bars, and those of the
+/// sheets and covers it presents (they inherit the trait), match the proxies registered for it.
+/// Nil (the default, a screen without a font) matches none, so UIKit's own look stays untouched.
+struct GlassFontTrait: UITraitDefinition {
+  static let defaultValue: GlassFontSpec? = nil
+}
 
-  /// Gives `controller` the font's bars, or (no face) UIKit's own.
-  static func apply(_ spec: GlassFontSpec, to controller: GlassHostingController) {
-    let hasFont = spec.face(for: .regular) != nil
-    object_setClass(controller, hasFont ? GlassFontHostingController.self : GlassHostingController.self)
-    guard hasFont, spec != applied else { return }
-    applied = spec
-    let inHost = [GlassFontHostingController.self]
+/// The bars and controls UIKit draws for the screens (navigation and large titles, bar buttons, tab
+/// bar items, segmented controls, search fields), through appearance proxies for each font's trait.
+/// shortcut: bars already on screen keep their font when it changes until they are created again;
+/// a live change would need each bar styled directly.
+enum GlassFontAppearance {
+  private static var registered: Set<GlassFontSpec> = []
+
+  /// Gives `controller` (and what it presents) the font's bars, or (no face) UIKit's own.
+  static func apply(_ spec: GlassFontSpec, to controller: UIViewController) {
+    let spec = spec.face(for: .regular) == nil ? nil : spec
+    controller.traitOverrides[GlassFontTrait.self] = spec
+    guard let spec, registered.insert(spec).inserted else { return }
+    let traits = UITraitCollection { $0[GlassFontTrait.self] = spec }
     // UIKit's own size and weight for each (iOS 27); only the large title and the search field scale with Dynamic Type.
     func attributes(_ size: CGFloat, _ weight: Font.Weight, _ style: UIFont.TextStyle? = nil) -> [NSAttributedString.Key: Any]? {
       spec.uiFont(size: size, weight: weight, relativeTo: style).map { [.font: $0] }
     }
-    let navigationBar = UINavigationBar.appearance(whenContainedInInstancesOf: inHost)
-    navigationBar.titleTextAttributes = attributes(17, .semibold)
-    navigationBar.largeTitleTextAttributes = attributes(34, .bold, .largeTitle)
-    let barButton = UIBarButtonItem.appearance(whenContainedInInstancesOf: inHost)
-    for state in [UIControl.State.normal, .highlighted, .disabled] {
-      barButton.setTitleTextAttributes(attributes(17, .medium), for: state)
+    // Bar button items match no trait proxy of their own; the navigation bar's appearance sets their fonts.
+    let bar = UINavigationBar().standardAppearance
+    bar.titleTextAttributes = attributes(17, .semibold) ?? [:]
+    bar.largeTitleTextAttributes = attributes(34, .bold, .largeTitle) ?? [:]
+    for (buttons, weight) in [(bar.buttonAppearance, Font.Weight.medium), (bar.backButtonAppearance, .medium), (bar.doneButtonAppearance, .semibold)] {
+      for state in [buttons.normal, buttons.highlighted, buttons.disabled] {
+        state.titleTextAttributes = attributes(17, weight) ?? [:]
+      }
     }
+    UINavigationBar.appearance(for: traits).standardAppearance = bar
     // Tab bars take item fonts only from their appearance: UIKit's default one, with the fonts set.
     let tabs = UITabBar().standardAppearance
     for item in [tabs.stackedLayoutAppearance, tabs.inlineLayoutAppearance, tabs.compactInlineLayoutAppearance] {
       item.normal.titleTextAttributes = attributes(10, .medium) ?? [:]
       item.selected.titleTextAttributes = attributes(10, .semibold) ?? [:]
     }
-    UITabBar.appearance(whenContainedInInstancesOf: inHost).standardAppearance = tabs
-    let segmented = UISegmentedControl.appearance(whenContainedInInstancesOf: inHost)
+    UITabBar.appearance(for: traits).standardAppearance = tabs
+    let segmented = UISegmentedControl.appearance(for: traits)
     segmented.setTitleTextAttributes(attributes(13, .regular), for: .normal)
     segmented.setTitleTextAttributes(attributes(13, .medium), for: .selected)
     // UIKit's own text attributes (colour, paragraph style) with the font.
     if let font = spec.uiFont(size: 16, weight: .medium, relativeTo: .body) {
-      UISearchTextField.appearance(whenContainedInInstancesOf: inHost).defaultTextAttributes =
+      UISearchTextField.appearance(for: traits).defaultTextAttributes =
         UISearchTextField().defaultTextAttributes.merging([.font: font]) { $1 }
     }
   }
 }
 
-/// The screens' hosting controller: its own class, so the library's settings reach only its screens.
-class GlassHostingController: UIHostingController<LiquidGlassScreenRoot> {}
-
-/// The hosting controller of a screen with a font (the same object, its class swapped while the
-/// font is set): the appearance proxies reach only these.
-final class GlassFontHostingController: GlassHostingController {}
+/// The screens' hosting controller. What it presents (SwiftUI's sheets and covers) does not inherit
+/// its traits, so it hands them the font's.
+final class GlassHostingController: UIHostingController<LiquidGlassScreenRoot> {
+  override func present(_ controller: UIViewController, animated: Bool, completion: (() -> Void)? = nil) {
+    controller.traitOverrides[GlassFontTrait.self] = traitOverrides[GlassFontTrait.self]
+    super.present(controller, animated: animated, completion: completion)
+  }
+}

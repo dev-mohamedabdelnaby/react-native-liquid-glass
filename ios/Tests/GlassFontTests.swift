@@ -64,8 +64,8 @@ final class GlassFontTests: XCTestCase {
   private var windows: [UIWindow] = []
 
   /// A screen's controller with `spec`, showing a tab bar with a navigation bar (title, bar button,
-  /// search field) and a segmented control. Font name per text. (A bare test window does not run
-  /// UIKit's presentations as an app does; the full-screen covers are checked in the example app.)
+  /// search field) and a segmented control. Font name per text. (A bare test window does not finish
+  /// UIKit's presentations, so presented bars are checked in the example app.)
   private func showBars(_ spec: GlassFontSpec) -> (fonts: [String: String], search: UISearchTextField) {
     let screen = UIViewController()
     screen.title = "Title"
@@ -81,7 +81,7 @@ final class GlassFontTests: XCTestCase {
     navigation.tabBarItem = UITabBarItem(title: "Library", image: UIImage(systemName: "star"), tag: 0)
     let tabs = UITabBarController()
     tabs.viewControllers = [navigation]
-    let host = GlassHostingController(rootView: LiquidGlassScreenRoot(model: LiquidGlassScreenModel()))
+    let host = UIViewController()
     GlassFontAppearance.apply(spec, to: host)
     let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 402, height: 874))
     windows.append(window)
@@ -123,12 +123,32 @@ final class GlassFontTests: XCTestCase {
     }
   }
 
-  func testUnsettingTheFontGivesTheControllerBackUIKitsBars() {
+  // Each screen's bars take its own font.
+  func testScreensWithDifferentFontsKeepTheirOwn() {
+    let courier = GlassFontSpec(regular: "Courier", medium: "Courier", semibold: "Courier-Bold", bold: "Courier-Bold", heavy: "Courier-Bold")
+    let first = showBars(georgia).fonts
+    let second = showBars(courier).fonts
+    XCTAssertTrue(first["Title"]?.hasPrefix("Georgia") == true, first["Title"] ?? "no label")
+    XCTAssertTrue(second["Title"]?.hasPrefix("Courier") == true, second["Title"] ?? "no label")
+  }
+
+  // Sheets and covers do not inherit the presenter's traits; the screen hands them its font.
+  func testWhatAScreenPresentsTakesItsFont() {
     let host = GlassHostingController(rootView: LiquidGlassScreenRoot(model: LiquidGlassScreenModel()))
     GlassFontAppearance.apply(georgia, to: host)
-    XCTAssertTrue(host is GlassFontHostingController)
+    let cover = UIViewController()
+    host.present(cover, animated: false)
+    XCTAssertEqual(cover.traitOverrides[GlassFontTrait.self], georgia)
+  }
+
+  func testUnsettingTheFontRemovesTheTrait() {
+    let host = UIViewController()
+    GlassFontAppearance.apply(georgia, to: host)
+    host.updateTraitsIfNeeded()
+    XCTAssertEqual(host.traitCollection[GlassFontTrait.self], georgia)
     GlassFontAppearance.apply(GlassFontSpec(), to: host)
-    XCTAssertFalse(host is GlassFontHostingController)
+    host.updateTraitsIfNeeded()
+    XCTAssertNil(host.traitCollection[GlassFontTrait.self])
   }
 
   // Bars keep UIKit's fixed sizes; only the large title and the search field scale (as UIKit's do).
