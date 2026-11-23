@@ -287,6 +287,15 @@ User, 2026-11-21: on iPhone, the first scroll down minimizes the bottom tab bar,
 - [ ] **Step 3: Check** both apps on the simulator (screen recordings or frame sequences of minimize → expand → minimize, and of a held-finger reversal), LTR and RTL; Android untouched.
 - [ ] **Step 4: Commit** (library only) — `git commit -m "fix(ios): tab bar minimize follows the scroll"`
 
+### Task 18: iOS Home drawn mirrored after a direction switch (bug, runs after Task 7)
+
+User, 2026-11-23, with a simulator recording (Home in the RN example): switching Direction RTL → LTR / System leaves Home drawn as a mirror image (flipped glyphs: "ʞɿɒᗡ", reversed labels) until relayout; it flips back and forth as the setting changes. Task 6 had ruled this native SwiftUI behaviour; the user now wants it fixed. Fix in BOTH copies of the iOS Home (`ios/Catalog/ContentView.swift` in the library; `/Users/mohamedabdelnaby/Developer/ios/liquidGlass/liquidGlass/ContentView.swift` in the native app, edit only, keeping the two copies' existing differences) and in the library's iOS host if the RN path adds to it. Swift only, no JS changes.
+
+- [ ] **Step 1: Reproduce** on the simulator in both apps: RTL → LTR → System → RTL, at the top and scrolled; recording.
+- [ ] **Step 2: Root cause** (superpowers:systematic-debugging; suspect the UIKit-backed List keeping the old direction's flip after the `layoutDirection` environment changes) and fix so every switch redraws Home correctly at once, keeping the scroll position if possible.
+- [ ] **Step 3: Check** every switch in both apps (recording), plus a pushed screen and a full-screen demo after switching; Android untouched.
+- [ ] **Step 4: Commit** (library only) — `git commit -m "fix(ios): home redraws after a direction switch"`
+
 ### Task 5: Every native screen through React Navigation
 
 **Files:**
