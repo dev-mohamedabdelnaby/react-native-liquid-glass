@@ -108,9 +108,6 @@ private struct TabBarDemo: View {
 
     @Environment(\.dismiss) private var dismiss
     @State private var searchText = ""
-    /// On its own, `.onScrollDown` only expands the bar back at the top. While the content scrolls
-    /// up, the bar may not minimize, which expands it; scrolling down allows minimizing again.
-    @State private var isScrollingUp = false
 
     var body: some View {
         Group {
@@ -159,19 +156,20 @@ private struct TabBarDemo: View {
                 TabView {
                     mainTabs
                     Tab("Settings", systemImage: "gearshape") {
-                        DemoTabContent(title: "Settings", onClose: close) { isScrollingUp = !$0 }
+                        DemoTabContent(title: "Settings", onClose: close)
                     }
                 }
             }
         }
-        .tabBarMinimizeBehavior(minimizesOnScroll && !isScrollingUp ? .onScrollDown : .never)
+        // The system drives minimize and expand, with its own animation.
+        .tabBarMinimizeBehavior(minimizesOnScroll ? .onScrollDown : .never)
     }
 
     @TabContentBuilder<Never>
     private var mainTabs: some TabContent<Never> {
         ForEach(DemoTab.allCases) { tab in
             Tab(tab.title, systemImage: tab.systemImage) {
-                DemoTabContent(title: tab.title, onClose: close) { isScrollingUp = !$0 }
+                DemoTabContent(title: tab.title, onClose: close)
             }
             .badge(tab.badge)
         }
@@ -188,8 +186,6 @@ private struct TabBarDemo: View {
 private struct DemoTabContent: View {
     let title: String
     let onClose: () -> Void
-    /// Reports the scroll direction: `true` scrolling down, `false` scrolling up.
-    var onScrollDirection: ((Bool) -> Void)?
 
     var body: some View {
         NavigationStack {
@@ -202,15 +198,6 @@ private struct DemoTabContent: View {
                     }
                 }
                 .padding()
-            }
-            .onScrollGeometryChange(for: CGFloat.self) { geometry in
-                geometry.contentOffset.y + geometry.contentInsets.top
-            } action: { oldOffset, newOffset in
-                // Skip tiny movements and the top 20 pt (the bounce there). A small step down near
-                // the top must not count as scrolling up: switching to `.never` mid-gesture keeps
-                // the bar from minimizing.
-                guard let onScrollDirection, abs(newOffset - oldOffset) > 4, newOffset > 20 else { return }
-                onScrollDirection(newOffset > oldOffset)
             }
             .glassBackdrop()
             .navigationTitle(title)
