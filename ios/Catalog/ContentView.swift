@@ -171,6 +171,8 @@ struct ContentView: View {
     var systemLayoutDirection: LayoutDirection
     var onOpen: (String) -> Void
 
+    private var layoutDirection: LayoutDirection { directionMode.layoutDirection ?? systemLayoutDirection }
+
     var body: some View {
         NavigationStack {
             List {
@@ -235,6 +237,9 @@ struct ContentView: View {
                     Text("Components").glassFontOnly(.headline)
                 }
             }
+            // A list switched from RTL to LTR keeps UIKit's RTL layout and draws mirrored, so each
+            // direction gets its own list (it opens at the top).
+            .id(layoutDirection)
             .navigationTitle("Liquid Glass")
             .navigationDestination(for: GlassComponent.self) { component in
                 component.screen
@@ -242,7 +247,7 @@ struct ContentView: View {
         }
         .environment(\.glassTint, glassTint.color)
         .preferredColorScheme(appearance.colorScheme)
-        .environment(\.layoutDirection, directionMode.layoutDirection ?? systemLayoutDirection)
+        .environment(\.layoutDirection, layoutDirection)
     }
 }
 
