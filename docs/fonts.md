@@ -64,7 +64,7 @@ SF Symbols and Material icons stay as they are: they are icons, not text.
 
 ## Bars on iOS
 
-Navigation titles, bar buttons, tab bars, segmented controls and search fields are UIKit views. The library styles them with appearance proxies scoped to its own screens, so the rest of your app is not touched. The proxies are per class: when glass screens with different fonts are mounted at the same time, their bars take the last font set.
+Navigation titles, bar buttons, tab bars, segmented controls and search fields are UIKit views. The library styles them with appearance proxies scoped to its own screens, so the rest of your app is not touched. Screens without a font keep UIKit's own bars. The bars of the sheets and full-screen covers a screen presents (the Tab Bar demos, for one) and system alerts keep the system font: UIKit draws them outside the screen's controller, so only their SwiftUI content takes the font. The proxies are per class: when glass screens with different fonts are mounted at the same time, their bars take the last font set. As in UIKit, only the large title and the search field follow Dynamic Type; the other bar texts keep their fixed size.
 
 ## Why not a component?
 

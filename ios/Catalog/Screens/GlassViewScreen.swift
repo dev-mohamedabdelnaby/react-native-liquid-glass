@@ -109,8 +109,6 @@ private struct UIKitGlassView: UIViewRepresentable {
 
         let label = UILabel()
         label.text = "UIVisualEffectView + UIGlassEffect"
-        label.font = context.environment.glassFont.uiFont(size: 17, weight: .semibold, relativeTo: .headline)
-            ?? .preferredFont(forTextStyle: .headline)
         label.adjustsFontForContentSizeCategory = true
         label.translatesAutoresizingMaskIntoConstraints = false
         view.contentView.addSubview(label)
@@ -122,6 +120,9 @@ private struct UIKitGlassView: UIViewRepresentable {
     }
 
     func updateUIView(_ view: UIVisualEffectView, context: Context) {
+        let label = view.contentView.subviews.first as? UILabel
+        label?.font = context.environment.glassFont.uiFont(size: 17, weight: .semibold, relativeTo: .headline)
+            ?? .preferredFont(forTextStyle: .headline)
         let effect = UIGlassEffect(style: .regular)
         effect.tintColor = isTinted ? tint.withAlphaComponent(0.6) : nil
         effect.isInteractive = isInteractive

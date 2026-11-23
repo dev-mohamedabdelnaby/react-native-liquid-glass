@@ -48,9 +48,8 @@ import UIKit
   var font: GlassFontSpec {
     get { model.font }
     set {
-      guard newValue != model.font else { return }
-      model.font = newValue
-      GlassFontAppearance.apply(newValue)
+      if newValue != model.font { model.font = newValue }
+      GlassFontAppearance.apply(newValue, to: controller)
     }
   }
 

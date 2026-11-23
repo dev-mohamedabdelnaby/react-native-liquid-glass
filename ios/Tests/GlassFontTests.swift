@@ -60,34 +60,80 @@ final class GlassFontTests: XCTestCase {
     XCTAssertEqual(host.font, GlassFontSpec())
   }
 
-  // The bars and controls UIKit draws inside the library's hosting controller take the font.
-  func testUIKitBarsAndControlsInTheHostTakeTheFont() {
-    GlassFontAppearance.apply(GlassFontSpec(regular: "Georgia", medium: "Georgia", semibold: "Georgia-Bold", bold: "Georgia-Bold", heavy: "Georgia-Bold"))
-    defer { GlassFontAppearance.apply(GlassFontSpec()) }
+  private let georgia = GlassFontSpec(regular: "Georgia", medium: "Georgia", semibold: "Georgia-Bold", bold: "Georgia-Bold", heavy: "Georgia-Bold")
+  private var windows: [UIWindow] = []
+
+  /// A screen's controller with `spec`, showing a tab bar with a navigation bar (title, bar button,
+  /// search field) and a segmented control. Font name per text. (A bare test window does not run
+  /// UIKit's presentations as an app does; the full-screen covers are checked in the example app.)
+  private func showBars(_ spec: GlassFontSpec) -> (fonts: [String: String], search: UISearchTextField) {
     let screen = UIViewController()
     screen.title = "Title"
     screen.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Edit", style: .plain, target: nil, action: nil)
+    let search = UISearchController()
+    screen.navigationItem.searchController = search
+    screen.navigationItem.preferredSearchBarPlacement = .stacked
     let segmented = UISegmentedControl(items: ["Day", "Week"])
     segmented.selectedSegmentIndex = 0
-    segmented.frame = CGRect(x: 0, y: 100, width: 200, height: 32)
+    segmented.frame = CGRect(x: 0, y: 300, width: 200, height: 32)
     screen.view.addSubview(segmented)
     let navigation = UINavigationController(rootViewController: screen)
     navigation.tabBarItem = UITabBarItem(title: "Library", image: UIImage(systemName: "star"), tag: 0)
     let tabs = UITabBarController()
     tabs.viewControllers = [navigation]
     let host = GlassHostingController(rootView: LiquidGlassScreenRoot(model: LiquidGlassScreenModel()))
+    GlassFontAppearance.apply(spec, to: host)
+    let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 402, height: 874))
+    windows.append(window)
+    window.rootViewController = host
+    window.makeKeyAndVisible()
     host.addChild(tabs)
     host.view.addSubview(tabs.view)
     tabs.didMove(toParent: host)
-    let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 402, height: 874))
-    window.rootViewController = host
-    window.makeKeyAndVisible()
     tabs.view.frame = window.bounds
     window.layoutIfNeeded()
     func labels(_ view: UIView) -> [UILabel] { ((view as? UILabel).map { [$0] } ?? []) + view.subviews.flatMap(labels) }
-    let fonts = Dictionary(labels(window).map { ($0.text ?? "", $0.font.fontName) }, uniquingKeysWith: { a, _ in a })
-    for text in ["Title", "Edit", "Library", "Day", "Week"] {
+    var fonts = Dictionary(labels(tabs.view).map { ($0.text ?? "", $0.font.fontName) }, uniquingKeysWith: { a, _ in a })
+    fonts["search"] = search.searchBar.searchTextField.font?.fontName
+    return (fonts, search.searchBar.searchTextField)
+  }
+
+  override func tearDown() {
+    windows.forEach { $0.isHidden = true }
+    windows = []
+    super.tearDown()
+  }
+
+  // The bars and controls UIKit draws for a screen with a font take the font.
+  func testUIKitBarsAndControlsOfAScreenWithAFontTakeIt() {
+    let (fonts, search) = showBars(georgia)
+    for text in ["Title", "Edit", "Library", "Day", "Week", "search"] {
       XCTAssertTrue(fonts[text]?.hasPrefix("Georgia") == true, "\(text): \(fonts[text] ?? "no label")")
     }
+    // The search field keeps its own text colour.
+    XCTAssertEqual(search.textColor, UISearchTextField().textColor)
+  }
+
+  // A screen without a font, mounted after one with a font, keeps UIKit's own bars.
+  func testAScreenWithoutAFontKeepsUIKitsBars() {
+    _ = showBars(georgia)
+    let system = showBars(GlassFontSpec()).fonts
+    for text in ["Title", "Edit", "Library", "Day", "Week", "search"] {
+      XCTAssertFalse(system[text]?.hasPrefix("Georgia") ?? true, "\(text): \(system[text] ?? "no label")")
+    }
+  }
+
+  func testUnsettingTheFontGivesTheControllerBackUIKitsBars() {
+    let host = GlassHostingController(rootView: LiquidGlassScreenRoot(model: LiquidGlassScreenModel()))
+    GlassFontAppearance.apply(georgia, to: host)
+    XCTAssertTrue(host is GlassFontHostingController)
+    GlassFontAppearance.apply(GlassFontSpec(), to: host)
+    XCTAssertFalse(host is GlassFontHostingController)
+  }
+
+  // Bars keep UIKit's fixed sizes; only the large title and the search field scale (as UIKit's do).
+  func testBarFontsHaveFixedSizes() {
+    XCTAssertEqual(georgia.uiFont(size: 10, weight: .medium), UIFont(name: "Georgia", size: 10))
+    XCTAssertEqual(georgia.uiFont(size: 17, weight: .semibold), UIFont(name: "Georgia-Bold", size: 17))
   }
 }

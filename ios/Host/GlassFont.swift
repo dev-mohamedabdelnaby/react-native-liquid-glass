@@ -42,13 +42,15 @@ struct GlassFontSpec: Equatable {
     return isFamily ? font.weight(weight) : font
   }
 
-  /// The UIKit font for the appearance proxies, scaled by Dynamic Type as `style` is. Nil without a face.
-  func uiFont(size: CGFloat, weight: Font.Weight, relativeTo style: UIFont.TextStyle) -> UIFont? {
+  /// The UIKit font for the appearance proxies: fixed size, as UIKit's own bar fonts are, or scaled
+  /// by Dynamic Type as `style` is. Nil without a face.
+  func uiFont(size: CGFloat, weight: Font.Weight, relativeTo style: UIFont.TextStyle? = nil) -> UIFont? {
     guard let face = face(for: weight) else { return nil }
     let font = isFamily
       ? UIFont(descriptor: UIFontDescriptor(fontAttributes: [.family: face, .traits: [UIFontDescriptor.TraitKey.weight: Self.uiWeight(weight)]]), size: size)
       : UIFont(name: face, size: size)
-    return font.map { UIFontMetrics(forTextStyle: style).scaledFont(for: $0) }
+    guard let font, let style else { return font }
+    return UIFontMetrics(forTextStyle: style).scaledFont(for: font)
   }
 
   /// A text style's size at the default content size (Dynamic Type scales from there).
@@ -126,42 +128,56 @@ private struct GlassFontModifier: ViewModifier {
 }
 
 /// The bars and controls UIKit draws for the screens (navigation and large titles, bar buttons, tab
-/// bar items, segmented controls, search fields), through appearance proxies scoped to the library's
-/// hosting controller. Untouched until a font is set, so the system look stays exactly as it was.
-/// shortcut: proxies are per class, so screens mounted together share the last font set, and bars
-/// already on screen keep theirs until they are created again; per-screen fonts would need each bar styled directly.
+/// bar items, segmented controls, search fields), through appearance proxies scoped to
+/// `GlassFontHostingController`: a screen's controller is one only while the screen has a font, so
+/// a screen without one (even one mounted after a screen with one) keeps UIKit's own look, untouched.
+/// shortcut: the bars of sheets and covers a screen presents are outside its controller and keep the
+/// system font (styling them would need each presented bar styled directly).
+/// shortcut: proxies are per class, so screens with fonts mounted together share the last font set,
+/// and bars already on screen keep theirs until they are created again; per-screen fonts would need
+/// each bar styled directly.
 enum GlassFontAppearance {
   private static var applied = GlassFontSpec()
 
-  static func apply(_ spec: GlassFontSpec) {
-    guard spec != applied else { return }
+  /// Gives `controller` the font's bars, or (no face) UIKit's own.
+  static func apply(_ spec: GlassFontSpec, to controller: GlassHostingController) {
+    let hasFont = spec.face(for: .regular) != nil
+    object_setClass(controller, hasFont ? GlassFontHostingController.self : GlassHostingController.self)
+    guard hasFont, spec != applied else { return }
     applied = spec
-    let inHost = [GlassHostingController.self]
-    func attributes(_ size: CGFloat, _ weight: Font.Weight, _ style: UIFont.TextStyle) -> [NSAttributedString.Key: Any]? {
+    let inHost = [GlassFontHostingController.self]
+    // UIKit's own size and weight for each (iOS 27); only the large title and the search field scale with Dynamic Type.
+    func attributes(_ size: CGFloat, _ weight: Font.Weight, _ style: UIFont.TextStyle? = nil) -> [NSAttributedString.Key: Any]? {
       spec.uiFont(size: size, weight: weight, relativeTo: style).map { [.font: $0] }
     }
     let navigationBar = UINavigationBar.appearance(whenContainedInInstancesOf: inHost)
-    navigationBar.titleTextAttributes = attributes(17, .semibold, .headline)
+    navigationBar.titleTextAttributes = attributes(17, .semibold)
     navigationBar.largeTitleTextAttributes = attributes(34, .bold, .largeTitle)
-    // Sizes and weights are UIKit's own for each (iOS 27).
     let barButton = UIBarButtonItem.appearance(whenContainedInInstancesOf: inHost)
     for state in [UIControl.State.normal, .highlighted, .disabled] {
-      barButton.setTitleTextAttributes(attributes(17, .medium, .body), for: state)
+      barButton.setTitleTextAttributes(attributes(17, .medium), for: state)
     }
     // Tab bars take item fonts only from their appearance: UIKit's default one, with the fonts set.
     let tabs = UITabBar().standardAppearance
     for item in [tabs.stackedLayoutAppearance, tabs.inlineLayoutAppearance, tabs.compactInlineLayoutAppearance] {
-      item.normal.titleTextAttributes = attributes(10, .medium, .caption2) ?? [:]
-      item.selected.titleTextAttributes = attributes(10, .semibold, .caption2) ?? [:]
+      item.normal.titleTextAttributes = attributes(10, .medium) ?? [:]
+      item.selected.titleTextAttributes = attributes(10, .semibold) ?? [:]
     }
     UITabBar.appearance(whenContainedInInstancesOf: inHost).standardAppearance = tabs
     let segmented = UISegmentedControl.appearance(whenContainedInInstancesOf: inHost)
-    segmented.setTitleTextAttributes(attributes(13, .regular, .footnote), for: .normal)
-    segmented.setTitleTextAttributes(attributes(13, .medium, .footnote), for: .selected)
-    UISearchTextField.appearance(whenContainedInInstancesOf: inHost).defaultTextAttributes =
-      attributes(16, .medium, .body) ?? [.font: UIFont.systemFont(ofSize: 16, weight: .medium)]
+    segmented.setTitleTextAttributes(attributes(13, .regular), for: .normal)
+    segmented.setTitleTextAttributes(attributes(13, .medium), for: .selected)
+    // UIKit's own text attributes (colour, paragraph style) with the font.
+    if let font = spec.uiFont(size: 16, weight: .medium, relativeTo: .body) {
+      UISearchTextField.appearance(whenContainedInInstancesOf: inHost).defaultTextAttributes =
+        UISearchTextField().defaultTextAttributes.merging([.font: font]) { $1 }
+    }
   }
 }
 
-/// The screens' hosting controller: its own class, so the appearance proxies reach only the library's screens.
-final class GlassHostingController: UIHostingController<LiquidGlassScreenRoot> {}
+/// The screens' hosting controller: its own class, so the library's settings reach only its screens.
+class GlassHostingController: UIHostingController<LiquidGlassScreenRoot> {}
+
+/// The hosting controller of a screen with a font (the same object, its class swapped while the
+/// font is set): the appearance proxies reach only these.
+final class GlassFontHostingController: GlassHostingController {}
