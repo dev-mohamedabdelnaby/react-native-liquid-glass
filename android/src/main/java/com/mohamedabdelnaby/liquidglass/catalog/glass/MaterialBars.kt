@@ -48,6 +48,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.runtime.CompositionLocalProvider
@@ -56,6 +57,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -174,7 +176,9 @@ internal fun MaterialBottomBar(modifier: Modifier, content: @Composable RowScope
 internal fun MaterialTabs(selectedIndex: Int, onSelect: (Int) -> Unit, tabs: List<LiquidTabItem>, modifier: Modifier, segmented: Boolean, color: Color?) {
     if (segmented) {
         val check = LocalGlassSettings.current.segmentedCheck
-        SingleChoiceSegmentedButtonRow(modifier) {
+        // A direction switch keeps the buttons' sizes, and their borders (Modifier.border's draw
+        // cache, which Compose doesn't tell of the switch) would keep the old start/end corners.
+        key(LocalLayoutDirection.current) { SingleChoiceSegmentedButtonRow(modifier) {
             tabs.forEachIndexed { index, tab ->
                 SegmentedButton(
                     selected = index == selectedIndex,
@@ -183,7 +187,7 @@ internal fun MaterialTabs(selectedIndex: Int, onSelect: (Int) -> Unit, tabs: Lis
                     icon = { if (check) SegmentedButtonDefaults.Icon(index == selectedIndex) },
                 ) { Text(tab.label, maxLines = 1, overflow = TextOverflow.Ellipsis) }
             }
-        }
+        } }
         return
     }
     // A picked bar color fills the bar; its items take whichever of the surface and on-surface
