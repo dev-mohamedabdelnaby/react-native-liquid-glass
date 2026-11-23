@@ -279,8 +279,11 @@ private fun PlatformGlassView(tinted: Boolean, tint: Color, interactive: Boolean
             view.findViewWithTag<TextView>("label").apply {
                 setTextColor(label)
                 if (typeface != null) {
-                    this.typeface = typeface
                     paint.isFakeBoldText = false
+                    this.typeface = typeface
+                } else if (!paint.isFakeBoldText) { // the font was unset at runtime: back to the default face
+                    paint.isFakeBoldText = true
+                    this.typeface = Typeface.DEFAULT
                 }
             }
             view.setOnTouchListener(
