@@ -79,6 +79,8 @@ static UIColor *_Nullable RNLiquidGlassScreenColor(const SharedColor &color)
               .layoutDirection = s[@"layoutDirection"].UTF8String,
               .androidStyle = p.androidStyle,
               .androidSegmentedCheck = p.androidSegmentedCheck,
+              .androidControlShape = p.androidControlShape,
+              .androidGlowIntensity = p.androidGlowIntensity,
               .tint = s[@"tint"].UTF8String,
               .clear = p.clear,
               .blur = p.blur,

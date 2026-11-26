@@ -44,6 +44,8 @@ export function NoCheckControls() {
 
 Use `Platform.OS` if you want Material only on some devices; iOS always shows glass.
 
+The switch, slider, segmented control and bottom tab bar are pill-shaped in either style, or labeled or glowing: see [control-shapes.md](control-shapes.md) (`androidControlShape`).
+
 ## What changes
 
 | Glass | Material 3 |
@@ -73,7 +75,7 @@ Use `Platform.OS` if you want Material only on some devices; iOS always shows gl
 | iOS-style symbols in bars and pickers (`···`, the share box, `‹ ›`, the up-down picker arrows) | `MoreVert`, `Share`, `ArrowBack` / `ArrowForward`, `ArrowDropDown` |
 
 - Colors are the device's dynamic colors (Android 12+), else Material's baseline. `tint` becomes the scheme's primary roles: in light mode it is darkened until white reads on it, in dark mode lifted to a light tone with a dark on-color; the containers, on-colors and inverse primary are lighter or darker tones of it. It is a blend toward white or black, not a full tonal palette; secondary, tertiary and the surfaces stay the device's. Text uses Material's type scale, also for the screens' own texts. Presses show ripples.
-- Android Home shows only the settings Material uses: Appearance, Layout direction, Android style, the segmented check, `tint` and `dropColor`.
+- Android Home shows only the settings Material uses: Appearance, Layout direction, Android style, the segmented check, the control shape (and glow intensity), `tint` and `dropColor`.
 - Sliders take `dropColor` for their handle; a slider's own tint wins over the primary.
 - TalkBack: a switch row reads its label with the switch's state; a slider reads its label and value ("Blur, 3", "White, 25%").
 - Touch targets are at least 48 dp. Animations are the Material components' own.

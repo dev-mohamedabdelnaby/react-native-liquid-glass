@@ -1,6 +1,8 @@
 package com.mohamedabdelnaby.liquidglass.catalog
 
 import com.mohamedabdelnaby.liquidglass.catalog.glass.AndroidStyle
+import com.mohamedabdelnaby.liquidglass.catalog.shapes.ControlShape
+import com.mohamedabdelnaby.liquidglass.catalog.shapes.DEFAULT_GLOW_INTENSITY
 import com.mohamedabdelnaby.liquidglass.catalog.glass.MaterialHomeScaffold
 import com.mohamedabdelnaby.liquidglass.catalog.glass.MaterialSectionHeader
 import com.mohamedabdelnaby.liquidglass.catalog.glass.isMaterial
@@ -58,6 +60,7 @@ import com.mohamedabdelnaby.liquidglass.catalog.glass.groupedRow
 import com.mohamedabdelnaby.liquidglass.catalog.glass.ScrollEdge
 import com.mohamedabdelnaby.liquidglass.catalog.ui.theme.AppearanceMode
 import com.mohamedabdelnaby.liquidglass.catalog.ui.theme.LiquidGlassTheme
+import kotlin.math.roundToInt
 
 @Composable
 fun HomeScreen(
@@ -71,6 +74,12 @@ fun HomeScreen(
     // JS `androidStyle`: Glass, or Android's own Material 3 components.
     style: AndroidStyle = AndroidStyle.Glass,
     onStyleChange: (AndroidStyle) -> Unit = {},
+    // JS `androidControlShape`: switches, sliders, top and bottom tabs, in both styles.
+    shape: ControlShape = ControlShape.Pill,
+    onShapeChange: (ControlShape) -> Unit = {},
+    // JS `androidGlowIntensity`: only Glow uses it.
+    glowIntensity: Float = DEFAULT_GLOW_INTENSITY,
+    onGlowIntensityChange: (Float) -> Unit = {},
 ) {
     val insets = WindowInsets.safeDrawing.asPaddingValues()
     val material = isMaterial
@@ -113,6 +122,18 @@ fun HomeScreen(
                         // JS `androidSegmentedCheck`: only Material segmented buttons have the check.
                         if (style == AndroidStyle.Material) Box(Modifier.padding(horizontal = 16.dp)) {
                             SwitchRow("Check on the selected segment", settings.segmentedCheck) { onSettingsChange(settings.copy(segmentedCheck = it)) }
+                        }
+                    }
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        GlassSegmented(
+                            options = ControlShape.entries.map { it.name },
+                            selected = shape.ordinal,
+                            onSelect = { onShapeChange(ControlShape.entries[it]) },
+                        )
+                        Footnote("The shape of switches, sliders, top tabs and bottom tabs.", Modifier.padding(horizontal = 16.dp))
+                        if (shape == ControlShape.Glow) Column(Modifier.padding(horizontal = 16.dp)) {
+                            Text("Glow intensity: ${(glowIntensity * 100).roundToInt()}%")
+                            GlassSlider(glowIntensity, onGlowIntensityChange, contentDescription = "Glow intensity")
                         }
                     }
                     GlassSettingsPanel(settings, onSettingsChange)

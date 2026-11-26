@@ -30,6 +30,8 @@ test('defaults are the native apps defaults', async () => {
     layoutDirection: 'system',
     androidStyle: 'glass',
     androidSegmentedCheck: true,
+    androidControlShape: 'pill',
+    androidGlowIntensity: 0.35,
     clear: true,
     blur: 3,
     white: 0.25,

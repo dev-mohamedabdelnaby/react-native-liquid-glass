@@ -109,6 +109,7 @@ Three rules: hide the navigator's header (each screen draws its own), give every
 - [React Navigation](docs/react-navigation.md): the full native-stack recipe.
 - [Layout direction](docs/layout-direction.md): right-to-left on both platforms.
 - [Android style](docs/android-style.md): Material 3 instead of glass on Android.
+- [Control shapes](docs/control-shapes.md): pill (the default), labeled or glowing switches, sliders and tabs on Android (`androidControlShape`, `androidGlowIntensity`).
 - [Fonts](docs/fonts.md): your app's fonts in the screens (`fontFamily`).
 - [Icons](docs/icons.md): your own icons in the screens. Coming in the next version.
 - [Troubleshooting](docs/troubleshooting.md): known limits and fixes.

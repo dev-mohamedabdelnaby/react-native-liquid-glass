@@ -12,6 +12,8 @@ export interface NativeProps extends ViewProps {
   layoutDirection?: CodegenTypes.WithDefault<string, 'system'>;
   androidStyle?: CodegenTypes.WithDefault<string, 'glass'>;
   androidSegmentedCheck?: CodegenTypes.WithDefault<boolean, true>;
+  androidControlShape?: CodegenTypes.WithDefault<string, 'pill'>;
+  androidGlowIntensity?: CodegenTypes.WithDefault<CodegenTypes.Float, 0.35>;
   tintColor?: ColorValue;
   clear?: CodegenTypes.WithDefault<boolean, true>;
   blur?: CodegenTypes.WithDefault<CodegenTypes.Float, 3>;
@@ -44,6 +46,8 @@ export interface NativeProps extends ViewProps {
       layoutDirection: string;
       androidStyle: string;
       androidSegmentedCheck: boolean;
+      androidControlShape: string;
+      androidGlowIntensity: CodegenTypes.Float;
       tint: string;
       clear: boolean;
       blur: CodegenTypes.Float;

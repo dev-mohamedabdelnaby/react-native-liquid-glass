@@ -34,6 +34,8 @@ export type GlassScreenProps = {
   // Wins over the provider's androidStyle for this screen.
   androidStyle?: GlassSettings['androidStyle'];
   androidSegmentedCheck?: boolean;
+  androidControlShape?: GlassSettings['androidControlShape'];
+  androidGlowIntensity?: number;
   fontFamily?: GlassSettings['fontFamily'];
   onBack?: () => void;
   onOpen?: (screen: GlassScreenId) => void;
@@ -61,6 +63,8 @@ function GlassScreen({
   screen,
   androidStyle,
   androidSegmentedCheck,
+  androidControlShape,
+  androidGlowIntensity,
   fontFamily,
   onBack,
   onOpen,
@@ -80,6 +84,10 @@ function GlassScreen({
       androidStyle={androidStyle ?? settings.androidStyle}
       androidSegmentedCheck={
         androidSegmentedCheck ?? settings.androidSegmentedCheck
+      }
+      androidControlShape={androidControlShape ?? settings.androidControlShape}
+      androidGlowIntensity={
+        androidGlowIntensity ?? settings.androidGlowIntensity
       }
       {...fontFaces(fontFamily ?? providerFont)}
       screen={screen}

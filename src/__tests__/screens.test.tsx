@@ -113,6 +113,53 @@ test('androidSegmentedCheck: true by default, the provider reaches every screen,
   }
 });
 
+test('androidControlShape and androidGlowIntensity: pill and 0.35 by default, the provider reaches every screen, a prop wins', async () => {
+  const all = Object.entries(Screens).filter(([name]) =>
+    /Screen$/.test(name)
+  ) as [string, typeof GlassTextScreen][];
+  for (const [name, Screen] of all) {
+    const plain = await render(<Screen testID={name} />);
+    expect(plain.getByTestId(name).props.androidControlShape).toBe('pill');
+    expect(plain.getByTestId(name).props.androidGlowIntensity).toBe(0.35);
+    const r = await render(
+      <GlassSettingsProvider
+        value={{ androidControlShape: 'glow', androidGlowIntensity: 1 }}
+      >
+        <Screen testID={name} />
+        <Screen
+          testID="own"
+          androidControlShape="labeled"
+          androidGlowIntensity={0}
+        />
+      </GlassSettingsProvider>
+    );
+    expect(r.getByTestId(name).props.androidControlShape).toBe('glow');
+    expect(r.getByTestId(name).props.androidGlowIntensity).toBe(1);
+    expect(r.getByTestId('own').props.androidControlShape).toBe('labeled');
+    expect(r.getByTestId('own').props.androidGlowIntensity).toBe(0);
+  }
+});
+
+test("onSettingsChange from Home carries Home's control shape and glow intensity", async () => {
+  const onSettingsChange = jest.fn();
+  const r = await render(
+    <GlassHomeScreen testID="h" onSettingsChange={onSettingsChange} />
+  );
+  await fireEvent(r.getByTestId('h'), 'settingsChange', {
+    nativeEvent: {
+      ...nativeDefaults,
+      androidControlShape: 'glow',
+      androidGlowIntensity: 0.6,
+    },
+  });
+  expect(onSettingsChange).toHaveBeenCalledWith(
+    expect.objectContaining({
+      androidControlShape: 'glow',
+      androidGlowIntensity: 0.6,
+    })
+  );
+});
+
 const fonts = (props: object) =>
   Object.fromEntries(
     Object.entries(props).filter(([key]) => /^font[A-Z]/.test(key))

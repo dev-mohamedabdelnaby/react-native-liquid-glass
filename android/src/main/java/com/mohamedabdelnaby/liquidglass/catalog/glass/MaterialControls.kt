@@ -230,12 +230,6 @@ internal fun MaterialSlider(
     ) }
 }
 
-/** Material 3's switch: a check on the thumb while on, nothing while off, in the theme's accent. */
-@Composable
-internal fun MaterialSwitch(checked: Boolean, onCheckedChange: ((Boolean) -> Unit)?, modifier: Modifier) = Switch(
-    checked, onCheckedChange, modifier,
-    thumbContent = if (checked) { { Icon(Icons.Filled.Check, null, Modifier.size(SwitchDefaults.IconSize)) } } else null,
-)
 
 /** A stepper as Material has none: − and + tonal icon buttons, each disabled at its end of [range]. */
 @Composable

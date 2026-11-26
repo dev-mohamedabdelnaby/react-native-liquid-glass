@@ -6,6 +6,8 @@ package com.mohamedabdelnaby.liquidglass.catalog.liquid
 import com.mohamedabdelnaby.liquidglass.catalog.glass.opaqueFill
 import com.mohamedabdelnaby.liquidglass.catalog.glass.isMaterial
 import com.mohamedabdelnaby.liquidglass.catalog.glass.MaterialTabs
+import com.mohamedabdelnaby.liquidglass.catalog.shapes.ShapedTabBar
+import com.mohamedabdelnaby.liquidglass.catalog.shapes.ShapedTabs
 import com.mohamedabdelnaby.liquidglass.catalog.glass.LocalGlassSettings
 import com.mohamedabdelnaby.liquidglass.catalog.glass.DropTintAlpha
 import com.mohamedabdelnaby.liquidglass.catalog.glass.dropColorOf
@@ -479,14 +481,40 @@ internal class TabBarPhysics(private val scope: CoroutineScope) {
     }
 }
 
+/** The bottom tab bar or segmented control in Home's control shape; [dropColor], [liquid] and [showDrop] no longer apply. */
+@Composable
+fun LiquidTabBar(
+    selectedIndex: Int,
+    onSelect: (Int) -> Unit,
+    tabs: List<LiquidTabItem>,
+    modifier: Modifier = Modifier,
+    // The lib's top tab bar is the same bar, text only and lower.
+    height: Dp = BAR_HEIGHT_DP.dp,
+    // iOS's segmented picker: a flat gray track, a white thumb and label-coloured text; it still lifts the drop.
+    segmented: Boolean = false,
+    // A solid fill in place of the bar glass; labels turn white on a dark fill.
+    color: Color? = null,
+    // Tints the lifted drop; null follows the general setting.
+    dropColor: Color? = null,
+    // false: frosted bar glass without the lens (segmented controls lose their drop); null follows the setting.
+    liquid: Boolean? = null,
+    // false: the pill only slides, no drop lifts; null follows the setting.
+    showDrop: Boolean? = null,
+) {
+    if (segmented) ShapedTabs(tabs.map { it.label }, selectedIndex, onSelect, modifier) else ShapedTabBar(selectedIndex, onSelect, tabs, modifier, height, color)
+}
+
 /**
+ * Unused since the control shapes replaced it (Task 16), kept for a liquid option.
+ *
  * Liquid Glass tab bar: a floating glass capsule with equal-width tabs and a selection pill.
  * Pressing lifts a clear glass drop out of the pill; it follows the finger with spring physics,
  * stretches with its speed, magnifies the tab under it and settles into the pill on release, when
  * [onSelect] reports the tab. [selectedIndex] glides the pill there.
  */
+@Suppress("unused")
 @Composable
-fun LiquidTabBar(
+private fun LiquidGlassTabBar(
     selectedIndex: Int,
     onSelect: (Int) -> Unit,
     tabs: List<LiquidTabItem>,

@@ -40,6 +40,8 @@ type GlassScreenProps = {
   onSettingsChange?: (settings: GlassSettings) => void;
   androidStyle?: 'glass' | 'material';
   androidSegmentedCheck?: boolean;
+  androidControlShape?: GlassSettings['androidControlShape'];
+  androidGlowIntensity?: number;
   fontFamily?: GlassSettings['fontFamily'];
   style?: StyleProp<ViewStyle>;
   testID?: string;
@@ -53,11 +55,13 @@ type GlassScreenProps = {
 | `onOpen` | Home only: a row was tapped. You get the screen id, for example `'buttons'`. Push that screen. |
 | `androidStyle` | Android only: `'material'` draws this screen with Material 3, `'glass'` with glass. Wins over the provider's `androidStyle`. See [android-style.md](android-style.md). |
 | `androidSegmentedCheck` | Android Material only: `false` hides the check mark on the selected segment of segmented buttons. Wins over the provider's. |
+| `androidControlShape` | Android only: the shape of this screen's switches, sliders, segmented controls and bottom tab bar. Wins over the provider's. See [control-shapes.md](control-shapes.md). |
+| `androidGlowIntensity` | Android only: how strongly this screen's `'glow'` controls glow, 0 to 1. Wins over the provider's. |
 | `fontFamily` | This screen's font: one family, or a font per weight. Wins over the provider's. See [fonts.md](fonts.md). |
 | `onSettingsChange` | Home only: the user changed a setting on Home. You get the full `GlassSettings`. Store it and pass it back to `GlassSettingsProvider`. |
 | `testID` | Passed to the native view, for tests. |
 
-Screens take no children. Settings do not come in as props (except `androidStyle`, `androidSegmentedCheck` and `fontFamily`); they come from the nearest `GlassSettingsProvider` (see [settings.md](settings.md)).
+Screens take no children. Settings do not come in as props (except `androidStyle`, `androidSegmentedCheck`, `androidControlShape`, `androidGlowIntensity` and `fontFamily`); they come from the nearest `GlassSettingsProvider` (see [settings.md](settings.md)).
 
 ## Back on each platform
 

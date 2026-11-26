@@ -36,6 +36,7 @@ The full reference is `CONTEXT.md` in the package (`node_modules/@native-dev-kit
 - Do not add a header, a `BackHandler` or a `<StatusBar>` for glass screens.
 - `appearance` on iOS changes the whole window.
 - `androidStyle: 'material'` (provider or screen prop) draws the Android screens with Material 3; iOS ignores it.
+- `androidControlShape: 'pill' | 'labeled' | 'glow'` (default `'pill'`; provider or screen prop) shapes the Android switch, slider, segmented control and bottom tab bar in both styles; `androidGlowIntensity` (0..1, default 0.35) sets how strongly `'glow'` glows. iOS ignores both. See `docs/control-shapes.md`.
 - `fontFamily` (provider or screen prop): one family name, or `{ regular, medium, semibold, bold, heavy }` font names as in React Native's `fontFamily`. Fonts are added the React Native way (Android `assets/fonts`, iOS `UIAppFonts`). See `docs/fonts.md`.
 - `icons` and `vectorIcon` are planned, not shipped. Do not use them.
 - Right-to-left: `layoutDirection` in the provider; for the stack animations copy the recipe in `CONTEXT.md` section 4.

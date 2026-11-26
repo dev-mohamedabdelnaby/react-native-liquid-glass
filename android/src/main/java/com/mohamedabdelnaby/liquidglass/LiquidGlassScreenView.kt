@@ -6,6 +6,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -29,6 +30,10 @@ import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassWindowBackdrop
 import com.mohamedabdelnaby.liquidglass.catalog.glass.LocalGlassSettings
 import com.mohamedabdelnaby.liquidglass.catalog.glass.LocalGlassWindowBackdrop
 import com.mohamedabdelnaby.liquidglass.catalog.glass.LocalOnBack
+import com.mohamedabdelnaby.liquidglass.catalog.shapes.ControlShape
+import com.mohamedabdelnaby.liquidglass.catalog.shapes.DEFAULT_GLOW_INTENSITY
+import com.mohamedabdelnaby.liquidglass.catalog.shapes.LocalControlShape
+import com.mohamedabdelnaby.liquidglass.catalog.shapes.LocalGlowIntensity
 import com.mohamedabdelnaby.liquidglass.catalog.ui.theme.AppearanceMode
 import com.mohamedabdelnaby.liquidglass.catalog.ui.theme.LiquidGlassTheme
 import com.mohamedabdelnaby.liquidglass.host.ComposeHost
@@ -68,6 +73,8 @@ internal class LiquidGlassScreenView(context: Context) : ComposeHost(context) {
   // The JS `layoutDirection` prop (not View.layoutDirection), as JS sends it.
   var jsLayoutDirection by mutableStateOf("system")
   var androidStyle by mutableStateOf(AndroidStyle.Glass)
+  var controlShape by mutableStateOf(ControlShape.Pill)
+  var glowIntensity by mutableFloatStateOf(DEFAULT_GLOW_INTENSITY)
   var faces by mutableStateOf(FontFaces())
 
   private val onBack: () -> Unit = { emit(EVENT_BACK, null) }
@@ -86,7 +93,7 @@ internal class LiquidGlassScreenView(context: Context) : ComposeHost(context) {
       }
       val glassSettings = remember(settings, fontFamily) { settings.copy(fontFamily = fontFamily) }
       // Outside the theme: Material takes Android's own colors and type, with Home's tint as the accent.
-      CompositionLocalProvider(LocalAndroidStyle provides androidStyle, LocalGlassSettings provides glassSettings) { LiquidGlassTheme(mode) {
+      CompositionLocalProvider(LocalAndroidStyle provides androidStyle, LocalGlassSettings provides glassSettings, LocalControlShape provides controlShape, LocalGlowIntensity provides glowIntensity) { LiquidGlassTheme(mode) {
         // The theme's forced appearance, or the system's.
         val dark = isSystemInDarkTheme()
         SideEffect { bars.appearance(dark) }
@@ -108,6 +115,10 @@ internal class LiquidGlassScreenView(context: Context) : ComposeHost(context) {
               onDirectionChange = { emitSettings(mode, settings, it, androidStyle) },
               style = androidStyle,
               onStyleChange = { emitSettings(mode, settings, jsLayoutDirection, it) },
+              shape = controlShape,
+              onShapeChange = { emitSettings(mode, settings, jsLayoutDirection, androidStyle, it) },
+              glowIntensity = glowIntensity,
+              onGlowIntensityChange = { emitSettings(mode, settings, jsLayoutDirection, androidStyle, glow = it) },
             )
             else -> screenComponent(id)?.screen?.invoke()
           }
@@ -129,13 +140,15 @@ internal class LiquidGlassScreenView(context: Context) : ComposeHost(context) {
   }
 
   // Only Home's own controls call this, never the prop setters: JS state and props would echo.
-  private fun emitSettings(mode: AppearanceMode, s: GlassSettings, direction: String, style: AndroidStyle) = emit(
+  private fun emitSettings(mode: AppearanceMode, s: GlassSettings, direction: String, style: AndroidStyle, shape: ControlShape = controlShape, glow: Float = glowIntensity) = emit(
     EVENT_SETTINGS_CHANGE,
     Arguments.createMap().apply {
       putString("appearance", mode.name.lowercase())
       putString("layoutDirection", direction)
       putString("androidStyle", style.name.lowercase())
       putBoolean("androidSegmentedCheck", s.segmentedCheck)
+      putString("androidControlShape", shape.name.lowercase())
+      putDouble("androidGlowIntensity", glow.toDouble())
       putString("tint", s.tint.toRgba())
       putBoolean("clear", s.clear)
       putDouble("blur", s.blur.value.toDouble())

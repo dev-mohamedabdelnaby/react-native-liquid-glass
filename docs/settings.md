@@ -54,6 +54,8 @@ type GlassSettings = {
   layoutDirection?: 'system' | 'ltr' | 'rtl';
   androidStyle?: 'glass' | 'material';
   androidSegmentedCheck?: boolean;
+  androidControlShape?: 'pill' | 'labeled' | 'glow';
+  androidGlowIntensity?: number;
   clear?: boolean;
   blur?: number;
   white?: number;
@@ -81,6 +83,8 @@ Each platform reads the settings its native app has and ignores the rest.
 | `layoutDirection` | `'system'` | yes | yes | Left-to-right or right-to-left. See [layout-direction.md](layout-direction.md). |
 | `androidStyle` | `'glass'` | no | yes | `'material'`: Material 3 components instead of glass. A screen's `androidStyle` prop wins. See [android-style.md](android-style.md). |
 | `androidSegmentedCheck` | `true` | no | yes | Material only: the check mark on the selected segment of segmented buttons. `false` hides it. A screen's `androidSegmentedCheck` prop wins. |
+| `androidControlShape` | `'pill'` | no | yes | The shape of switches, sliders, segmented controls and bottom tab bars, in both styles: `'pill'`, `'labeled'` or `'glow'`. A screen's `androidControlShape` prop wins. These replace the liquid drop and Material's stock widgets on those controls, so on Android `sliderLiquid`, `switchLiquid`, `segmentedLiquid`, `tabBarLiquid`, `tabBarDrop` and `androidSegmentedCheck` no longer change them. See [control-shapes.md](control-shapes.md). |
+| `androidGlowIntensity` | `0.35` | no | yes | How strongly `'glow'` glows, 0 (none) to 1 (clamped). A screen's prop wins. |
 | `clear` | `true` | no | yes | `true`: nearly clear glass. `false`: frosted (regular) glass. |
 | `blur` | `3` | no | yes | Blur radius in dp. |
 | `white` | `0.25` | no | yes | White wash over the glass, 0 to 1. |

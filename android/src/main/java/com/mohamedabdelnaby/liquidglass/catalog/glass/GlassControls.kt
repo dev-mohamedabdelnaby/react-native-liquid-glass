@@ -58,8 +58,11 @@ import androidx.compose.ui.unit.dp
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.LiquidSlider
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.LiquidSwitch
 import com.mohamedabdelnaby.liquidglass.catalog.ui.theme.SystemColors
+import com.mohamedabdelnaby.liquidglass.catalog.shapes.ShapedSlider
+import com.mohamedabdelnaby.liquidglass.catalog.shapes.ShapedSwitch
+import com.mohamedabdelnaby.liquidglass.catalog.shapes.shapeAccent
 
-/** The iOS 26 slider: its thumb lifts into a glass lens while dragged (react-native-liquid). */
+/** The slider, in Home's control shape (see ShapedSlider); [dropColor] and [liquid] no longer apply. */
 @Composable
 fun GlassSlider(
     value: Float,
@@ -71,12 +74,14 @@ fun GlassSlider(
     dropColor: Color? = null,
     // false: no liquid lift for this slider; null follows Home's setting.
     liquid: Boolean? = null,
-) = if (isMaterial) MaterialSlider(value, onValueChange, modifier, valueRange, tint, contentDescription) else LiquidSlider(value, onValueChange, modifier, valueRange, tint = tint, contentDescription = contentDescription, dropColor = dropColor, liquid = liquid)
+) =
+    // Only a slider's own tint (not the default, the theme's primary) wins over Home's tint.
+    ShapedSlider(value, onValueChange, modifier, valueRange, shapeAccent(tint.takeIf { it != MaterialTheme.colorScheme.primary }), contentDescription)
 
-/** The iOS 26 switch: its thumb lifts into a glass lens while pressed (react-native-liquid). */
+/** The switch, in Home's control shape (see ShapedSwitch); [dropColor] and [liquid] no longer apply. */
 @Composable
 fun GlassSwitch(checked: Boolean, onCheckedChange: (Boolean) -> Unit, modifier: Modifier = Modifier, dropColor: Color? = null, liquid: Boolean? = null) =
-    if (isMaterial) MaterialSwitch(checked, onCheckedChange, modifier) else LiquidSwitch(checked, onCheckedChange, modifier, onTint = SystemColors.Green, dropColor = dropColor, liquid = liquid)
+    ShapedSwitch(checked, onCheckedChange, modifier)
 
 /** The inside of a glass search field: magnifier, text, and a clear button once there is text. */
 @Composable

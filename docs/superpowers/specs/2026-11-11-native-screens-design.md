@@ -215,14 +215,17 @@ androidStyle?: 'glass' | 'material';   // default 'glass'; iOS ignores it
 - `androidSegmentedCheck?: boolean` (default `true`): the check mark on the selected segment of
   Material segmented buttons; `false` hides it. Provider setting and per-screen prop, like the others.
 
-### Android control shapes (approved 2026-11-21)
+### Android control shapes (approved 2026-11-21, revised 2026-11-26)
 
 ```ts
-androidControlShape?: 'default' | 'pill' | 'labeled' | 'squared' | 'glow'; // default 'default'; iOS ignores it
+androidControlShape?: 'pill' | 'labeled' | 'glow'; // default 'pill'; iOS ignores it
+androidGlowIntensity?: number; // 0..1, default 0.35; only 'glow' uses it; iOS ignores it
 ```
 
 - Android only; iOS is unchanged (user, 2026-11-21). Provider setting and per-screen prop (wins), like
-  the others. `'default'` is today's look (glass, or Material's stock widgets).
+  the others. Revised 2026-11-26 (user): `'default'` and `'squared'` are removed; `'pill'` is the
+  default, so every app gets pill controls; unknown values (and the old `'default'` / `'squared'`)
+  read as `'pill'`. The four controls no longer have the liquid drop or Material's stock widgets.
 - Reaches four controls, in both `androidStyle`s: top tabs (segmented control), slider, switch, bottom
   tab bar. Everything else keeps its style.
 - `pill`: a solid pill in the accent (tint, else the theme's primary). Switch with ON / OFF text
@@ -231,14 +234,15 @@ androidControlShape?: 'default' | 'pill' | 'labeled' | 'squared' | 'glow'; // de
 - `labeled`: outlined pills. Switch outlined with ON / OFF text and a filled thumb; top tabs outlined
   with the selected tab filled; slider a ring handle on a thin track; bottom tabs an outlined bar with
   the selected tab filled.
-- `squared`: rounded squares in place of circles and capsules — the switch thumb and track, the
-  slider handle, the tab corners and the selection marker.
 - `glow`: the accent as a neon colour with a soft glow — a glowing slider track with a ring handle,
-  the switch glowing when on, the selected top tab and bottom tab glowing.
+  the switch glowing when on, the selected top tab and bottom tab glowing. `androidGlowIntensity`
+  (clamped natively to 0..1, default 0.35) scales the halo: 0 none, 1 the strongest. Home shows a
+  Glow intensity slider while Glow is picked; it flows back through `onSettingsChange`.
 - All shapes: colours from the accent and the theme, light and dark; mirrored in RTL; the same
-  TalkBack reading, 48 dp touch targets and slider haptics as the default; motion is a spring slide
-  (no liquid drop). Drawn natively in Compose (no stock Android widget has these looks). ON / OFF
-  are fixed English (custom labels out of scope). Home gets a picker for the shape.
+  TalkBack reading as Android's own controls (switch state and label, slider label, value and
+  adjust, tabs selected with role Tab), 48 dp touch targets and slider haptics; motion is a spring
+  slide (no liquid drop). Drawn natively in Compose (no stock Android widget has these looks).
+  ON / OFF are fixed English (custom labels out of scope). Home gets a Pill / Labeled / Glow picker.
 
 ## Out of scope for this version
 

@@ -9,6 +9,8 @@ import com.facebook.react.uimanager.ViewManagerDelegate
 import com.facebook.react.viewmanagers.LiquidGlassScreenManagerDelegate
 import com.facebook.react.viewmanagers.LiquidGlassScreenManagerInterface
 import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassSettings
+import com.mohamedabdelnaby.liquidglass.catalog.shapes.controlShapeOf
+import com.mohamedabdelnaby.liquidglass.catalog.shapes.glowIntensityOf
 
 /** The hosted screen has no React children, so a [SimpleViewManager] is enough. */
 @ReactModule(name = LiquidGlassScreenManager.NAME)
@@ -50,6 +52,14 @@ internal class LiquidGlassScreenManager :
 
   override fun setAndroidStyle(view: LiquidGlassScreenView, value: String?) {
     view.androidStyle = androidStyleOf(value ?: "glass")
+  }
+
+  override fun setAndroidControlShape(view: LiquidGlassScreenView, value: String?) {
+    view.controlShape = controlShapeOf(value ?: "pill")
+  }
+
+  override fun setAndroidGlowIntensity(view: LiquidGlassScreenView, value: Float) {
+    view.glowIntensity = glowIntensityOf(value)
   }
 
   override fun setAndroidSegmentedCheck(view: LiquidGlassScreenView, value: Boolean) = update(view) { copy(segmentedCheck = value) }

@@ -9,6 +9,10 @@ export type GlassSettings = {
   androidStyle?: 'glass' | 'material';
   // Android Material only: the check mark on the selected segment of segmented buttons.
   androidSegmentedCheck?: boolean;
+  // Android only: the shape of switches, sliders, top tabs and bottom tabs, in both styles.
+  androidControlShape?: 'pill' | 'labeled' | 'glow';
+  // Android only: how strongly the glow shape glows, 0 (none) to 1.
+  androidGlowIntensity?: number;
   clear?: boolean;
   blur?: number;
   white?: number;
