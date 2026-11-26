@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,7 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.mohamedabdelnaby.liquidglass.catalog.liquid.BadgeText
+import com.mohamedabdelnaby.liquidglass.catalog.liquid.badgeText
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.LiquidTabItem
 
 /**
@@ -40,7 +39,7 @@ internal fun ShapedTabBar(selectedIndex: Int, onSelect: (Int) -> Unit, tabs: Lis
             Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterVertically)) {
                 tab.icon?.let { icon ->
                     // M3's 16 dp badge, fixed: the count's measured height (font padding, an app font) made it an oval.
-                    BadgedBox(badge = { if (tab.badge > 0) Badge(Modifier.height(16.dp)) { Text("${tab.badge}", style = LocalTextStyle.current.merge(BadgeText)) } }) { Icon(icon, null, Modifier.size(24.dp), tint = tint) }
+                    BadgedBox(badge = { if (tab.badge > 0) Badge(Modifier.height(16.dp)) { Text("${tab.badge}", style = badgeText()) } }) { Icon(icon, null, Modifier.size(24.dp), tint = tint) }
                 }
                 Text(tab.label, color = tint, style = MaterialTheme.typography.labelSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }

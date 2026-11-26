@@ -24,10 +24,14 @@ class GlassIconsTest {
 
   @Test
   fun unknownNamesAndBadEntriesHaveNoIcon() {
-    val icons = glassIconsOf("""{"heart":{"svg":"<svg/>"},"bad":{"size":3},"worse":4}""")
+    val icons = glassIconsOf("""{"heart":{"svg":"<svg/>"},"bad":{"size":3},"worse":4,"number":{"svg":5},"glyphless":{"glyph":1,"fontFamily":"Ionicons"}}""")
     assertNull(icons["trash"])
     assertNull(icons["bad"])
     assertNull(icons["worse"])
+    // Values that are not strings: skipped, as on the device.
+    assertNull(icons["number"])
+    assertNull(icons["glyphless"])
+    assertEquals(setOf("heart"), icons.keys)
     assertEquals(emptyMap<String, GlassIcon>(), glassIconsOf(""))
     assertEquals(emptyMap<String, GlassIcon>(), glassIconsOf("not json"))
   }
@@ -40,5 +44,14 @@ class GlassIconsTest {
     assertEquals(Rect(4f, 4f, 44f, 44f), iconRect(70f, 70f, 48f, 48f))
     // A wide glyph keeps its shape, centred.
     assertEquals(Rect(2f, 7f, 22f, 17f), iconRect(100f, 50f, 24f, 24f))
+  }
+
+  @Test
+  fun imagesDecodeAFewTimesTheIconSizeAtMost() {
+    // 96 dp at 3x is 288 px: a 4000 px photo decodes at 1/8 (500 px), never below 288.
+    assertEquals(8, sampleSize(4000, 3000, 288))
+    assertEquals(1, sampleSize(96, 96, 288))
+    assertEquals(1, sampleSize(500, 500, 288))
+    assertEquals(2, sampleSize(600, 100, 288))
   }
 }

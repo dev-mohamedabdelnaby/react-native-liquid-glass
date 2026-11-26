@@ -65,11 +65,13 @@ enum GlassIconSource: Hashable {
   }
 
   /// An image `uri` as React Native resolves it: a URL (Metro, remote), a file, or a bundle path.
-  static func loadImage(_ uri: String) async -> UIImage? {
-    guard let url = URL(string: uri), url.scheme != nil else { return UIImage(contentsOfFile: uri) }
-    if url.isFileURL { return UIImage(contentsOfFile: url.path) }
+  /// Read and decoded off the main actor.
+  @concurrent nonisolated static func loadImage(_ uri: String) async -> UIImage? {
+    func decoded(_ image: UIImage?) -> UIImage? { image?.preparingForDisplay() ?? image }
+    guard let url = URL(string: uri), url.scheme != nil else { return decoded(UIImage(contentsOfFile: uri)) }
+    if url.isFileURL { return decoded(UIImage(contentsOfFile: url.path)) }
     guard let (data, _) = try? await URLSession.shared.data(from: url) else { return nil }
-    return UIImage(data: data)
+    return decoded(UIImage(data: data))
   }
 }
 
@@ -88,10 +90,25 @@ struct GlassIcons: Equatable {
     let symbol = UIImage(systemName: name, withConfiguration: body)?.size ?? .zero
     let square = UIImage(systemName: "square", withConfiguration: body)?.size ?? CGSize(width: 22, height: 22)
     let box = CGSize(width: max(symbol.width, square.width), height: max(symbol.height, square.height))
-    return UIGraphicsImageRenderer(size: box).image { _ in
+    let drawn = UIGraphicsImageRenderer(size: box).image { _ in
       image.draw(in: Self.fit(image.size, in: box))
     }.withRenderingMode(.alwaysTemplate)
+    return Self.isDirectional(name) ? drawn.imageFlippedForRightToLeftLayoutDirection() : drawn
   }
+
+  /// Whether the system mirrors SF Symbol `name` in RTL (its right-to-left image differs, as for
+  /// chevron.backward, not chevron.left): an icon in its place mirrors too.
+  static func isDirectional(_ name: String) -> Bool {
+    if let known = directional[name] { return known }
+    let png = { (direction: UITraitEnvironmentLayoutDirection) in
+      UIImage(systemName: name, compatibleWith: UITraitCollection(layoutDirection: direction))?.pngData()
+    }
+    let result = png(.leftToRight) != png(.rightToLeft)
+    directional[name] = result
+    return result
+  }
+
+  private static var directional: [String: Bool] = [:]
 
   /// [size] scaled to fit [box], centred.
   static func fit(_ size: CGSize, in box: CGSize) -> CGRect {
@@ -121,15 +138,21 @@ struct GlassImage: View {
 
   var body: some View {
     if uiKit, let image = icons.glassUIImage(name) {
-      Image(uiImage: image)
+      custom(Image(uiImage: image))
     } else if !uiKit, let image = icons[name] {
       // The square keeps an icon in a flat symbol's place (an ellipsis) from shrinking to a dot.
-      ZStack { Image(systemName: name); Image(systemName: "square") }.hidden().overlay {
+      custom(ZStack { Image(systemName: name); Image(systemName: "square") }.hidden().overlay {
         Image(uiImage: image).renderingMode(.template).resizable().scaledToFit()
-      }
+      })
     } else {
       Image(systemName: name)
     }
+  }
+
+  /// The custom icon mirrored where the symbol is, and read by VoiceOver as the symbol was.
+  private func custom(_ icon: some View) -> some View {
+    icon.flipsForRightToLeftLayoutDirection(GlassIcons.isDirectional(name))
+      .accessibilityRepresentation { Image(systemName: name) }
   }
 }
 

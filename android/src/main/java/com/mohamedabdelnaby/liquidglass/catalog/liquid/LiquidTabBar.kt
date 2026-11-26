@@ -69,6 +69,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
@@ -815,19 +816,19 @@ internal fun TabBadge(count: Int, color: Color, modifier: Modifier = Modifier) {
         modifier.height(18.dp).widthIn(min = 18.dp).background(color, CircleShape).padding(horizontal = 5.dp),
         contentAlignment = Alignment.Center,
     ) {
-        Text(
-            "$count",
-            color = Color.White,
-            fontSize = 11.sp,
-            fontWeight = FontWeight.Bold,
-            maxLines = 1,
-            style = LocalTextStyle.current.merge(BadgeText),
-        )
+        Text("$count", color = Color.White, fontWeight = FontWeight.Bold, maxLines = 1, style = badgeText())
     }
 }
 
-/** A badge's count: no font padding or line gap, so its box is its glyphs and it centres in the badge. */
-internal val BadgeText = TextStyle(
-    platformStyle = PlatformTextStyle(includeFontPadding = false),
-    lineHeightStyle = LineHeightStyle(LineHeightStyle.Alignment.Center, LineHeightStyle.Trim.Both),
+/**
+ * A badge's count: 11 dp whatever the font scale (as UITabBar's badge ignores Dynamic Type), so it
+ * never outgrows the fixed badge; no font padding or line gap, so it centres in the badge.
+ */
+@Composable
+internal fun badgeText(): TextStyle = LocalTextStyle.current.merge(
+    TextStyle(
+        fontSize = with(LocalDensity.current) { 11.dp.toSp() },
+        platformStyle = PlatformTextStyle(includeFontPadding = false),
+        lineHeightStyle = LineHeightStyle(LineHeightStyle.Alignment.Center, LineHeightStyle.Trim.Both),
+    ),
 )

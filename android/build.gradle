@@ -60,6 +60,10 @@ android {
     compose true
   }
 
+  testOptions {
+    unitTests.includeAndroidResources = true
+  }
+
   // The glass engine's backdrop code uses context parameters.
   tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
     compilerOptions.freeCompilerArgs.add("-Xcontext-parameters")
@@ -85,4 +89,8 @@ dependencies {
   testImplementation "junit:junit:4.13.2"
   // The real org.json: android.jar's is a stub in unit tests.
   testImplementation "org.json:json:20250517"
+  // glassIcon drawn for real (Compose on Robolectric's native graphics).
+  testImplementation "org.robolectric:robolectric:4.17"
+  testImplementation "androidx.compose.ui:ui-test-junit4"
+  testImplementation "androidx.compose.ui:ui-test-manifest"
 }
