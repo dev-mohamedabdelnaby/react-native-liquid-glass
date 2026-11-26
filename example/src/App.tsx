@@ -126,6 +126,19 @@ export default function App() {
               options={({ navigation }) => ({
                 title: 'Screen 3',
                 headerBackVisible: false,
+                // iOS: a real bar button item, so the glass itself takes the tint.
+                unstable_headerLeftItems: () => [
+                  {
+                    type: 'button',
+                    label: 'Close',
+                    icon: { type: 'sfSymbol', name: 'xmark' },
+                    variant: 'prominent',
+                    tintColor: '#ff3b30',
+                    accessibilityLabel: 'Close',
+                    onPress: () => navigation.popToTop(),
+                  },
+                ],
+                // Android has no bar button items: an RN button instead.
                 headerLeft: () => (
                   <CloseButton onPress={() => navigation.popToTop()} />
                 ),
