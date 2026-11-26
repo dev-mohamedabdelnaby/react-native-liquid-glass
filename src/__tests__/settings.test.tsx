@@ -46,6 +46,7 @@ test('defaults are the native apps defaults', async () => {
     tabBarLiquid: true,
     tabBarDrop: true,
     fontFamily: '',
+    icons: {},
   });
 });
 

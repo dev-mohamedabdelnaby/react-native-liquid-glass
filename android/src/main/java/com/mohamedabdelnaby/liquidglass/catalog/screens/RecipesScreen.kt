@@ -1,5 +1,7 @@
 package com.mohamedabdelnaby.liquidglass.catalog.screens
 
+import androidx.compose.ui.graphics.painter.Painter
+import com.mohamedabdelnaby.liquidglass.glassIcon
 import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassSegmented
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.geometry.CornerRadius
@@ -205,26 +207,26 @@ private fun MapControls() {
                         RoundedCornerShape(28.dp),
                     ),
                 contentAlignment = Alignment.Center,
-            ) { Icon(Icons.Filled.Map, null, Modifier.size(80.dp), tint = Color.White.copy(alpha = 0.4f)) }
+            ) { Icon(glassIcon("map.fill", Icons.Filled.Map), null, Modifier.size(80.dp), tint = Color.White.copy(alpha = 0.4f)) }
 
             // iOS unions the two buttons into one glass capsule, which swells as one when pressed.
             Column(
                 Modifier.align(Alignment.TopEnd).padding(12.dp).glassEffect(Glass.Regular.interactive(), RoundedCornerShape(16.dp)),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                MapButton(Icons.Filled.Layers, "Layers") {}
+                MapButton(glassIcon("map", Icons.Filled.Layers), "Layers") {}
                 HorizontalDivider(Modifier.width(28.dp), color = MaterialTheme.colorScheme.outlineVariant)
-                MapButton(if (tracking) Icons.Filled.MyLocation else Icons.Outlined.LocationSearching, if (tracking) "Stop tracking" else "Locate") {
+                MapButton(if (tracking) glassIcon("location.fill", Icons.Filled.MyLocation) else glassIcon("location", Icons.Outlined.LocationSearching), if (tracking) "Stop tracking" else "Locate") {
                     tracking = !tracking
                 }
             }
-            GlassIconButton(Icons.Outlined.TravelExplore, "Look Around", {}, Modifier.align(Alignment.BottomStart).padding(12.dp), size = 48.dp, tint = MaterialTheme.colorScheme.primary)
+            GlassIconButton(glassIcon("binoculars.fill", Icons.Outlined.TravelExplore), "Look Around", {}, Modifier.align(Alignment.BottomStart).padding(12.dp), size = 48.dp, tint = MaterialTheme.colorScheme.primary)
         }
     }
 }
 
 @Composable
-private fun MapButton(icon: ImageVector, label: String, onClick: () -> Unit) {
+private fun MapButton(icon: Painter, label: String, onClick: () -> Unit) {
     Box(
         Modifier
             .size(48.dp)
@@ -256,7 +258,7 @@ private fun MiniPlayer() {
                     Box(
                         Modifier.size(44.dp).background(Brush.verticalGradient(listOf(SystemColors.Pink, SystemColors.Orange)), RoundedCornerShape(10.dp)),
                         contentAlignment = Alignment.Center,
-                    ) { Icon(Icons.Filled.MusicNote, null, tint = Color.White) }
+                    ) { Icon(glassIcon("music.note", Icons.Filled.MusicNote), null, tint = Color.White) }
                     Column {
                         Text("Glass Animals", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                         Text("Heat Waves", color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -264,7 +266,7 @@ private fun MiniPlayer() {
                     Fill()
                     Box(Modifier.size(44.dp).glassClickable(label = if (playing) "Pause" else "Play") { playing = !playing }, contentAlignment = Alignment.Center) {
                         AnimatedContent(playing, transitionSpec = { (scaleIn() + fadeIn()) togetherWith (scaleOut() + fadeOut()) }, label = "play") {
-                            Icon(if (it) Icons.Filled.Pause else Icons.Filled.PlayArrow, null, Modifier.size(32.dp))
+                            Icon(if (it) glassIcon("pause.fill", Icons.Filled.Pause) else glassIcon("play.fill", Icons.Filled.PlayArrow), null, Modifier.size(32.dp))
                         }
                     }
                 }
@@ -301,9 +303,9 @@ private fun MiniPlayer() {
                         ) {
                             GlassSlider(progress, { progress = it }, contentDescription = "Playback position")
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(40.dp, Alignment.CenterHorizontally)) {
-                                PlayerIcon(Icons.Filled.FastRewind, "Back") { progress = (progress - 0.1f).coerceAtLeast(0f) }
-                                PlayerIcon(Icons.Filled.Shuffle, "Shuffle") { progress = 0f }
-                                PlayerIcon(Icons.Filled.FastForward, "Forward") { progress = (progress + 0.1f).coerceAtMost(1f) }
+                                PlayerIcon(glassIcon("backward.fill", Icons.Filled.FastRewind), "Back") { progress = (progress - 0.1f).coerceAtLeast(0f) }
+                                PlayerIcon(glassIcon("shuffle", Icons.Filled.Shuffle), "Shuffle") { progress = 0f }
+                                PlayerIcon(glassIcon("forward.fill", Icons.Filled.FastForward), "Forward") { progress = (progress + 0.1f).coerceAtMost(1f) }
                             }
                         }
                     }
@@ -315,7 +317,7 @@ private fun MiniPlayer() {
 }
 
 @Composable
-private fun PlayerIcon(icon: ImageVector, label: String, onClick: () -> Unit) {
+private fun PlayerIcon(icon: Painter, label: String, onClick: () -> Unit) {
     Box(Modifier.size(44.dp).glassClickable(label = label, onClick = onClick), contentAlignment = Alignment.Center) { Icon(icon, null) }
 }
 
@@ -324,9 +326,9 @@ private fun FloatingActionMenu(modifier: Modifier = Modifier) {
     var open by remember { mutableStateOf(false) }
     val rotation by animateFloatAsState(if (open) 45f else 0f, label = "fab")
     val actions = listOf(
-        Triple("Photo", Icons.Filled.CameraAlt, SystemColors.Blue),
-        Triple("Note", Icons.AutoMirrored.Filled.StickyNote2, SystemColors.Yellow),
-        Triple("Reminder", Icons.Filled.Checklist, SystemColors.Green),
+        Triple("Photo", glassIcon("camera.fill", Icons.Filled.CameraAlt), SystemColors.Blue),
+        Triple("Note", glassIcon("note.text", Icons.AutoMirrored.Filled.StickyNote2), SystemColors.Yellow),
+        Triple("Reminder", glassIcon("checklist", Icons.Filled.Checklist), SystemColors.Green),
     )
     // A fixed frame, so the container's origin never moves as the column grows and shrinks;
     // otherwise its glass would drift with it. It has no touch handling, so taps pass through.
@@ -344,14 +346,14 @@ private fun FloatingActionMenu(modifier: Modifier = Modifier) {
                 }
                 // Material: Android's floating action button.
                 if (isMaterial) FloatingActionButton({ open = !open }) {
-                    Icon(Icons.Filled.Add, if (open) "Close menu" else "Open menu", Modifier.rotate(rotation))
+                    Icon(glassIcon("plus", Icons.Filled.Add), if (open) "Close menu" else "Open menu", Modifier.rotate(rotation))
                 } else Box(
                     Modifier
                         .size(60.dp)
                         .glassEffect(Glass.Regular.tint(MaterialTheme.colorScheme.primary.copy(alpha = 0.88f)).copy(prominent = true).interactive(), GlassCircle)
                         .glassClickable(label = if (open) "Close menu" else "Open menu") { open = !open },
                     contentAlignment = Alignment.Center,
-                ) { Icon(Icons.Filled.Add, null, Modifier.size(30.dp).rotate(rotation), tint = Color.White) }
+                ) { Icon(glassIcon("plus", Icons.Filled.Add), null, Modifier.size(30.dp).rotate(rotation), tint = Color.White) }
             }
         }
     }

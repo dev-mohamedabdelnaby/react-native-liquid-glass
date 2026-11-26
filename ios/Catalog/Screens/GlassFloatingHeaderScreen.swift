@@ -39,7 +39,7 @@ struct GlassFloatingHeaderScreen: View {
 
                     ForEach(1...30, id: \.self) { index in
                         HStack(spacing: 12) {
-                            Image(systemName: "photo")
+                            GlassImage("photo")
                                 .font(.title2)
                                 .foregroundStyle(.tint)
                             Text("Row \(index)")
@@ -67,7 +67,7 @@ struct GlassFloatingHeaderScreen: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button("Favorite", systemImage: isFavorite ? "heart.fill" : "heart") {
+                Button("Favorite", glassImage: isFavorite ? "heart.fill" : "heart", uiKit: true) {
                     isFavorite.toggle()
                 }
             }
@@ -75,8 +75,8 @@ struct GlassFloatingHeaderScreen: View {
             ToolbarSpacer(.fixed, placement: .topBarTrailing)
 
             ToolbarItemGroup(placement: .topBarTrailing) {
-                Button("Share", systemImage: "square.and.arrow.up") {}
-                Button("More", systemImage: "ellipsis") {}
+                Button("Share", glassImage: "square.and.arrow.up", uiKit: true) {}
+                Button("More", glassImage: "ellipsis", uiKit: true) {}
             }
         }
     }

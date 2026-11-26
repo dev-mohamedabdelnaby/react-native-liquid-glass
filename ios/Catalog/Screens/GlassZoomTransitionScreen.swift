@@ -20,7 +20,7 @@ struct GlassZoomTransitionScreen: View {
                 .padding()
                 .appGlassEffect(in: .rect(cornerRadius: 24))
 
-            Button("New Message", systemImage: "square.and.pencil") {
+            Button("New Message", glassImage: "square.and.pencil") {
                 isComposePresented = true
             }
             .buttonStyle(.glassProminent)
@@ -38,7 +38,7 @@ struct GlassZoomTransitionScreen: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button("Inbox", systemImage: "tray.fill") {
+                Button("Inbox", glassImage: "tray.fill", uiKit: true) {
                     isInboxPresented = true
                 }
                 .badge(unreadCount)
@@ -47,7 +47,7 @@ struct GlassZoomTransitionScreen: View {
 
             // Hiding the shared background places this item outside the grouped glass capsule.
             ToolbarItem(placement: .principal) {
-                Label("Online", systemImage: "circle.fill")
+                Label("Online", glassImage: "circle.fill", uiKit: true)
                     .labelStyle(.titleAndIcon)
                     .glassFont(.caption, weight: .bold)
                     .foregroundStyle(.green)
@@ -57,11 +57,11 @@ struct GlassZoomTransitionScreen: View {
         .sheet(isPresented: $isInboxPresented) {
             NavigationStack {
                 List(0..<max(unreadCount, 1), id: \.self) { index in
-                    Label("Message \(index + 1)", systemImage: "envelope.badge")
+                    Label("Message \(index + 1)", glassImage: "envelope.badge")
                 }
                 .navigationTitle("Inbox")
                 .toolbar {
-                    Button("Done", systemImage: "checkmark") { isInboxPresented = false }
+                    Button("Done", glassImage: "checkmark", uiKit: true) { isInboxPresented = false }
                 }
             }
             .presentationDetents([.medium, .large])
@@ -76,10 +76,10 @@ struct GlassZoomTransitionScreen: View {
                 .navigationTitle("New Message")
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
-                        Button("Cancel", systemImage: "xmark") { isComposePresented = false }
+                        Button("Cancel", glassImage: "xmark", uiKit: true) { isComposePresented = false }
                     }
                     ToolbarItem(placement: .confirmationAction) {
-                        Button("Send", systemImage: "arrow.up") { isComposePresented = false }
+                        Button("Send", glassImage: "arrow.up", uiKit: true) { isComposePresented = false }
                             .buttonStyle(.glassProminent)
                     }
                 }

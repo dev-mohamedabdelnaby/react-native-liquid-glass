@@ -35,6 +35,8 @@ export interface NativeProps extends ViewProps {
   fontSemibold?: CodegenTypes.WithDefault<string, ''>;
   fontBold?: CodegenTypes.WithDefault<string, ''>;
   fontHeavy?: CodegenTypes.WithDefault<string, ''>;
+  // JSON: SF Symbol name → {glyph, fontFamily} | {svg} | {uri}; '' is none.
+  icons?: CodegenTypes.WithDefault<string, ''>;
 
   onBack?: CodegenTypes.DirectEventHandler<null>;
   onOpen?: CodegenTypes.DirectEventHandler<Readonly<{ screen: string }>>;

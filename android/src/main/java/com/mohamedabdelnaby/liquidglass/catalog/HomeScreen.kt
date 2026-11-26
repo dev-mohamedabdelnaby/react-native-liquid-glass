@@ -1,5 +1,6 @@
 package com.mohamedabdelnaby.liquidglass.catalog
 
+import com.mohamedabdelnaby.liquidglass.glassIcon
 import com.mohamedabdelnaby.liquidglass.catalog.glass.AndroidStyle
 import com.mohamedabdelnaby.liquidglass.catalog.shapes.ControlShape
 import com.mohamedabdelnaby.liquidglass.catalog.shapes.DEFAULT_GLOW_INTENSITY
@@ -151,13 +152,13 @@ fun HomeScreen(
                     Modifier.groupedRow(index, all.size).clickable { onOpen(component) },
                     divider = index != all.lastIndex,
                 ) {
-                    Icon(component.icon, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(22.dp))
+                    Icon(glassIcon(component.symbol, component.icon), null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(22.dp))
                     Text(component.title, style = MaterialTheme.typography.bodyLarge)
                     // Material rows open without a chevron.
                     if (!material) {
                         Fill()
                         Icon(
-                            Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                            glassIcon("chevron.forward", Icons.AutoMirrored.Rounded.KeyboardArrowRight),
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                             modifier = Modifier.size(20.dp),
@@ -215,7 +216,7 @@ private fun ColorChoices(picked: Color?, label: String, onPick: (Color?) -> Unit
                     .selectable(selected, interactionSource = null, indication = null, role = Role.RadioButton) { onPick(color) }
                     .semantics { contentDescription = if (color == null) "No $label" else label },
                 contentAlignment = Alignment.Center,
-            ) { if (color == null) Icon(Icons.Outlined.WaterDrop, null, Modifier.size(14.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant) }
+            ) { if (color == null) Icon(glassIcon("circle.dashed", Icons.Outlined.WaterDrop), null, Modifier.size(14.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant) }
         }
     }
 }

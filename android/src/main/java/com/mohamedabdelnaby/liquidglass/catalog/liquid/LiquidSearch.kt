@@ -3,6 +3,12 @@
 // dropped, the Compose body kept).
 package com.mohamedabdelnaby.liquidglass.catalog.liquid
 
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.Icons
+import androidx.compose.material3.Icon
+import com.mohamedabdelnaby.liquidglass.LocalGlassIcons
+import com.mohamedabdelnaby.liquidglass.glassIcon
 import com.mohamedabdelnaby.liquidglass.catalog.glass.opaqueFill
 import com.mohamedabdelnaby.liquidglass.catalog.glass.LocalGlassSettings
 import android.os.Build
@@ -320,7 +326,9 @@ fun LiquidExpandableSearch(
                 ),
             contentAlignment = Alignment.Center,
         ) {
-            BasicText("✕", style = textStyle)
+            // The app's "xmark" when it has one; the lib's own ✕ otherwise.
+            if ("xmark" in LocalGlassIcons.current) Icon(glassIcon("xmark", Icons.Filled.Close), null, Modifier.fillMaxSize(0.45f), tint = textStyle.color)
+            else BasicText("✕", style = textStyle)
         }
     }
 }
@@ -328,6 +336,8 @@ fun LiquidExpandableSearch(
 /** Magnifying glass drawn with Compose so the library needs no icon assets. */
 @Composable
 private fun SearchIcon(color: Color, modifier: Modifier = Modifier) {
+    // The app's "magnifyingglass" when it has one.
+    if ("magnifyingglass" in LocalGlassIcons.current) return Icon(glassIcon("magnifyingglass", Icons.Filled.Search), null, modifier.size(20.dp), tint = color)
     Canvas(modifier.size(20.dp)) {
         val stroke = 2.2.dp.toPx()
         val radius = size.minDimension * 0.34f

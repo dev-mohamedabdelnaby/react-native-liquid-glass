@@ -3,6 +3,7 @@
 // LiquidBottomTabBar.tsx wrapper passes.
 package com.mohamedabdelnaby.liquidglass.catalog.liquid
 
+import androidx.compose.ui.graphics.painter.Painter
 import com.mohamedabdelnaby.liquidglass.catalog.glass.opaqueFill
 import com.mohamedabdelnaby.liquidglass.catalog.glass.isMaterial
 import com.mohamedabdelnaby.liquidglass.catalog.shapes.ShapedTabBar
@@ -142,7 +143,7 @@ private const val BAR_STRETCH = 0.45f
 
 /** A tab of [LiquidTabBar]. */
 /** [badge] above 0 draws a red count on the icon's trailing side, as `.badge(_:)`. */
-data class LiquidTabItem(val label: String, val icon: ImageVector? = null, val badge: Int = 0)
+data class LiquidTabItem(val label: String, val icon: Painter? = null, val badge: Int = 0)
 
 /** Animated values, written once per frame by the physics loop. */
 @Stable

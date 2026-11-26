@@ -1,5 +1,6 @@
 package com.mohamedabdelnaby.liquidglass.catalog.screens
 
+import com.mohamedabdelnaby.liquidglass.glassIcon
 import com.mohamedabdelnaby.liquidglass.catalog.glass.platformTextStyle
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.spring
@@ -112,13 +113,13 @@ fun EditSearchScreen() {
         actions = {
             if (material) when (mode) {
                 Mode.Idle -> {
-                    GlassIconButton(Icons.Filled.Search, "Search", { mode = Mode.Searching })
-                    GlassIconButton(Icons.Filled.Edit, "Edit", { mode = Mode.Editing })
+                    GlassIconButton(glassIcon("magnifyingglass", Icons.Filled.Search), "Search", { mode = Mode.Searching })
+                    GlassIconButton(glassIcon("pencil", Icons.Filled.Edit), "Edit", { mode = Mode.Editing })
                 }
                 Mode.Searching -> Unit
                 Mode.Editing -> {
-                    if (selection.isNotEmpty()) GlassIconButton(Icons.Filled.Delete, "Delete ${selection.size}", { items.removeAll(selection); selection.clear() })
-                    GlassIconButton(Icons.Filled.Check, "Done", { selection.clear(); mode = Mode.Idle })
+                    if (selection.isNotEmpty()) GlassIconButton(glassIcon("trash", Icons.Filled.Delete), "Delete ${selection.size}", { items.removeAll(selection); selection.clear() })
+                    GlassIconButton(glassIcon("checkmark", Icons.Filled.Check), "Done", { selection.clear(); mode = Mode.Idle })
                 }
             }
         },
@@ -190,7 +191,7 @@ private fun ActionBar(
             height = 52.dp,
         ) {
             Fill()
-            CircleAction("Edit", onClick = onEdit) { Icon(Icons.Filled.Edit, null, tint = MaterialTheme.colorScheme.onSurface) }
+            CircleAction("Edit", onClick = onEdit) { Icon(glassIcon("pencil", Icons.Filled.Edit), null, tint = MaterialTheme.colorScheme.onSurface) }
         }
         return
     }
@@ -206,13 +207,13 @@ private fun ActionBar(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Icon(Icons.Filled.Delete, null, tint = Color.White)
+                    Icon(glassIcon("trash", Icons.Filled.Delete), null, tint = Color.White)
                     Text("Delete $selected", color = Color.White, style = platformTextStyle(17.sp, MaterialTheme.typography.bodyLarge), fontWeight = FontWeight.SemiBold)
                 }
             }
             Fill()
             CircleAction("Done", glass = Glass.Regular.tint(SystemColors.Blue.copy(alpha = 0.85f)), onClick = onDone) {
-                Icon(Icons.Filled.Check, null, tint = Color.White)
+                Icon(glassIcon("checkmark", Icons.Filled.Check), null, tint = Color.White)
             }
         }
     }
@@ -274,7 +275,7 @@ private fun NotesList(
                             tint = if (checked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
-                    Icon(Icons.AutoMirrored.Filled.Notes, null, tint = MaterialTheme.colorScheme.primary)
+                    Icon(glassIcon("note.text", Icons.AutoMirrored.Filled.Notes), null, tint = MaterialTheme.colorScheme.primary)
                     Text(note)
                     Fill()
                     AnimatedVisibility(editing) {

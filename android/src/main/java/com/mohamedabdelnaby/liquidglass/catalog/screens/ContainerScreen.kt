@@ -1,5 +1,7 @@
 package com.mohamedabdelnaby.liquidglass.catalog.screens
 
+import androidx.compose.ui.graphics.painter.Painter
+import com.mohamedabdelnaby.liquidglass.glassIcon
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,9 +49,9 @@ fun ContainerScreen() {
             Spacer(Modifier.weight(1f))
             GlassEffectContainer(spacing = spacing.dp) {
                 Row(horizontalArrangement = Arrangement.spacedBy(40.dp)) {
-                    ToolShape(Icons.Filled.Draw, "Scribble")
+                    ToolShape(glassIcon("scribble.variable", Icons.Filled.Draw), "Scribble")
                     // Moving the shape closer makes the two glass shapes melt together.
-                    ToolShape(Icons.Outlined.AutoFixNormal, "Eraser", Modifier.offset { IntOffset(-pull.dp.roundToPx(), 0) })
+                    ToolShape(glassIcon("eraser.fill", Icons.Outlined.AutoFixNormal), "Eraser", Modifier.offset { IntOffset(-pull.dp.roundToPx(), 0) })
                 }
             }
             Spacer(Modifier.weight(1f))
@@ -67,7 +69,7 @@ fun ContainerScreen() {
 }
 
 @Composable
-private fun ToolShape(icon: ImageVector, name: String, modifier: Modifier = Modifier) {
+private fun ToolShape(icon: Painter, name: String, modifier: Modifier = Modifier) {
     Box(modifier.size(80.dp).glassEffect(Glass.Regular, GlassCircle), contentAlignment = Alignment.Center) {
         Icon(icon, name, Modifier.size(36.dp))
     }

@@ -1,5 +1,6 @@
 package com.mohamedabdelnaby.liquidglass.catalog.screens
 
+import com.mohamedabdelnaby.liquidglass.glassIcon
 import com.mohamedabdelnaby.liquidglass.catalog.glass.MaterialSectionHeader
 import com.mohamedabdelnaby.liquidglass.catalog.glass.platformCopy
 import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassTransition
@@ -84,9 +85,9 @@ import com.mohamedabdelnaby.liquidglass.catalog.ui.theme.SystemColors
 private const val ShareUrl = "https://developer.apple.com/documentation/swiftui/applying-liquid-glass-to-custom-views"
 
 private val ComposeActions = listOf(
-    "New Note" to Icons.AutoMirrored.Filled.StickyNote2,
-    "New Photo" to Icons.Filled.CameraAlt,
-    "New Folder" to Icons.Filled.CreateNewFolder,
+    Triple("New Note", "note.text", Icons.AutoMirrored.Filled.StickyNote2),
+    Triple("New Photo", "camera", Icons.Filled.CameraAlt),
+    Triple("New Folder", "folder.badge.plus", Icons.Filled.CreateNewFolder),
 )
 
 @Composable
@@ -109,7 +110,7 @@ fun ToolbarScreen() {
         titleContent = { CollapsedBarTitle("Toolbar", scrolled) },
         actions = {
             GlassIconButton(
-                if (favorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                if (favorite) glassIcon("heart.fill", Icons.Filled.Favorite) else glassIcon("heart", Icons.Outlined.FavoriteBorder),
                 if (favorite) "Unfavorite" else "Favorite",
                 { favorite = !favorite; lastAction = if (favorite) "Favorited" else "Unfavorited" },
             )
@@ -117,21 +118,21 @@ fun ToolbarScreen() {
             // One shared capsule behind Share and More, unless its background is hidden; as with
             // iOS's .animation() binding, the capsule materializes in and out.
             GlassEffectContainer { Row(Modifier.glassEffect(Glass.Regular.interactive(), transition = GlassTransition.Materialize, present = groupGlass)) {
-                BarIcon(Icons.Outlined.Share, "Share", { context.shareText(ShareUrl) })
-                GlassMenu(anchor = { open -> BarIcon(Icons.Filled.MoreHoriz, "More", open) }) { dismiss ->
-                    GlassMenuItem("Morph Compose Button", { morph = !morph; dismiss() }, icon = Icons.Filled.AutoFixHigh, checked = morph)
-                    GlassMenuItem("Glass Behind Group", { groupGlass = !groupGlass; dismiss() }, icon = Icons.Outlined.WaterDrop, checked = groupGlass)
+                BarIcon(glassIcon("square.and.arrow.up", Icons.Outlined.Share), "Share", { context.shareText(ShareUrl) })
+                GlassMenu(anchor = { open -> BarIcon(glassIcon("ellipsis", Icons.Filled.MoreHoriz), "More", open) }) { dismiss ->
+                    GlassMenuItem("Morph Compose Button", { morph = !morph; dismiss() }, icon = glassIcon("wand.and.stars", Icons.Filled.AutoFixHigh), checked = morph)
+                    GlassMenuItem("Glass Behind Group", { groupGlass = !groupGlass; dismiss() }, icon = glassIcon("drop", Icons.Outlined.WaterDrop), checked = groupGlass)
                     GlassMenuDivider()
-                    GlassMenuItem("Select Rows", { lastAction = "Select rows"; dismiss() }, icon = Icons.Outlined.CheckCircle)
-                    GlassMenuItem("Sort", { lastAction = "Sort"; dismiss() }, icon = Icons.AutoMirrored.Rounded.Sort)
+                    GlassMenuItem("Select Rows", { lastAction = "Select rows"; dismiss() }, icon = glassIcon("checkmark.circle", Icons.Outlined.CheckCircle))
+                    GlassMenuItem("Sort", { lastAction = "Sort"; dismiss() }, icon = glassIcon("arrow.up.arrow.down", Icons.AutoMirrored.Rounded.Sort))
                 }
             } }
         },
         bottomBar = {
             GlassBottomBar {
                 Row(Modifier.glassEffect(Glass.Regular.interactive())) {
-                    BarIcon(Icons.AutoMirrored.Rounded.KeyboardArrowLeft, "Back", { lastAction = "Back" })
-                    BarIcon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, "Forward", { lastAction = "Forward" })
+                    BarIcon(glassIcon("chevron.backward", Icons.AutoMirrored.Rounded.KeyboardArrowLeft), "Back", { lastAction = "Back" })
+                    BarIcon(glassIcon("chevron.forward", Icons.AutoMirrored.Rounded.KeyboardArrowRight), "Forward", { lastAction = "Forward" })
                 }
                 Fill()
             }
@@ -180,7 +181,7 @@ fun ToolbarScreen() {
             }
             items(40) { index ->
                 ListRow(Modifier.groupedRow(index, 40), divider = index != 39) {
-                    Icon(Icons.Filled.Photo, null, tint = MaterialTheme.colorScheme.primary)
+                    Icon(glassIcon("photo", Icons.Filled.Photo), null, tint = MaterialTheme.colorScheme.primary)
                     Text("Row ${index + 1}")
                 }
             }
@@ -201,14 +202,14 @@ private fun ComposeButton(open: Boolean, morph: Boolean, onToggle: () -> Unit, o
             Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 val reveal = rememberReveal(open)
                 if (reveal.shown) {
-                    ComposeActions.forEachIndexed { index, (title, icon) ->
-                        RevealPill(title, icon, Glass.Regular.interactive(), reveal, below = ComposeActions.size - 1 - index, morph = morph) { onAction(title) }
+                    ComposeActions.forEachIndexed { index, (title, symbol, icon) ->
+                        RevealPill(title, glassIcon(symbol, icon), Glass.Regular.interactive(), reveal, below = ComposeActions.size - 1 - index, morph = morph) { onAction(title) }
                     }
                 }
                 // Material: Android's floating action button.
                 if (isMaterial) FloatingActionButton(onToggle) {
                     AnimatedContent(open, transitionSpec = { (scaleIn() + fadeIn()) togetherWith (scaleOut() + fadeOut()) }, label = "compose") {
-                        Icon(if (it) Icons.Filled.Close else Icons.Filled.EditNote, if (it) "Close" else "Compose")
+                        Icon(if (it) glassIcon("xmark", Icons.Filled.Close) else glassIcon("square.and.pencil", Icons.Filled.EditNote), if (it) "Close" else "Compose")
                     }
                 } else Box(
                     Modifier
@@ -218,7 +219,7 @@ private fun ComposeButton(open: Boolean, morph: Boolean, onToggle: () -> Unit, o
                     contentAlignment = Alignment.Center,
                 ) {
                     AnimatedContent(open, transitionSpec = { (scaleIn() + fadeIn()) togetherWith (scaleOut() + fadeOut()) }, label = "compose") {
-                        Icon(if (it) Icons.Filled.Close else Icons.Filled.EditNote, null, tint = Color.White, modifier = Modifier.size(28.dp))
+                        Icon(if (it) glassIcon("xmark", Icons.Filled.Close) else glassIcon("square.and.pencil", Icons.Filled.EditNote), null, tint = Color.White, modifier = Modifier.size(28.dp))
                     }
                 }
             }

@@ -22,7 +22,7 @@ struct GlassTabBarScreen: View {
                 .padding()
                 .appGlassEffect(in: .rect(cornerRadius: 24))
 
-            Toggle("Minimize on scroll", systemImage: "arrow.down.right.and.arrow.up.left", isOn: $minimizesOnScroll)
+            Toggle("Minimize on scroll", glassImage: "arrow.down.right.and.arrow.up.left", isOn: $minimizesOnScroll)
                 .padding()
                 .appGlassEffect(in: .rect(cornerRadius: 20))
 
@@ -30,7 +30,7 @@ struct GlassTabBarScreen: View {
                 Button {
                     presentedVariant = variant
                 } label: {
-                    Label(variant.title, systemImage: variant.systemImage)
+                    Label(variant.title, glassImage: variant.systemImage)
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.glassProminent)
@@ -121,7 +121,7 @@ private struct TabBarDemo: View {
                 }
                 .searchable(text: $searchText)
                 .tabViewBottomAccessory {
-                    Label("Now Playing", systemImage: "music.note")
+                    Label("Now Playing", glassImage: "music.note")
                         .padding(.horizontal)
                 }
 
@@ -129,13 +129,15 @@ private struct TabBarDemo: View {
                 TabView {
                     mainTabs
                     // A regular tab: search sits inside the same glass capsule as the other tabs.
-                    Tab("Search", systemImage: "magnifyingglass") {
+                    Tab {
                         DemoSearchList(searchText: $searchText, onClose: close)
                             // `.always` keeps the field visible instead of hiding it until you pull down.
                             .searchable(
                                 text: $searchText,
                                 placement: .navigationBarDrawer(displayMode: .always)
                             )
+                    } label: {
+                        Label("Search", glassImage: "magnifyingglass", uiKit: true)
                     }
                 }
 
@@ -155,8 +157,10 @@ private struct TabBarDemo: View {
             case .noSearch:
                 TabView {
                     mainTabs
-                    Tab("Settings", systemImage: "gearshape") {
+                    Tab {
                         DemoTabContent(title: "Settings", onClose: close)
+                    } label: {
+                        Label("Settings", glassImage: "gearshape", uiKit: true)
                     }
                 }
             }
@@ -168,8 +172,10 @@ private struct TabBarDemo: View {
     @TabContentBuilder<Never>
     private var mainTabs: some TabContent<Never> {
         ForEach(DemoTab.allCases) { tab in
-            Tab(tab.title, systemImage: tab.systemImage) {
+            Tab {
                 DemoTabContent(title: tab.title, onClose: close)
+            } label: {
+                Label(tab.title, glassImage: tab.systemImage, uiKit: true)
             }
             .badge(tab.badge)
         }
@@ -203,7 +209,7 @@ private struct DemoTabContent: View {
             .navigationTitle(title)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Close", systemImage: "xmark", action: onClose)
+                    Button("Close", glassImage: "xmark", uiKit: true, action: onClose)
                 }
             }
         }
@@ -239,7 +245,7 @@ private struct DemoSearchList: View {
             .navigationTitle("Search")
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Close", systemImage: "xmark", action: onClose)
+                    Button("Close", glassImage: "xmark", uiKit: true, action: onClose)
                 }
             }
         }

@@ -45,6 +45,27 @@ import UIKit
     font = GlassFontSpec(regular: regular, medium: medium, semibold: semibold, bold: bold, heavy: heavy)
   }
 
+  /// The `icons` prop (JSON, `''` for none): glyphs and SVGs draw at once, images as they load.
+  @objc public func setIcons(_ json: String) {
+    guard json != iconsJSON else { return }
+    iconsJSON = json
+    let sources = GlassIconSource.parse(json)
+    model.icons = GlassIcons(images: sources.compactMapValues { $0.drawn() ?? Self.loadedImages[$0] })
+    for case let (name, .uri(uri)) in sources where model.icons[name] == nil {
+      Task { [weak self] in
+        // An image that fails to load leaves the native icon.
+        guard let image = await GlassIconSource.loadImage(uri)?.withRenderingMode(.alwaysTemplate) else { return }
+        Self.loadedImages[.uri(uri)] = image
+        guard let self, self.iconsJSON == json else { return }
+        self.model.icons.images[name] = image
+      }
+    }
+  }
+
+  private var iconsJSON = ""
+  // shortcut: loaded images stay for the process (icons are few and small); add a cap if apps pass many.
+  private static var loadedImages: [GlassIconSource: UIImage] = [:]
+
   var font: GlassFontSpec {
     get { model.font }
     set {
@@ -170,6 +191,7 @@ import UIKit
   var directionMode = LayoutDirectionMode.system
   var tint: UIColor?
   var font = GlassFontSpec()
+  var icons = GlassIcons()
 
   /// Home's picker: the choice whose colour is the tint (in light or dark mode), else None.
   var tintChoice: GlassTintChoice {
@@ -284,7 +306,7 @@ struct LiquidGlassScreenRoot: View {
           component.screen
             .toolbar {
               ToolbarItem(placement: .topBarLeading) {
-                Button(action: { host?.onBack?() }) { Image(systemName: "chevron.backward") }
+                Button(action: { host?.onBack?() }) { GlassImage("chevron.backward", uiKit: true) }
                   .accessibilityLabel("Back")
               }
             }
@@ -294,6 +316,7 @@ struct LiquidGlassScreenRoot: View {
     // Texts without a font of their own (body), and every `.glassFont` below.
     .font(model.font.font(.body))
     .environment(\.glassFont, model.font)
+    .environment(\.glassIcons, model.icons)
     .environment(\.glassTint, model.glassTint)
     .preferredColorScheme(model.appearance.colorScheme)
     .environment(\.layoutDirection, model.directionMode.layoutDirection ?? systemLayoutDirection)

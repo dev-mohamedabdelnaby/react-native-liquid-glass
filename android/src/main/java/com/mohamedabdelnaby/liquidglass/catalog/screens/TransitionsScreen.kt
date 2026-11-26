@@ -1,5 +1,7 @@
 package com.mohamedabdelnaby.liquidglass.catalog.screens
 
+import androidx.compose.ui.graphics.painter.Painter
+import com.mohamedabdelnaby.liquidglass.glassIcon
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.EnterTransition
@@ -54,7 +56,7 @@ private enum class TransitionKind(val title: String, val transition: GlassTransi
     Identity("Identity", GlassTransition.Identity, "No glass animation: badges appear and disappear instantly."),
 }
 
-private val Badges = listOf(Icons.Filled.Star to "Star", Icons.Filled.Favorite to "Heart", Icons.Filled.Bolt to "Bolt")
+private val Badges = listOf(Triple("star.fill", Icons.Filled.Star, "Star"), Triple("heart.fill", Icons.Filled.Favorite, "Heart"), Triple("bolt.fill", Icons.Filled.Bolt, "Bolt"))
 
 @Composable
 fun TransitionsScreen() {
@@ -81,9 +83,9 @@ fun TransitionsScreen() {
                         modifier = Modifier.fillMaxWidth(),
                         content = {
                             Box(Modifier.size(72.dp).glassEffect(Glass.Regular, GlassCircle), contentAlignment = Alignment.Center) {
-                                Icon(Icons.Filled.Person, "Avatar", Modifier.size(32.dp))
+                                Icon(glassIcon("person.fill", Icons.Filled.Person), "Avatar", Modifier.size(32.dp))
                             }
-                            Badges.forEach { (icon, name) -> Badge(icon, name, showing, kind, accent) }
+                            Badges.forEach { (symbol, icon, name) -> Badge(glassIcon(symbol, icon), name, showing, kind, accent) }
                         },
                     ) { measurables, constraints ->
                         val items = measurables.map { it.measure(constraints.copy(minWidth = 0, minHeight = 0)) }
@@ -120,7 +122,7 @@ fun TransitionsScreen() {
 
 /** A badge kept while it hides, its symbol fading on its glass as it flows back. */
 @Composable
-private fun Badge(icon: ImageVector, name: String, showing: Boolean, kind: TransitionKind, accent: Color) {
+private fun Badge(icon: Painter, name: String, showing: Boolean, kind: TransitionKind, accent: Color) {
     AnimatedVisibility(
         showing,
         enter = EnterTransition.None,

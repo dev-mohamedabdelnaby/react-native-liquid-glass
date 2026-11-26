@@ -42,13 +42,13 @@ struct GlassUnionScreen: View {
                         Menu {
                             menuContent(for: forecast)
                         } label: {
-                            Image(systemName: forecast.symbol)
+                            GlassImage(forecast.symbol)
                                 .symbolRenderingMode(.multicolor)
                                 .font(.system(size: 30))
                                 .frame(width: 64, height: 64)
                                 .overlay(alignment: .topTrailing) {
                                     if alerts.contains(forecast.id) {
-                                        Image(systemName: "bell.fill")
+                                        GlassImage("bell.fill")
                                             .font(.caption2)
                                             .foregroundStyle(.orange)
                                             .padding(6)
@@ -64,7 +64,7 @@ struct GlassUnionScreen: View {
 
             if let selected {
                 VStack(spacing: 8) {
-                    Image(systemName: selected.symbol)
+                    GlassImage(selected.symbol)
                         .symbolRenderingMode(.multicolor)
                         .font(.system(size: 44))
                     Text(selected.name)
@@ -89,13 +89,14 @@ struct GlassUnionScreen: View {
     @ViewBuilder
     private func menuContent(for forecast: Forecast) -> some View {
         Section("\(forecast.name) · \(forecast.detail)") {
-            Button("Show Details", systemImage: "info.circle") {
+            Button("Show Details", glassImage: "info.circle", uiKit: true) {
                 withAnimation(.smooth) { selected = forecast }
             }
 
             Button(
                 alerts.contains(forecast.id) ? "Remove Alert" : "Set Alert",
-                systemImage: alerts.contains(forecast.id) ? "bell.slash" : "bell"
+                glassImage: alerts.contains(forecast.id) ? "bell.slash" : "bell",
+                uiKit: true
             ) {
                 withAnimation {
                     if alerts.contains(forecast.id) {
@@ -106,11 +107,13 @@ struct GlassUnionScreen: View {
                 }
             }
 
-            ShareLink(item: "\(forecast.name): \(forecast.detail)")
+            ShareLink(item: "\(forecast.name): \(forecast.detail)") {
+                Label("Share", glassImage: "square.and.arrow.up", uiKit: true)
+            }
         }
 
         if selected == forecast {
-            Button("Hide Details", systemImage: "xmark", role: .destructive) {
+            Button("Hide Details", glassImage: "xmark", uiKit: true, role: .destructive) {
                 withAnimation(.smooth) { selected = nil }
             }
         }

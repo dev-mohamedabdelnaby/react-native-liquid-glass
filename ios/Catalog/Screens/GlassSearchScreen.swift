@@ -42,7 +42,7 @@ struct GlassSearchScreen: View {
         .searchToolbarBehavior(isMinimized ? .minimize : .automatic)
         .toolbar {
             ToolbarItem(placement: .bottomBar) {
-                Button("Filter", systemImage: "line.3.horizontal.decrease") {}
+                Button("Filter", glassImage: "line.3.horizontal.decrease", uiKit: true) {}
             }
 
             ToolbarSpacer(.flexible, placement: .bottomBar)
@@ -53,7 +53,7 @@ struct GlassSearchScreen: View {
             ToolbarSpacer(.flexible, placement: .bottomBar)
 
             ToolbarItem(placement: .bottomBar) {
-                Button("Add", systemImage: "plus") {}
+                Button("Add", glassImage: "plus", uiKit: true) {}
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.mohamedabdelnaby.liquidglass.catalog.screens
 
+import com.mohamedabdelnaby.liquidglass.glassIcon
 import com.mohamedabdelnaby.liquidglass.catalog.glass.platformCopy
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -80,14 +81,14 @@ fun AlertsScreen() {
         ) {
             Text("Last action: $lastAction", style = MaterialTheme.typography.titleMedium)
             GlassProminentButton({ alert = true }) {
-                Icon(Icons.Filled.Warning, null)
+                Icon(glassIcon("exclamationmark.triangle", Icons.Filled.Warning), null)
                 Text("Show Alert")
             }
             // On iOS 26 the confirmation dialog is a glass popover anchored to its button.
             Box {
                 // .glass with .tint(.red): red label on plain glass.
                 GlassButton({ dialog = true }, contentColor = MaterialTheme.colorScheme.error) {
-                    Icon(Icons.Filled.Delete, null)
+                    Icon(glassIcon("trash", Icons.Filled.Delete), null)
                     Text("Show Confirmation Dialog")
                 }
                 // iOS 27: a popover above the button, its actions as pills; tapping outside cancels.
@@ -110,7 +111,7 @@ fun AlertsScreen() {
                 Box(
                     Modifier.requiredSize(200.dp).background(MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp)),
                     contentAlignment = Alignment.Center,
-                ) { Icon(Icons.Outlined.Wallpaper, null, Modifier.size(120.dp)) }
+                ) { Icon(glassIcon("photo.artframe", Icons.Outlined.Wallpaper), null, Modifier.size(120.dp)) }
             }, anchor = { open ->
                 // As iOS's context menu: the tile shrinks a little while held, then pops into the preview.
                 val hold = remember { MutableInteractionSource() }
@@ -134,12 +135,12 @@ fun AlertsScreen() {
                             onClick = {},
                         ),
                     contentAlignment = Alignment.Center,
-                ) { Icon(Icons.Outlined.Wallpaper, null, Modifier.size(60.dp)) }
+                ) { Icon(glassIcon("photo.artframe", Icons.Outlined.Wallpaper), null, Modifier.size(60.dp)) }
             }) { dismiss ->
-                GlassMenuItem("Copy", { lastAction = "Copied"; dismiss() }, icon = Icons.Filled.ContentCopy)
-                GlassMenuItem("Share", { lastAction = "Shared"; dismiss() }, icon = Icons.Outlined.Share)
+                GlassMenuItem("Copy", { lastAction = "Copied"; dismiss() }, icon = glassIcon("doc.on.doc", Icons.Filled.ContentCopy))
+                GlassMenuItem("Share", { lastAction = "Shared"; dismiss() }, icon = glassIcon("square.and.arrow.up", Icons.Outlined.Share))
                 GlassMenuDivider()
-                GlassMenuItem("Delete", { lastAction = "Deleted"; dismiss() }, icon = Icons.Filled.Delete, destructive = true)
+                GlassMenuItem("Delete", { lastAction = "Deleted"; dismiss() }, icon = glassIcon("trash", Icons.Filled.Delete), destructive = true)
             }
             Footnote("Long-press the artwork for a context menu")
         }

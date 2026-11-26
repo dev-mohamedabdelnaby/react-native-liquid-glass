@@ -1,5 +1,6 @@
 package com.mohamedabdelnaby.liquidglass.catalog.glass
 
+import androidx.compose.ui.graphics.painter.Painter
 import android.os.Build
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.spring
@@ -98,7 +99,7 @@ fun Modifier.revealContent(reveal: Reveal) = graphicsLayer {
 @Composable
 fun RevealPill(
     title: String,
-    icon: ImageVector,
+    icon: Painter,
     glass: Glass,
     reveal: Reveal,
     below: Int,

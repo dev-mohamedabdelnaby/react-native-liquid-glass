@@ -1,5 +1,6 @@
 package com.mohamedabdelnaby.liquidglass.catalog.glass
 
+import com.mohamedabdelnaby.liquidglass.glassIcon
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.Crossfade
@@ -256,7 +257,7 @@ fun GlassTopBar(
         ) {
             if (showBack) {
                 GlassIconButton(
-                    icon = if (closeButton) Icons.Rounded.Close else Icons.AutoMirrored.Rounded.ArrowBackIos,
+                    icon = if (closeButton) glassIcon("xmark", Icons.Rounded.Close) else glassIcon("chevron.backward", Icons.AutoMirrored.Rounded.ArrowBackIos),
                     contentDescription = if (closeButton) "Close" else "Back",
                     onClick = LocalOnBack.current,
                     modifier = Modifier.align(Alignment.CenterStart),

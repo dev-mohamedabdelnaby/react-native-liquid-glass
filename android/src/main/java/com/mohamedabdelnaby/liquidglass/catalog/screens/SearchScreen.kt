@@ -1,5 +1,6 @@
 package com.mohamedabdelnaby.liquidglass.catalog.screens
 
+import com.mohamedabdelnaby.liquidglass.glassIcon
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.WindowInsets
@@ -62,10 +63,10 @@ fun SearchScreen() {
     val fruits = remember { mutableStateListOf(*Fruits.toTypedArray()) }
     val results = fruits.filter { it.matchesSearch(query) }.let { if (reversed) it.reversed() else it }
     val sort = @Composable {
-        GlassIconButton(Icons.AutoMirrored.Filled.Sort, if (reversed) "Sort A to Z" else "Sort Z to A", { reversed = !reversed }, size = 52.dp)
+        GlassIconButton(glassIcon("line.3.horizontal.decrease", Icons.AutoMirrored.Filled.Sort), if (reversed) "Sort A to Z" else "Sort Z to A", { reversed = !reversed }, size = 52.dp)
     }
     val add = @Composable {
-        GlassIconButton(Icons.Filled.Add, "Add fruit", {
+        GlassIconButton(glassIcon("plus", Icons.Filled.Add), "Add fruit", {
             MoreFruits.firstOrNull { it !in fruits }?.let { fruits.add(it) }
         }, size = 52.dp)
     }

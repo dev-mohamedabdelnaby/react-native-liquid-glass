@@ -94,7 +94,7 @@ private struct MapControls: View {
                                    startPoint: .topLeading, endPoint: .bottomTrailing)
                 )
                 .overlay {
-                    Image(systemName: "map.fill")
+                    GlassImage("map.fill")
                         .font(.system(size: 80))
                         .foregroundStyle(.white.opacity(0.4))
                 }
@@ -112,7 +112,7 @@ private struct MapControls: View {
             .padding(12)
 
             GlassEffectContainer {
-                Button("Look Around", systemImage: "binoculars.fill") {}
+                Button("Look Around", glassImage: "binoculars.fill") {}
                     .labelStyle(.iconOnly)
                     .font(.title3)
                     .frame(width: 48, height: 48)
@@ -126,7 +126,7 @@ private struct MapControls: View {
 
     private func controlButton(_ symbol: String, id: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Image(systemName: symbol)
+            GlassImage(symbol)
                 .font(.title3)
                 .contentTransition(.symbolEffect(.replace))
                 .frame(width: 48, height: 48)
@@ -151,7 +151,7 @@ private struct MiniPlayer: View {
                     RoundedRectangle(cornerRadius: 10)
                         .fill(LinearGradient(colors: [.pink, .orange], startPoint: .top, endPoint: .bottom))
                         .frame(width: 44, height: 44)
-                        .overlay { Image(systemName: "music.note").foregroundStyle(.white) }
+                        .overlay { GlassImage("music.note").foregroundStyle(.white) }
 
                     VStack(alignment: .leading) {
                         Text("Glass Animals")
@@ -163,7 +163,7 @@ private struct MiniPlayer: View {
 
                     Spacer()
 
-                    Button(isPlaying ? "Pause" : "Play", systemImage: isPlaying ? "pause.fill" : "play.fill") {
+                    Button(isPlaying ? "Pause" : "Play", glassImage: isPlaying ? "pause.fill" : "play.fill") {
                         isPlaying.toggle()
                     }
                     .labelStyle(.iconOnly)
@@ -183,9 +183,9 @@ private struct MiniPlayer: View {
                     VStack(spacing: 12) {
                         Slider(value: $progress)
                         HStack(spacing: 40) {
-                            Button("Back", systemImage: "backward.fill") {}
-                            Button("Shuffle", systemImage: "shuffle") {}
-                            Button("Forward", systemImage: "forward.fill") {}
+                            Button("Back", glassImage: "backward.fill") {}
+                            Button("Shuffle", glassImage: "shuffle") {}
+                            Button("Forward", glassImage: "forward.fill") {}
                         }
                         .labelStyle(.iconOnly)
                         .font(.title3)
@@ -216,7 +216,7 @@ private struct FloatingActionMenu: View {
             VStack(alignment: .trailing, spacing: 12) {
                 if isOpen {
                     ForEach(actions, id: \.title) { action in
-                        Label(action.title, systemImage: action.symbol)
+                        Label(action.title, glassImage: action.symbol)
                             .glassFont(.headline)
                             .padding(.horizontal, 18)
                             .padding(.vertical, 12)
@@ -231,7 +231,7 @@ private struct FloatingActionMenu: View {
                 Button {
                     withAnimation(.bouncy) { isOpen.toggle() }
                 } label: {
-                    Image(systemName: "plus")
+                    GlassImage("plus")
                         .font(.title2.bold())
                         .rotationEffect(.degrees(isOpen ? 45 : 0))
                         .frame(width: 60, height: 60)

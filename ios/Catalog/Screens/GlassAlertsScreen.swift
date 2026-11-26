@@ -16,12 +16,12 @@ struct GlassAlertsScreen: View {
             Text("Last action: \(lastAction)")
                 .glassFont(.headline)
 
-            Button("Show Alert", systemImage: "exclamationmark.triangle") {
+            Button("Show Alert", glassImage: "exclamationmark.triangle") {
                 isAlertPresented = true
             }
             .buttonStyle(.glassProminent)
 
-            Button("Show Confirmation Dialog", systemImage: "trash") {
+            Button("Show Confirmation Dialog", glassImage: "trash") {
                 isDialogPresented = true
             }
             .buttonStyle(.glass)
@@ -33,17 +33,17 @@ struct GlassAlertsScreen: View {
                 Button("Cancel", role: .cancel) { lastAction = "Cancelled" }
             }
 
-            Image(systemName: "photo.artframe")
+            GlassImage("photo.artframe")
                 .font(.system(size: 60))
                 .frame(width: 160, height: 160)
                 .appGlassEffect(.regular.interactive(), in: .rect(cornerRadius: 32))
                 .contextMenu {
-                    Button("Copy", systemImage: "doc.on.doc") { lastAction = "Copied" }
-                    Button("Share", systemImage: "square.and.arrow.up") { lastAction = "Shared" }
+                    Button("Copy", glassImage: "doc.on.doc", uiKit: true) { lastAction = "Copied" }
+                    Button("Share", glassImage: "square.and.arrow.up", uiKit: true) { lastAction = "Shared" }
                     Divider()
-                    Button("Delete", systemImage: "trash", role: .destructive) { lastAction = "Deleted" }
+                    Button("Delete", glassImage: "trash", uiKit: true, role: .destructive) { lastAction = "Deleted" }
                 } preview: {
-                    Image(systemName: "photo.artframe")
+                    GlassImage("photo.artframe")
                         .font(.system(size: 120))
                         .padding(40)
                 }

@@ -26,6 +26,9 @@ Pod::Spec.new do |s|
     "SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY" => "YES",
   }
 
+  # Draws the `icons` prop's SVG icons.
+  s.dependency "SwiftDraw", "0.30.0"
+
   install_modules_dependencies(s)
 
   s.test_spec "Tests" do |t|

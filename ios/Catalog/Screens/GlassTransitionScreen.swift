@@ -43,7 +43,7 @@ struct GlassTransitionScreen: View {
 
             GlassEffectContainer(spacing: 24) {
                 HStack(spacing: 24) {
-                    Image(systemName: "person.fill")
+                    GlassImage("person.fill")
                         .font(.title)
                         .frame(width: 72, height: 72)
                         .appGlassEffect()
@@ -51,7 +51,7 @@ struct GlassTransitionScreen: View {
 
                     if isShowingBadges {
                         ForEach(badges, id: \.self) { badge in
-                            Image(systemName: badge)
+                            GlassImage(badge)
                                 .font(.title2)
                                 .frame(width: 56, height: 56)
                                 .glassEffect(.regular.tint(.accentColor.opacity(0.4)))

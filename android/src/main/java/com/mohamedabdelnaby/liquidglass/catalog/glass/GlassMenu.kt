@@ -1,5 +1,6 @@
 package com.mohamedabdelnaby.liquidglass.catalog.glass
 
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.util.lerp
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.ui.layout.onSizeChanged
@@ -191,7 +192,7 @@ private fun ContextPreview(anchor: Rect, progress: Float, onPreviewSize: (IntSiz
 fun GlassMenuItem(
     text: String,
     onClick: () -> Unit,
-    icon: ImageVector? = null,
+    icon: Painter? = null,
     destructive: Boolean = false,
     checked: Boolean = false,
 ) = if (isMaterial) MaterialMenuItem(text, onClick, icon, destructive, checked) else LiquidMenuRow(text, onClick, icon, destructive, checked)

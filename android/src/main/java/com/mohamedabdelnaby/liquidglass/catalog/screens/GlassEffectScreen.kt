@@ -1,5 +1,6 @@
 package com.mohamedabdelnaby.liquidglass.catalog.screens
 
+import com.mohamedabdelnaby.liquidglass.glassIcon
 import android.content.ClipData
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
@@ -103,8 +104,8 @@ fun GlassEffectScreen() {
                     },
                 ) { dismiss ->
                     GlassMenuHeader("Variant")
-                    GlassMenuItem("Regular", { greetingClear = false; dismiss() }, icon = Icons.Filled.WaterDrop, checked = !greetingClear)
-                    GlassMenuItem("Clear", { greetingClear = true; dismiss() }, icon = Icons.Outlined.WaterDrop, checked = greetingClear)
+                    GlassMenuItem("Regular", { greetingClear = false; dismiss() }, icon = glassIcon("drop.fill", Icons.Filled.WaterDrop), checked = !greetingClear)
+                    GlassMenuItem("Clear", { greetingClear = true; dismiss() }, icon = glassIcon("drop", Icons.Outlined.WaterDrop), checked = greetingClear)
                     GlassMenuDivider()
                     GlassMenuHeader("Greeting")
                     Greetings.forEach { text -> GlassMenuItem(text, { greeting = text; dismiss() }) }
@@ -112,7 +113,7 @@ fun GlassEffectScreen() {
                     GlassMenuItem("Copy Text", {
                         scope.launch { clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("Greeting", greeting))) }
                         dismiss()
-                    }, icon = Icons.Filled.ContentCopy)
+                    }, icon = glassIcon("doc.on.doc", Icons.Filled.ContentCopy))
                 }
             }
 
@@ -130,12 +131,12 @@ fun GlassEffectScreen() {
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Icon(Icons.Outlined.WaterDrop, null, Modifier.size(20.dp))
+                            Icon(glassIcon("drop", Icons.Outlined.WaterDrop), null, Modifier.size(20.dp))
                             Text("Clear glass", style = MaterialTheme.typography.titleLarge)
                         }
                     },
                 ) { dismiss ->
-                    GlassMenuItem("Dimming Layer", { clearDimmed = !clearDimmed; dismiss() }, icon = Icons.Outlined.Tonality, checked = clearDimmed)
+                    GlassMenuItem("Dimming Layer", { clearDimmed = !clearDimmed; dismiss() }, icon = glassIcon("circle.lefthalf.filled", Icons.Outlined.Tonality), checked = clearDimmed)
                 }
             }
 
@@ -164,7 +165,7 @@ fun GlassEffectScreen() {
                                     label = "star",
                                 ) { filled ->
                                     Icon(
-                                        if (filled) Icons.Filled.Star else Icons.Outlined.StarBorder,
+                                        if (filled) glassIcon("star.fill", Icons.Filled.Star) else glassIcon("star", Icons.Outlined.StarBorder),
                                         contentDescription = if (filled) "Favorite" else "Not favorite",
                                         modifier = Modifier.size(28.dp),
                                     )
@@ -175,7 +176,7 @@ fun GlassEffectScreen() {
                         GlassMenuItem(
                             if (starFilled) "Unfavorite" else "Favorite",
                             { starFilled = !starFilled; dismiss() },
-                            icon = if (starFilled) Icons.Outlined.StarOutline else Icons.Filled.Star,
+                            icon = if (starFilled) glassIcon("star.slash", Icons.Outlined.StarOutline) else glassIcon("star", Icons.Filled.Star),
                         )
                     }
 
@@ -209,7 +210,7 @@ fun GlassEffectScreen() {
                             )
                         },
                     ) { dismiss ->
-                        GlassMenuItem("Tint", { rectTinted = !rectTinted; dismiss() }, icon = Icons.Outlined.Palette, checked = rectTinted)
+                        GlassMenuItem("Tint", { rectTinted = !rectTinted; dismiss() }, icon = glassIcon("paintpalette", Icons.Outlined.Palette), checked = rectTinted)
                     }
                 }
             }
@@ -234,7 +235,7 @@ private fun TintedChip(name: String, tint: Color?, onTint: (Color?) -> Unit) {
         GlassMenuHeader("Tint")
         Palette.forEach { (label, color) -> GlassMenuItem(label, { onTint(color); dismiss() }) }
         GlassMenuDivider()
-        GlassMenuItem("Remove Tint", { onTint(null); dismiss() }, icon = Icons.Outlined.Cancel)
+        GlassMenuItem("Remove Tint", { onTint(null); dismiss() }, icon = glassIcon("xmark.circle", Icons.Outlined.Cancel))
     }
 }
 

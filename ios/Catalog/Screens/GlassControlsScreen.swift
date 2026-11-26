@@ -22,9 +22,9 @@ struct GlassControlsScreen: View {
                 Slider(value: $volume) {
                     Text("Volume")
                 } minimumValueLabel: {
-                    Image(systemName: "speaker")
+                    GlassImage("speaker")
                 } maximumValueLabel: {
-                    Image(systemName: "speaker.wave.3")
+                    GlassImage("speaker.wave.3")
                 }
             } header: {
                 Text("Slider").glassFontOnly(.headline)
@@ -110,7 +110,7 @@ private struct GlassStepper: View {
 
     var body: some View {
         HStack(spacing: 0) {
-            Button("Decrease", systemImage: "minus") {
+            Button("Decrease", glassImage: "minus") {
                 withAnimation { value = max(range.lowerBound, value - 1) }
             }
             .disabled(value <= range.lowerBound)
@@ -125,7 +125,7 @@ private struct GlassStepper: View {
                         }
                     }
                 }
-                Button("Reset", systemImage: "arrow.counterclockwise", role: .destructive) {
+                Button("Reset", glassImage: "arrow.counterclockwise", uiKit: true, role: .destructive) {
                     withAnimation { value = range.lowerBound }
                 }
             } label: {
@@ -137,7 +137,7 @@ private struct GlassStepper: View {
 
             Divider().frame(height: 20)
 
-            Button("Increase", systemImage: "plus") {
+            Button("Increase", glassImage: "plus") {
                 withAnimation { value = min(range.upperBound, value + 1) }
             }
             .disabled(value >= range.upperBound)

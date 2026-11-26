@@ -1,5 +1,6 @@
 package com.mohamedabdelnaby.liquidglass.catalog.screens
 
+import com.mohamedabdelnaby.liquidglass.glassIcon
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -45,7 +46,7 @@ fun ButtonsScreen() {
             GlassButton({ lastAction = "Clear" }, glass = Glass.Clear) { Text("Clear Glass") }
             GlassProminentButton({ lastAction = "Tinted" }, tint = SystemColors.Orange) { Text("Tinted Prominent") }
             GlassButton({ lastAction = "Large" }, size = GlassControlSize.Large) {
-                Icon(Icons.Filled.Bolt, null)
+                Icon(glassIcon("bolt.fill", Icons.Filled.Bolt), null)
                 Text("Large")
             }
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -55,7 +56,7 @@ fun ButtonsScreen() {
                     Triple(Icons.Filled.Pause, "Pause", "pause.fill"),
                     Triple(Icons.Filled.FastForward, "Forward", "forward.fill"),
                 ).forEach { (icon, name, symbol) ->
-                    GlassIconButton(icon, name, { lastAction = symbol }, size = 46.dp)
+                    GlassIconButton(glassIcon(symbol, icon), name, { lastAction = symbol }, size = 46.dp)
                 }
             }
             GlassButton({}, enabled = false) { Text("Disabled") }

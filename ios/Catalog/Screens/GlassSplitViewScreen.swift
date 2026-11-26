@@ -17,7 +17,7 @@ struct GlassSplitViewScreen: View {
                 .padding()
                 .appGlassEffect(in: .rect(cornerRadius: 24))
 
-            Button("Open Split View", systemImage: "sidebar.leading") {
+            Button("Open Split View", glassImage: "sidebar.leading") {
                 isPresented = true
             }
             .buttonStyle(.glassProminent)
@@ -50,12 +50,12 @@ private struct SplitViewDemo: View {
     var body: some View {
         NavigationSplitView {
             List(places, id: \.self, selection: $selection) { place in
-                Label(place, systemImage: symbol(for: place))
+                Label(place, glassImage: symbol(for: place))
             }
             .navigationTitle("Places")
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Close", systemImage: "xmark") { dismiss() }
+                    Button("Close", glassImage: "xmark", uiKit: true) { dismiss() }
                 }
             }
         } detail: {
@@ -72,7 +72,7 @@ private struct SplitViewDemo: View {
             .ignoresSafeArea(edges: .top)
             .toolbar {
                 ToolbarItem {
-                    Button("Inspector", systemImage: "info") {
+                    Button("Inspector", glassImage: "info", uiKit: true) {
                         isInspectorPresented.toggle()
                     }
                 }
@@ -94,7 +94,7 @@ private struct SplitViewDemo: View {
             endPoint: .trailing
         )
         .overlay {
-            Image(systemName: symbol(for: selection ?? ""))
+            GlassImage(symbol(for: selection ?? ""))
                 .font(.system(size: 80))
                 .foregroundStyle(.white)
         }

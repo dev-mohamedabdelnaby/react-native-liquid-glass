@@ -17,12 +17,12 @@ struct GlassContainerScreen: View {
 
             GlassEffectContainer(spacing: containerSpacing) {
                 HStack(spacing: 40) {
-                    Image(systemName: "scribble.variable")
+                    GlassImage("scribble.variable")
                         .frame(width: 80, height: 80)
                         .font(.system(size: 36))
                         .appGlassEffect()
 
-                    Image(systemName: "eraser.fill")
+                    GlassImage("eraser.fill")
                         .frame(width: 80, height: 80)
                         .font(.system(size: 36))
                         .appGlassEffect()

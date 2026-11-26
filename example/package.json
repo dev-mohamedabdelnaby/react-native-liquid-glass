@@ -27,7 +27,8 @@
     "@react-native/babel-preset": "0.88.1",
     "@react-native/metro-config": "0.88.1",
     "react-native-builder-bob": "^0.44.1",
-    "react-native-monorepo-config": "^0.4.0"
+    "react-native-monorepo-config": "^0.4.0",
+    "react-native-vector-icons": "10.3.0"
   },
   "engines": {
     "node": ">= 22.11.0"

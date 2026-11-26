@@ -15,7 +15,7 @@ struct InteractiveGlassScreen: View {
                 .glassFont(.headline)
                 .foregroundStyle(.primary)
 
-            Image(systemName: "hand.tap.fill")
+            GlassImage("hand.tap.fill")
                 .font(.system(size: 44))
                 .frame(width: 120, height: 120)
                 .appGlassEffect(.regular.interactive(), in: .circle)

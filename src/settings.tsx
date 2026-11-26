@@ -23,6 +23,7 @@ export const DEFAULT_SETTINGS: Required<GlassSettings> = {
   tabBarLiquid: true,
   tabBarDrop: true,
   fontFamily: '',
+  icons: {},
 };
 
 const GlassSettingsContext = createContext(DEFAULT_SETTINGS);

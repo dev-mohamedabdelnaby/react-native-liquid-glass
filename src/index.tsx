@@ -4,4 +4,5 @@ export {
   DEFAULT_SETTINGS,
 } from './settings';
 export * from './screens';
-export type { GlassSettings } from './types';
+export { vectorIcon } from './icons';
+export type { GlassIcon, GlassSettings } from './types';

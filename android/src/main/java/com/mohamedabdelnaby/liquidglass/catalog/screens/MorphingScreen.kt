@@ -1,5 +1,6 @@
 package com.mohamedabdelnaby.liquidglass.catalog.screens
 
+import com.mohamedabdelnaby.liquidglass.glassIcon
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterExitState
@@ -47,10 +48,10 @@ import com.mohamedabdelnaby.liquidglass.catalog.glass.glassClickable
 import com.mohamedabdelnaby.liquidglass.catalog.glass.glassEffect
 
 private val Tools = listOf(
-    Icons.Filled.Edit to "Pencil",
-    Icons.Outlined.AutoFixNormal to "Eraser",
-    Icons.Filled.Brush to "Paintbrush",
-    Icons.Filled.Gesture to "Lasso",
+    Triple("pencil", Icons.Filled.Edit, "Pencil"),
+    Triple("eraser.fill", Icons.Outlined.AutoFixNormal, "Eraser"),
+    Triple("paintbrush.fill", Icons.Filled.Brush, "Paintbrush"),
+    Triple("lasso", Icons.Filled.Gesture, "Lasso"),
 )
 
 /** `.buttonStyle(.glass)` pads its 60 pt label by 8 pt a side: the toggle's glass is 76 pt on iOS. */
@@ -73,7 +74,7 @@ fun MorphingScreen() {
             Box(Modifier.offset { IntOffset(0, shift.roundToPx()) }.height(60.dp * 4 + ToggleSize + 16.dp * 4), contentAlignment = Alignment.BottomCenter) {
                 GlassEffectContainer(Modifier.fillMaxHeight(), spacing = 20.dp) {
                     Column(Modifier.fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.Bottom)) {
-                        Tools.forEach { (icon, name) ->
+                        Tools.forEach { (symbol, icon, name) ->
                             // Kept while its symbol fades out, so the symbol rides its glass back into
                             // the toggle instead of vanishing as the tool closes.
                             AnimatedVisibility(expanded, enter = EnterTransition.None, exit = fadeOut(tween(250))) {
@@ -83,7 +84,7 @@ fun MorphingScreen() {
                                         .glassEffect(Glass.Regular.interactive(), GlassCircle, present = transition.targetState == EnterExitState.Visible)
                                         .glassClickable(label = name) {},
                                     contentAlignment = Alignment.Center,
-                                ) { AppearAnimated { Icon(icon, name, Modifier.size(22.dp)) } }
+                                ) { AppearAnimated { Icon(glassIcon(symbol, icon), name, Modifier.size(22.dp)) } }
                             }
                         }
                         Box(
@@ -94,7 +95,7 @@ fun MorphingScreen() {
                             contentAlignment = Alignment.Center,
                         ) {
                             // The symbol changes inside the animation, so SwiftUI crossfades it.
-                            Crossfade(expanded, label = "toggle") { open -> Icon(if (open) Icons.Filled.Close else Icons.Filled.Add, null) }
+                            Crossfade(expanded, label = "toggle") { open -> Icon(if (open) glassIcon("xmark", Icons.Filled.Close) else glassIcon("plus", Icons.Filled.Add), null) }
                         }
                     }
                 }

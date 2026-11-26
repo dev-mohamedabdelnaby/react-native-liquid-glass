@@ -1,5 +1,6 @@
 package com.mohamedabdelnaby.liquidglass.catalog.glass
 
+import androidx.compose.ui.graphics.painter.Painter
 import android.provider.Settings
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
@@ -120,14 +121,13 @@ fun nativeIcon(icon: ImageVector): ImageVector = if (isMaterial) androidIcon(ico
 
 /** An icon button: plain in a bar, filled tonal on its own. */
 @Composable
-internal fun MaterialIconButton(icon: ImageVector, contentDescription: String, onClick: () -> Unit, modifier: Modifier, size: Dp, tint: Color?, enabled: Boolean) {
+internal fun MaterialIconButton(icon: Painter, contentDescription: String, onClick: () -> Unit, modifier: Modifier, size: Dp, tint: Color?, enabled: Boolean) {
     // A button's own tint; null takes the role's content color.
     val own = tint
-    val android = androidIcon(icon)
     if (LocalMaterialBar.current) {
-        IconButton(onClick, modifier, enabled) { Icon(android, contentDescription, tint = own ?: LocalContentColor.current) }
+        IconButton(onClick, modifier, enabled) { Icon(icon, contentDescription, tint = own ?: LocalContentColor.current) }
     } else {
-        FilledTonalIconButton(onClick, modifier.size(size), enabled) { Icon(android, contentDescription, tint = own ?: LocalContentColor.current) }
+        FilledTonalIconButton(onClick, modifier.size(size), enabled) { Icon(icon, contentDescription, tint = own ?: LocalContentColor.current) }
     }
 }
 

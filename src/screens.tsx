@@ -1,5 +1,6 @@
 import type { StyleProp, ViewStyle } from 'react-native';
 import LiquidGlassScreen from './LiquidGlassScreenNativeComponent';
+import { iconsJson } from './icons';
 import { useGlassSettings } from './settings';
 import type { GlassSettings } from './types';
 
@@ -36,6 +37,8 @@ export type GlassScreenProps = {
   androidControlShape?: GlassSettings['androidControlShape'];
   androidGlowIntensity?: number;
   fontFamily?: GlassSettings['fontFamily'];
+  // Merged over the provider's icons, key by key.
+  icons?: GlassSettings['icons'];
   onBack?: () => void;
   onOpen?: (screen: GlassScreenId) => void;
   onSettingsChange?: (settings: GlassSettings) => void;
@@ -64,6 +67,7 @@ function GlassScreen({
   androidControlShape,
   androidGlowIntensity,
   fontFamily,
+  icons,
   onBack,
   onOpen,
   onSettingsChange,
@@ -74,6 +78,7 @@ function GlassScreen({
     tint,
     refraction,
     fontFamily: providerFont,
+    icons: providerIcons,
     ...settings
   } = useGlassSettings();
   return (
@@ -85,6 +90,7 @@ function GlassScreen({
         androidGlowIntensity ?? settings.androidGlowIntensity
       }
       {...fontFaces(fontFamily ?? providerFont)}
+      icons={iconsJson({ ...providerIcons, ...icons })}
       screen={screen}
       tintColor={tint}
       refractionHeight={refraction.height}
@@ -104,8 +110,9 @@ function GlassScreen({
           tint: n.tint || null,
           dropColor: n.dropColor || null,
           refraction: { height, amount },
-          // Home has no font control, so the provider's font stays.
+          // Home has no font or icon control, so the provider's stay.
           fontFamily: providerFont,
+          icons: providerIcons,
         } as GlassSettings);
       }}
     />

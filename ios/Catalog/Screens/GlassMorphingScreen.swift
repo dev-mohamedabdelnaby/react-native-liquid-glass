@@ -20,7 +20,7 @@ struct GlassMorphingScreen: View {
                 VStack(spacing: 16) {
                     if isExpanded {
                         ForEach(tools, id: \.self) { tool in
-                            Image(systemName: tool)
+                            GlassImage(tool)
                                 .font(.title2)
                                 .frame(width: 60, height: 60)
                                 .appGlassEffect(.regular.interactive())
@@ -33,7 +33,7 @@ struct GlassMorphingScreen: View {
                             isExpanded.toggle()
                         }
                     } label: {
-                        Image(systemName: isExpanded ? "xmark" : "plus")
+                        GlassImage(isExpanded ? "xmark" : "plus")
                             .font(.title2)
                             .frame(width: 60, height: 60)
                     }

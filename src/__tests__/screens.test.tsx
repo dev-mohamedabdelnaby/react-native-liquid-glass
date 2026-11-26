@@ -1,8 +1,9 @@
 import { expect, jest, test } from '@jest/globals';
 import { fireEvent, render } from '@testing-library/react-native';
 import { useState } from 'react';
+import { Image } from 'react-native';
 import type { GlassSettings } from '../index';
-import { DEFAULT_SETTINGS, GlassSettingsProvider } from '../index';
+import { DEFAULT_SETTINGS, GlassSettingsProvider, vectorIcon } from '../index';
 import * as Screens from '../screens';
 import {
   GLASS_SCREENS,
@@ -14,8 +15,9 @@ import {
 const { refraction, ...rest } = DEFAULT_SETTINGS;
 const nativeDefaults = {
   ...rest,
-  // The event carries what Home can change: not the font.
+  // The event carries what Home can change: not the font or the icons.
   fontFamily: undefined,
+  icons: undefined,
   tint: '',
   dropColor: '',
   refractionHeight: refraction.height,
@@ -256,5 +258,105 @@ test('events reach the callbacks', async () => {
   );
   expect(onSettingsChange.mock.calls[0]?.[0]).not.toHaveProperty(
     'refractionHeight'
+  );
+});
+
+const Ionicons = {
+  getRawGlyphMap: () => ({ heart: 0xf443 }),
+  getFontFamily: () => 'Ionicons',
+};
+
+test('vectorIcon: a glyph from the set, undefined with a dev warning for an unknown name', () => {
+  expect(vectorIcon(Ionicons, 'heart')).toEqual({
+    glyph: '\uf443',
+    fontFamily: 'Ionicons',
+  });
+  const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+  expect(vectorIcon(Ionicons, 'nope')).toBeUndefined();
+  expect(warn).toHaveBeenCalledWith(expect.stringContaining('nope'));
+  warn.mockRestore();
+});
+
+const icons = (props: Record<string, any>) => JSON.parse(props.icons);
+
+test('icons: none by default; glyph and svg pass through, images become a uri', async () => {
+  const plain = await render(<GlassTextScreen testID="s" />);
+  expect(icons(plain.getByTestId('s').props)).toEqual({});
+  // Jest's asset transform gives `require` a stand-in source; the app's Image resolves it to a uri.
+  const png = require('./fixtures/share.png');
+  const resolve = jest
+    .spyOn(Image, 'resolveAssetSource')
+    .mockImplementation((source) =>
+      source === png
+        ? { uri: 'file:///assets/share.png', width: 4, height: 4, scale: 1 }
+        : (source as {
+            uri: string;
+            width: number;
+            height: number;
+            scale: number;
+          })
+    );
+  const r = await render(
+    <GlassSettingsProvider
+      value={{
+        icons: {
+          'heart': vectorIcon(Ionicons, 'heart'),
+          'magnifyingglass': { svg: '<svg/>' },
+          'square.and.arrow.up': png,
+          'plus': { uri: 'https://example.com/plus.png' },
+          'trash': undefined,
+        },
+      }}
+    >
+      <GlassTextScreen testID="s" />
+    </GlassSettingsProvider>
+  );
+  const sent = icons(r.getByTestId('s').props);
+  expect(sent).toEqual({
+    'heart': { glyph: '\uf443', fontFamily: 'Ionicons' },
+    'magnifyingglass': { svg: '<svg/>' },
+    'square.and.arrow.up': { uri: 'file:///assets/share.png' },
+    'plus': { uri: 'https://example.com/plus.png' },
+  });
+  resolve.mockRestore();
+});
+
+test("icons: a screen's own map merges over the provider's, key by key", async () => {
+  const all = Object.entries(Screens).filter(([name]) =>
+    /Screen$/.test(name)
+  ) as [string, typeof GlassTextScreen][];
+  for (const [name, Screen] of all) {
+    const r = await render(
+      <GlassSettingsProvider
+        value={{ icons: { heart: { svg: 'a' }, plus: { svg: 'b' } } }}
+      >
+        <Screen testID={name} />
+        <Screen testID="own" icons={{ plus: { svg: 'c' } }} />
+      </GlassSettingsProvider>
+    );
+    expect(icons(r.getByTestId(name).props)).toEqual({
+      heart: { svg: 'a' },
+      plus: { svg: 'b' },
+    });
+    expect(icons(r.getByTestId('own').props)).toEqual({
+      heart: { svg: 'a' },
+      plus: { svg: 'c' },
+    });
+  }
+});
+
+test('onSettingsChange from Home keeps the current icons', async () => {
+  const onSettingsChange = jest.fn();
+  const providerIcons = { heart: { svg: '<svg/>' } };
+  const r = await render(
+    <GlassSettingsProvider value={{ icons: providerIcons }}>
+      <GlassHomeScreen testID="h" onSettingsChange={onSettingsChange} />
+    </GlassSettingsProvider>
+  );
+  await fireEvent(r.getByTestId('h'), 'settingsChange', {
+    nativeEvent: { ...nativeDefaults, blur: 7 },
+  });
+  expect(onSettingsChange).toHaveBeenCalledWith(
+    expect.objectContaining({ blur: 7, icons: providerIcons })
   );
 });

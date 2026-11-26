@@ -200,7 +200,7 @@ struct ContentView: View {
                             Label {
                                 Text(choice.title)
                             } icon: {
-                                Image(systemName: choice.color == nil ? "circle.dashed" : "circle.fill")
+                                GlassImage(choice.color == nil ? "circle.dashed" : "circle.fill", uiKit: true)
                                     .foregroundStyle(choice.color ?? .secondary)
                             }
                             .tag(choice)
@@ -220,10 +220,10 @@ struct ContentView: View {
                                 Label {
                                     Text(component.title).foregroundStyle(Color.primary)
                                 } icon: {
-                                    Image(systemName: component.systemImage)
+                                    GlassImage(component.systemImage)
                                 }
                                 Spacer()
-                                Image(systemName: "chevron.forward")
+                                GlassImage("chevron.forward")
                                     .font(.body.weight(.semibold))
                                     .imageScale(.small)
                                     .foregroundStyle(Color(uiColor: .tertiaryLabel))

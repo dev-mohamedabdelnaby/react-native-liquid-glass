@@ -1,5 +1,6 @@
 package com.mohamedabdelnaby.liquidglass.catalog.screens
 
+import com.mohamedabdelnaby.liquidglass.glassIcon
 import com.mohamedabdelnaby.liquidglass.catalog.glass.platformCopy
 import com.mohamedabdelnaby.liquidglass.catalog.glass.platformTextStyle
 import androidx.compose.foundation.background
@@ -72,11 +73,11 @@ fun FloatingHeaderScreen() {
         topEdge = topEdge.edge,
         backdrop = { PlainBackdrop(it, SystemBackground) },
         actions = {
-            GlassIconButton(if (favorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder, if (favorite) "Unfavorite" else "Favorite", { favorite = !favorite })
+            GlassIconButton(if (favorite) glassIcon("heart.fill", Icons.Filled.Favorite) else glassIcon("heart", Icons.Outlined.FavoriteBorder), if (favorite) "Unfavorite" else "Favorite", { favorite = !favorite })
             Spacer(Modifier.width(8.dp))
             Row(Modifier.glassEffect(Glass.Regular.interactive())) {
-                BarIcon(Icons.Outlined.IosShare, "Share", { context.shareText("Floating Header") })
-                BarIcon(Icons.Filled.MoreHoriz, "More", {})
+                BarIcon(glassIcon("square.and.arrow.up", Icons.Outlined.IosShare), "Share", { context.shareText("Floating Header") })
+                BarIcon(glassIcon("ellipsis", Icons.Filled.MoreHoriz), "More", {})
             }
         },
     ) { padding ->
@@ -105,7 +106,7 @@ fun FloatingHeaderScreen() {
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     // .title2 symbol, .body text.
-                    Icon(Icons.Outlined.Image, null, Modifier.size(26.dp), tint = MaterialTheme.colorScheme.primary)
+                    Icon(glassIcon("photo", Icons.Outlined.Image), null, Modifier.size(26.dp), tint = MaterialTheme.colorScheme.primary)
                     Text("Row ${index + 1}", style = platformTextStyle(17.sp, MaterialTheme.typography.bodyLarge))
                 }
             }

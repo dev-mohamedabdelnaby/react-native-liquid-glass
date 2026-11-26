@@ -105,6 +105,10 @@ internal class LiquidGlassScreenManager :
 
   override fun setFontHeavy(view: LiquidGlassScreenView, value: String?) = faces(view) { copy(heavy = value.orEmpty()) }
 
+  override fun setIcons(view: LiquidGlassScreenView, value: String?) {
+    view.icons = glassIconsOf(value.orEmpty())
+  }
+
   private fun faces(view: LiquidGlassScreenView, change: FontFaces.() -> FontFaces) {
     view.faces = view.faces.change()
   }

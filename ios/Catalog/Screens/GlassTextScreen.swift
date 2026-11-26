@@ -66,7 +66,7 @@ struct GlassTextScreen: View {
 
                 section("Clear glass with dimming") {
                     // Clear glass needs a dimming layer underneath to keep text legible.
-                    Label("Readable over rich backgrounds", systemImage: "eye")
+                    Label("Readable over rich backgrounds", glassImage: "eye")
                         .glassFont(.headline)
                         .foregroundStyle(.white)
                         .padding()
@@ -89,7 +89,7 @@ struct GlassTextScreen: View {
                             .padding(.vertical, 14)
                             .appGlassEffect(.regular.interactive(), in: .rect(cornerRadius: 24))
 
-                        Button("Send", systemImage: "arrow.up") {
+                        Button("Send", glassImage: "arrow.up") {
                             message = ""
                         }
                         .labelStyle(.iconOnly)

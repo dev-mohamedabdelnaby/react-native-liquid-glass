@@ -1,5 +1,6 @@
 package com.mohamedabdelnaby.liquidglass.catalog.screens
 
+import com.mohamedabdelnaby.liquidglass.glassIcon
 import com.mohamedabdelnaby.liquidglass.catalog.glass.platformCopy
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
@@ -82,6 +83,14 @@ private val Places = listOf(
     "Desert" to Icons.Filled.WbSunny,
     "Forest" to Icons.Filled.Forest,
 )
+/** The SF Symbol iOS shows for a place (the `icons` key). */
+private fun placeSymbol(place: String) = when (place) {
+    "Mountains" -> "mountain.2.fill"
+    "Ocean" -> "water.waves"
+    "Desert" -> "sun.max.fill"
+    "Forest" -> "tree.fill"
+    else -> "map.fill"
+}
 private val HeaderColors = listOf(SystemColors.Orange, SystemColors.Pink, SystemColors.Purple, SystemColors.Indigo)
 private val SidebarWidth = 280.dp
 private val InspectorWidth = 300.dp
@@ -113,7 +122,7 @@ fun SplitViewScreen() {
                 textAlign = TextAlign.Center,
             )
             GlassProminentButton({ presented = true }, size = GlassControlSize.Large) {
-                Icon(Icons.AutoMirrored.Filled.ViewSidebar, null)
+                Icon(glassIcon("sidebar.leading", Icons.AutoMirrored.Filled.ViewSidebar), null)
                 Text("Open Split View")
             }
             Footnote("Best viewed on iPad or in landscape.")
@@ -152,7 +161,7 @@ private fun SplitViewDemo(onClose: () -> Unit) {
                     Sidebar(selection, { selection = it }, onClose, Modifier.width(SidebarWidth).fillMaxHeight())
                     Box(Modifier.weight(1f)) {
                         GlassIconButton(
-                            Icons.Filled.Info, if (inspector) "Hide inspector" else "Show inspector", { inspector = !inspector },
+                            glassIcon("info", Icons.Filled.Info), if (inspector) "Hide inspector" else "Show inspector", { inspector = !inspector },
                             Modifier.align(Alignment.TopEnd).padding(8.dp),
                         )
                     }
@@ -169,8 +178,8 @@ private fun SplitViewDemo(onClose: () -> Unit) {
                     Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing).padding(8.dp)) {
                         if (detail) {
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                GlassIconButton(Icons.AutoMirrored.Rounded.KeyboardArrowLeft, "Places", { phoneDetail = false })
-                                GlassIconButton(Icons.Filled.Info, if (inspector) "Hide inspector" else "Show inspector", { inspector = !inspector })
+                                GlassIconButton(glassIcon("chevron.backward", Icons.AutoMirrored.Rounded.KeyboardArrowLeft), "Places", { phoneDetail = false })
+                                GlassIconButton(glassIcon("info", Icons.Filled.Info), if (inspector) "Hide inspector" else "Show inspector", { inspector = !inspector })
                             }
                         } else {
                             Sidebar(selection, { selection = it; phoneDetail = true }, onClose, Modifier.fillMaxSize())
@@ -191,7 +200,7 @@ private fun SplitViewDemo(onClose: () -> Unit) {
 @Composable
 private fun Sidebar(selection: Pair<String, ImageVector>, onSelect: (Pair<String, ImageVector>) -> Unit, onClose: () -> Unit, modifier: Modifier) {
     Column(modifier.glassEffect(Glass.Regular, RoundedCornerShape(28.dp)).padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        GlassIconButton(Icons.Filled.Close, "Close", onClose)
+        GlassIconButton(glassIcon("xmark", Icons.Filled.Close), "Close", onClose)
         Text("Places", style = MaterialTheme.typography.headlineLarge)
         Places.forEach { place ->
             val selected = place == selection
@@ -201,7 +210,7 @@ private fun Sidebar(selection: Pair<String, ImageVector>, onSelect: (Pair<String
                     .selectable(selected, role = Role.Tab) { onSelect(place) },
                 divider = false,
             ) {
-                Icon(place.second, null, tint = MaterialTheme.colorScheme.primary)
+                Icon(glassIcon(placeSymbol(place.first), place.second), null, tint = MaterialTheme.colorScheme.primary)
                 Text(place.first)
             }
         }
@@ -220,7 +229,7 @@ private fun Inspector(extension: Boolean, onExtension: (Boolean) -> Unit, modifi
 private fun Detail(place: Pair<String, ImageVector>, modifier: Modifier = Modifier) {
     Column(modifier.fillMaxSize().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Box(Modifier.fillMaxWidth().height(HeaderHeight).background(Brush.horizontalGradient(HeaderColors)), contentAlignment = Alignment.Center) {
-            Icon(place.second, null, Modifier.size(80.dp), tint = Color.White)
+            Icon(glassIcon(placeSymbol(place.first), place.second), null, Modifier.size(80.dp), tint = Color.White)
         }
         Text(place.first, style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.Bold)
         Text(

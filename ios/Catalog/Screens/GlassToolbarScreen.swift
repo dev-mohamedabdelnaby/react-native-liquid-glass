@@ -33,7 +33,7 @@ struct GlassToolbarScreen: View {
 
             Section {
                 ForEach(1...40, id: \.self) { index in
-                    Label("Row \(index)", systemImage: "photo")
+                    Label("Row \(index)", glassImage: "photo")
                 }
             } header: {
                 Text("Rows").glassFontOnly(.headline)
@@ -42,7 +42,7 @@ struct GlassToolbarScreen: View {
         .navigationTitle("Toolbar")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button("Favorite", systemImage: isFavorite ? "heart.fill" : "heart") {
+                Button("Favorite", glassImage: isFavorite ? "heart.fill" : "heart", uiKit: true) {
                     isFavorite.toggle()
                     lastAction = isFavorite ? "Favorited" : "Unfavorited"
                 }
@@ -51,14 +51,16 @@ struct GlassToolbarScreen: View {
             ToolbarSpacer(.fixed, placement: .topBarTrailing)
 
             ToolbarItemGroup(placement: .topBarTrailing) {
-                ShareLink(item: URL(string: "https://developer.apple.com/documentation/swiftui/applying-liquid-glass-to-custom-views")!)
+                ShareLink(item: URL(string: "https://developer.apple.com/documentation/swiftui/applying-liquid-glass-to-custom-views")!) {
+                    Label("Share", glassImage: "square.and.arrow.up", uiKit: true)
+                }
 
-                Menu("More", systemImage: "ellipsis") {
-                    Toggle("Morph Compose Button", systemImage: "wand.and.stars", isOn: $isMorphEnabled)
-                    Toggle("Glass Behind Group", systemImage: "drop", isOn: $isGroupGlassVisible.animation())
+                Menu("More", glassImage: "ellipsis") {
+                    Toggle("Morph Compose Button", glassImage: "wand.and.stars", uiKit: true, isOn: $isMorphEnabled)
+                    Toggle("Glass Behind Group", glassImage: "drop", uiKit: true, isOn: $isGroupGlassVisible.animation())
                     Divider()
-                    Button("Select Rows", systemImage: "checkmark.circle") { lastAction = "Select rows" }
-                    Button("Sort", systemImage: "arrow.up.arrow.down") { lastAction = "Sort" }
+                    Button("Select Rows", glassImage: "checkmark.circle", uiKit: true) { lastAction = "Select rows" }
+                    Button("Sort", glassImage: "arrow.up.arrow.down", uiKit: true) { lastAction = "Sort" }
                 }
             }
             // Hiding the shared background removes the glass capsule behind Share and More.
@@ -66,8 +68,8 @@ struct GlassToolbarScreen: View {
 
             ToolbarItemGroup(placement: .bottomBar) {
                 // Backward/forward symbols flip automatically in right-to-left layouts.
-                Button("Back", systemImage: "chevron.backward") { lastAction = "Back" }
-                Button("Forward", systemImage: "chevron.forward") { lastAction = "Forward" }
+                Button("Back", glassImage: "chevron.backward", uiKit: true) { lastAction = "Back" }
+                Button("Forward", glassImage: "chevron.forward", uiKit: true) { lastAction = "Forward" }
             }
 
             ToolbarSpacer(.flexible, placement: .bottomBar)
@@ -90,7 +92,7 @@ struct GlassToolbarScreen: View {
                             lastAction = action.title
                             withAnimation(.bouncy) { isComposeExpanded = false }
                         } label: {
-                            Label(action.title, systemImage: action.symbol)
+                            Label(action.title, glassImage: action.symbol)
                                 .glassFont(.headline)
                                 .padding(.horizontal, 18)
                                 .padding(.vertical, 12)
@@ -105,7 +107,7 @@ struct GlassToolbarScreen: View {
                 Button {
                     withAnimation(.bouncy) { isComposeExpanded.toggle() }
                 } label: {
-                    Image(systemName: isComposeExpanded ? "xmark" : "square.and.pencil")
+                    GlassImage(isComposeExpanded ? "xmark" : "square.and.pencil")
                         .font(.title2.weight(.semibold))
                         .foregroundStyle(.white)
                         .contentTransition(.symbolEffect(.replace))

@@ -23,7 +23,9 @@ ext.ReactNativeLiquidGlass = [
   activityComposeVersion: "1.13.0",
   // What activity-compose 1.13.0 brings; the host routes the back key with it.
   navigationEventVersion: "1.0.0",
-  lifecycleVersion: "2.11.0"
+  lifecycleVersion: "2.11.0",
+  // Draws the `icons` prop's SVG icons.
+  androidSvgVersion: "1.4"
 ]
 
 ext.getExtOrDefault = { prop ->
@@ -78,5 +80,9 @@ dependencies {
   implementation "androidx.navigationevent:navigationevent-compose:${getExtOrDefault("navigationEventVersion")}"
   implementation "androidx.lifecycle:lifecycle-runtime-ktx:${getExtOrDefault("lifecycleVersion")}"
 
+  implementation "com.caverock:androidsvg-aar:${getExtOrDefault("androidSvgVersion")}"
+
   testImplementation "junit:junit:4.13.2"
+  // The real org.json: android.jar's is a stub in unit tests.
+  testImplementation "org.json:json:20250517"
 }

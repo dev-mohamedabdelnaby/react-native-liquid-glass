@@ -1,5 +1,7 @@
 package com.mohamedabdelnaby.liquidglass.catalog.screens
 
+import androidx.compose.ui.graphics.painter.Painter
+import com.mohamedabdelnaby.liquidglass.glassIcon
 import com.mohamedabdelnaby.liquidglass.catalog.glass.ListRow
 import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassListSection
 import com.mohamedabdelnaby.liquidglass.catalog.glass.platformTextStyle
@@ -134,21 +136,22 @@ import com.mohamedabdelnaby.liquidglass.catalog.liquid.LiquidTabBar
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.LiquidTabItem
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.TabBadge
 
-private enum class Tab(val title: String, val icon: ImageVector, val badge: Int = 0) {
-    Home("Home", Icons.Filled.Home),
+/** [symbol]: the SF Symbol iOS shows for the tab (the `icons` key). */
+private enum class Tab(val title: String, val symbol: String, val icon: ImageVector, val badge: Int = 0) {
+    Home("Home", "house", Icons.Filled.Home),
     // Unread count shown as a badge, matching a typical app layout.
-    Library("Library", Icons.AutoMirrored.Filled.LibraryBooks, badge = 3),
-    Profile("Profile", Icons.Filled.AccountCircle),
-    Search("Search", Icons.Filled.Search),
-    Settings("Settings", Icons.Filled.Settings),
+    Library("Library", "books.vertical", Icons.AutoMirrored.Filled.LibraryBooks, badge = 3),
+    Profile("Profile", "person.crop.circle", Icons.Filled.AccountCircle),
+    Search("Search", "magnifyingglass", Icons.Filled.Search),
+    Settings("Settings", "gearshape", Icons.Filled.Settings),
 }
 
 /** The tab bar layouts this screen can demo. */
-private enum class Variant(val title: String, val icon: ImageVector) {
-    NowPlaying("With Now Playing Bar", Icons.Filled.MusicNote),
-    SearchInBar("Search Inside Tabs", Icons.Outlined.ManageSearch),
-    SearchSeparated("Search Separated", Icons.Outlined.SavedSearch),
-    NoSearch("Tabs Without Search", Icons.Outlined.CallToAction),
+private enum class Variant(val title: String, val symbol: String, val icon: ImageVector) {
+    NowPlaying("With Now Playing Bar", "music.note", Icons.Filled.MusicNote),
+    SearchInBar("Search Inside Tabs", "rectangle.and.text.magnifyingglass", Icons.Outlined.ManageSearch),
+    SearchSeparated("Search Separated", "magnifyingglass.circle", Icons.Outlined.SavedSearch),
+    NoSearch("Tabs Without Search", "dock.rectangle", Icons.Outlined.CallToAction),
 }
 
 private val MainTabs = listOf(Tab.Home, Tab.Library, Tab.Profile)
@@ -204,7 +207,7 @@ fun TabBarScreen() {
                 )
                 val minimizeRow = @Composable {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Icon(Icons.Filled.CloseFullscreen, null)
+                        Icon(glassIcon("arrow.down.right.and.arrow.up.left", Icons.Filled.CloseFullscreen), null)
                         Box(Modifier.weight(1f)) { SwitchRow("Minimize on scroll", minimizeOnScroll) { minimizeOnScroll = it } }
                     }
                 }
@@ -249,7 +252,7 @@ fun TabBarScreen() {
                 }
                 Variant.entries.forEach { variant ->
                     GlassProminentButton({ shown = variant; presented = variant }, Modifier.fillMaxWidth(), size = GlassControlSize.Large) {
-                        Icon(variant.icon, null)
+                        Icon(glassIcon(variant.symbol, variant.icon), null)
                         Text(variant.title)
                     }
                 }
@@ -356,7 +359,7 @@ private fun SeparatedSearchDemo(minimizeOnScroll: Boolean, searchFullWidth: Bool
                 LiquidTabBar(
                     selectedIndex = if (searching) items.lastIndex else items.indexOf(tab),
                     onSelect = { i -> if (i == items.lastIndex) searching = true else { exitSearch(); tab = items[i] } },
-                    tabs = items.map { LiquidTabItem(it.title, it.icon, it.badge) },
+                    tabs = items.map { LiquidTabItem(it.title, glassIcon(it.symbol, it.icon), it.badge) },
                     modifier = Modifier.fillMaxWidth(),
                     color = LocalBarColor.current,
                 )
@@ -424,7 +427,7 @@ private fun SeparatedSearchDemo(minimizeOnScroll: Boolean, searchFullWidth: Bool
                                         },
                                 ) { TabsCapsule(tab) { tab = it } }
                                 if (q > 0f) Icon(
-                                    tab.icon, null,
+                                    glassIcon(tab.symbol, tab.icon), null,
                                     Modifier.align(Alignment.Center).size(24.dp).graphicsLayer {
                                         alpha = q * (1f - g)
                                         scaleX = lerp(0.6f, 1f, q)
@@ -453,7 +456,7 @@ private fun SeparatedSearchDemo(minimizeOnScroll: Boolean, searchFullWidth: Bool
                                     if (searchFullWidth) Text("Cancel", Modifier.glassClickable { exitSearch() }, color = BarContent, fontSize = 17.sp, fontWeight = FontWeight.Medium)
                                 }
                             } else {
-                                Icon(Icons.Filled.Search, null, Modifier.size(24.dp), tint = BarContent)
+                                Icon(glassIcon("magnifyingglass", Icons.Filled.Search), null, Modifier.size(24.dp), tint = BarContent)
                             }
                         }
                     }
@@ -512,7 +515,7 @@ private fun TabsCapsule(selected: Tab, onSelect: (Tab) -> Unit) {
                 verticalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterVertically),
             ) {
                 Box {
-                    Icon(t.icon, null, Modifier.size(22.dp), tint = tint)
+                    Icon(glassIcon(t.symbol, t.icon), null, Modifier.size(22.dp), tint = tint)
                     if (t.badge > 0) {
                         TabBadge(t.badge, SystemColors.Red, Modifier.align(Alignment.TopEnd).offset(x = 14.dp, y = (-6).dp))
                     }
@@ -595,13 +598,13 @@ private fun TabBar(
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(Icons.Filled.MusicNote, null, tint = BarContent)
+            Icon(glassIcon("music.note", Icons.Filled.MusicNote), null, tint = BarContent)
             Text("Now Playing", color = BarContent)
         }
         LiquidTabBar(
             selectedIndex = tabs.indexOf(selected),
             onSelect = { onSelect(tabs[it]) },
-            tabs = tabs.map { LiquidTabItem(it.title, it.icon, it.badge) },
+            tabs = tabs.map { LiquidTabItem(it.title, glassIcon(it.symbol, it.icon), it.badge) },
             modifier = Modifier.fillMaxWidth(),
             color = LocalBarColor.current,
         )
@@ -627,7 +630,7 @@ private fun TabBar(
                     selectedIndex = tabs.indexOf(selected),
                     color = LocalBarColor.current,
                     onSelect = { onSelect(tabs[it]) },
-                    tabs = tabs.map { LiquidTabItem(it.title, it.icon, it.badge) },
+                    tabs = tabs.map { LiquidTabItem(it.title, glassIcon(it.symbol, it.icon), it.badge) },
                     modifier = Modifier
                         .align(Alignment.BottomStart)
                         .fillMaxWidth()
@@ -641,8 +644,8 @@ private fun TabBar(
                 )
             }
             if (p > 0f) {
-                MiniTab(selected.icon, selected.title, BarAccent, p, Modifier.align(Alignment.BottomStart)) { onSelect(selected) }
-                if (searchRole) MiniTab(Tab.Search.icon, Tab.Search.title, BarContent, p, Modifier.align(Alignment.BottomEnd)) { onSelect(Tab.Search) }
+                MiniTab(glassIcon(selected.symbol, selected.icon), selected.title, BarAccent, p, Modifier.align(Alignment.BottomStart)) { onSelect(selected) }
+                if (searchRole) MiniTab(glassIcon(Tab.Search.symbol, Tab.Search.icon), Tab.Search.title, BarContent, p, Modifier.align(Alignment.BottomEnd)) { onSelect(Tab.Search) }
             }
             // tabViewBottomAccessory: above the bar, then inline between the two circles.
             if (accessory) Row(
@@ -658,7 +661,7 @@ private fun TabBar(
                 horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Icon(Icons.Filled.MusicNote, null, tint = BarContent)
+                Icon(glassIcon("music.note", Icons.Filled.MusicNote), null, tint = BarContent)
                 Text("Now Playing", color = BarContent, fontSize = 17.sp)
             }
         }
@@ -667,7 +670,7 @@ private fun TabBar(
 
 /** A minimized bar's circle: grows in where the bar shrinks to, or beside it for Search. */
 @Composable
-private fun MiniTab(icon: ImageVector, label: String, tint: Color, p: Float, modifier: Modifier, onClick: () -> Unit) {
+private fun MiniTab(icon: Painter, label: String, tint: Color, p: Float, modifier: Modifier, onClick: () -> Unit) {
     Box(
         modifier
             .size(MiniCircle)

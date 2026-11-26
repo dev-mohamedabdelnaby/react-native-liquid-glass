@@ -2,6 +2,7 @@
 // view host and its MenuOverlay dropped, the Compose bodies kept). Items are caller content here.
 package com.mohamedabdelnaby.liquidglass.catalog.liquid
 
+import androidx.compose.ui.graphics.painter.Painter
 import android.os.Build
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
@@ -293,7 +294,7 @@ internal fun LiquidMenuSeparator() {
 internal fun LiquidMenuRow(
   text: String,
   onClick: () -> Unit,
-  icon: ImageVector?,
+  icon: Painter?,
   destructive: Boolean,
   checked: Boolean,
 ) {

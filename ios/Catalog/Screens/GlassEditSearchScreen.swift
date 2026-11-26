@@ -32,7 +32,7 @@ struct GlassEditSearchScreen: View {
     var body: some View {
         List(selection: $selection) {
             ForEach(visibleItems, id: \.self) { item in
-                Label(item, systemImage: "note.text")
+                Label(item, glassImage: "note.text")
             }
             .onDelete { offsets in
                 let removed = offsets.map { visibleItems[$0] }
@@ -93,7 +93,7 @@ struct GlassEditSearchScreen: View {
                                 selection.removeAll()
                             }
                         } label: {
-                            Label("Delete \(selection.count)", systemImage: "trash")
+                            Label("Delete \(selection.count)", glassImage: "trash")
                                 .glassFont(.headline)
                                 .foregroundStyle(.white)
                                 .padding(.horizontal, 20)
@@ -119,13 +119,13 @@ struct GlassEditSearchScreen: View {
     /// The expanded search field, morphing out of the Search button.
     private var searchField: some View {
         HStack(spacing: 8) {
-            Image(systemName: "magnifyingglass")
+            GlassImage("magnifyingglass")
                 .foregroundStyle(.secondary)
             TextField("Search notes", text: $searchText)
                 .focused($isSearchFocused)
                 .submitLabel(.search)
             if !searchText.isEmpty {
-                Button("Clear", systemImage: "xmark.circle.fill") {
+                Button("Clear", glassImage: "xmark.circle.fill") {
                     searchText = ""
                 }
                 .labelStyle(.iconOnly)
@@ -167,7 +167,7 @@ private struct GlassCircleButton: View {
 
     var body: some View {
         Button(action: action) {
-            Image(systemName: systemImage)
+            GlassImage(systemImage)
                 .font(.title3.weight(.semibold))
                 .foregroundStyle(tint == nil ? Color.primary : Color.white)
                 .frame(width: 52, height: 52)

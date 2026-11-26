@@ -117,6 +117,7 @@ static UIColor *_Nullable RNLiquidGlassScreenColor(const SharedColor &color)
                     semibold:RNLiquidGlassScreenString(p.fontSemibold)
                         bold:RNLiquidGlassScreenString(p.fontBold)
                        heavy:RNLiquidGlassScreenString(p.fontHeavy)];
+  [_host setIcons:RNLiquidGlassScreenString(p.icons)];
 
   [super updateProps:props oldProps:oldProps];
 }

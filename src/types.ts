@@ -1,4 +1,9 @@
-import type { ColorValue } from 'react-native';
+import type { ColorValue, ImageSourcePropType } from 'react-native';
+
+// A custom icon: a glyph of an icon font (react-native-vector-icons: see vectorIcon), SVG markup,
+// or an image. Drawn as a template, at the size and tint of the icon it replaces.
+export type GlassIcon =
+  { glyph: string; fontFamily: string } | { svg: string } | ImageSourcePropType;
 
 // Each platform reads the settings its native app has and ignores the rest.
 export type GlassSettings = {
@@ -36,4 +41,7 @@ export type GlassSettings = {
         bold?: string;
         heavy?: string;
       };
+  // Custom icons, keyed by the SF Symbol name the screens use for that icon on both platforms
+  // ('square.and.arrow.up'). An icon not in the map (or undefined) stays native.
+  icons?: Record<string, GlassIcon | undefined>;
 };

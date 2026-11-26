@@ -1,5 +1,7 @@
 package com.mohamedabdelnaby.liquidglass.catalog.screens
 
+import androidx.compose.ui.graphics.painter.Painter
+import com.mohamedabdelnaby.liquidglass.glassIcon
 import com.mohamedabdelnaby.liquidglass.catalog.glass.platformTextStyle
 import com.mohamedabdelnaby.liquidglass.catalog.glass.isMaterial
 import androidx.compose.animation.AnimatedContent
@@ -118,9 +120,9 @@ fun ControlsScreen() {
         DemoColumn(padding, spacing = 24.dp) {
             GlassListSection(glass = false, header = "Slider") {
                 ListRow(divider = false) {
-                    Icon(Icons.AutoMirrored.Filled.VolumeDown, null)
+                    Icon(glassIcon("speaker", Icons.AutoMirrored.Filled.VolumeDown), null)
                     GlassSlider(volume, { volume = it }, Modifier.weight(1f), contentDescription = "Volume")
-                    Icon(Icons.AutoMirrored.Filled.VolumeUp, null)
+                    Icon(glassIcon("speaker.wave.3", Icons.AutoMirrored.Filled.VolumeUp), null)
                 }
             }
             GlassListSection(glass = false, header = "Toggle") {
@@ -252,7 +254,7 @@ private fun GlassStepper(value: Int, range: IntRange, onChange: (Int) -> Unit) {
         Modifier.glassEffect(Glass.Regular.interactive()).padding(horizontal = 4.dp).height(40.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        StepButton(Icons.Filled.Remove, "Decrease", value > range.first) { onChange(value - 1) }
+        StepButton(glassIcon("minus", Icons.Filled.Remove), "Decrease", value > range.first) { onChange(value - 1) }
         VerticalDivider(Modifier.height(20.dp))
         GlassMenu(anchor = { open ->
             Box(Modifier.widthIn(min = 36.dp).glassClickable(label = "$value cups, presets", onClick = open), contentAlignment = Alignment.Center) {
@@ -265,15 +267,15 @@ private fun GlassStepper(value: Int, range: IntRange, onChange: (Int) -> Unit) {
             GlassMenuHeader("Presets")
             listOf(1, 2, 5, 10).forEach { preset -> GlassMenuItem("$preset cups", { onChange(preset); dismiss() }) }
             GlassMenuDivider()
-            GlassMenuItem("Reset", { onChange(range.first); dismiss() }, icon = Icons.Filled.RestartAlt, destructive = true)
+            GlassMenuItem("Reset", { onChange(range.first); dismiss() }, icon = glassIcon("arrow.counterclockwise", Icons.Filled.RestartAlt), destructive = true)
         }
         VerticalDivider(Modifier.height(20.dp))
-        StepButton(Icons.Filled.Add, "Increase", value < range.last) { onChange(value + 1) }
+        StepButton(glassIcon("plus", Icons.Filled.Add), "Increase", value < range.last) { onChange(value + 1) }
     }
 }
 
 @Composable
-private fun StepButton(icon: ImageVector, label: String, enabled: Boolean, onClick: () -> Unit) {
+private fun StepButton(icon: Painter, label: String, enabled: Boolean, onClick: () -> Unit) {
     Box(
         Modifier.size(44.dp, 34.dp).alpha(if (enabled) 1f else 0.35f).glassClickable(enabled, label, onClick),
         contentAlignment = Alignment.Center,

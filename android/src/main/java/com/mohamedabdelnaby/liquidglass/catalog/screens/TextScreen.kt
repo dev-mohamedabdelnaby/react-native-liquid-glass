@@ -1,5 +1,6 @@
 package com.mohamedabdelnaby.liquidglass.catalog.screens
 
+import com.mohamedabdelnaby.liquidglass.glassIcon
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -135,7 +136,7 @@ fun TextScreen() {
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Icon(Icons.Outlined.Visibility, null, tint = Color.White)
+                    Icon(glassIcon("eye", Icons.Outlined.Visibility), null, tint = Color.White)
                     Text("Readable over rich backgrounds", color = Color.White, fontWeight = FontWeight.SemiBold)
                 }
             }
@@ -148,7 +149,7 @@ fun TextScreen() {
                         shape = GlassCircle,
                         size = GlassControlSize.Large,
                         enabled = message.isNotEmpty(),
-                    ) { Icon(Icons.Filled.ArrowUpward, "Send") }
+                    ) { Icon(glassIcon("arrow.up", Icons.Filled.ArrowUpward), "Send") }
                 }
             }
         }

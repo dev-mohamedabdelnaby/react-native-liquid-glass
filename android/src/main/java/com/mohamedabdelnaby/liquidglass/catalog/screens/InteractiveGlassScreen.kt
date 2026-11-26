@@ -1,5 +1,6 @@
 package com.mohamedabdelnaby.liquidglass.catalog.screens
 
+import com.mohamedabdelnaby.liquidglass.glassIcon
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,7 +45,7 @@ fun InteractiveGlassScreen() {
                     .glassEffect(Glass.Regular.interactive(), GlassCircle)
                     .glassClickable(label = "Tap") { taps++ },
                 contentAlignment = Alignment.Center,
-            ) { Icon(Icons.Filled.TouchApp, null, Modifier.size(44.dp)) }
+            ) { Icon(glassIcon("hand.tap.fill", Icons.Filled.TouchApp), null, Modifier.size(44.dp)) }
 
             Text(
                 "Tapped $taps times",

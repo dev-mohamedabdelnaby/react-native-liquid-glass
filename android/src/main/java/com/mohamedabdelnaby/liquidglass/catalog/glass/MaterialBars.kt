@@ -1,5 +1,6 @@
 package com.mohamedabdelnaby.liquidglass.catalog.glass
 
+import com.mohamedabdelnaby.liquidglass.glassIcon
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -125,7 +126,7 @@ internal fun MaterialScreen(
                             navigationIcon = {
                                 IconButton(LocalOnBack.current) {
                                     Icon(
-                                        if (closeButton) Icons.Filled.Close else Icons.AutoMirrored.Filled.ArrowBack,
+                                        if (closeButton) glassIcon("xmark", Icons.Filled.Close) else glassIcon("chevron.backward", Icons.AutoMirrored.Filled.ArrowBack),
                                         if (closeButton) "Close" else "Back",
                                     )
                                 }

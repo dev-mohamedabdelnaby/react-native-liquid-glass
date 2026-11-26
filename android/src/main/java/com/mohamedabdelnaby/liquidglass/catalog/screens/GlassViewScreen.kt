@@ -1,5 +1,6 @@
 package com.mohamedabdelnaby.liquidglass.catalog.screens
 
+import com.mohamedabdelnaby.liquidglass.glassIcon
 import android.annotation.SuppressLint
 import android.graphics.Outline
 import android.graphics.RenderEffect
@@ -128,11 +129,11 @@ fun GlassViewScreen() {
                     chromaticAberration = chromatic,
                 ) {
                     if (shape == LiquidGlassShape.Circle) {
-                        Icon(Icons.Filled.WaterDrop, "Liquid Glass View", Modifier.size(48.dp))
+                        Icon(glassIcon("drop.fill", Icons.Filled.WaterDrop), "Liquid Glass View", Modifier.size(48.dp))
                     } else {
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Filled.WaterDrop, null)
+                                Icon(glassIcon("drop.fill", Icons.Filled.WaterDrop), null)
                                 Text("Liquid Glass View", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                             }
                             Text(

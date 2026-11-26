@@ -1,5 +1,6 @@
 package com.mohamedabdelnaby.liquidglass.catalog.glass
 
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -125,7 +126,7 @@ private fun GlassButtonSurface(
 /** A circular glass icon button, the usual toolbar item. */
 @Composable
 fun GlassIconButton(
-    icon: ImageVector,
+    icon: Painter,
     contentDescription: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -153,13 +154,13 @@ fun GlassIconButton(
 /** An icon with no glass of its own, for use inside a shared glass group. */
 @Composable
 fun BarIcon(
-    icon: ImageVector,
+    icon: Painter,
     contentDescription: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     tint: Color = MaterialTheme.colorScheme.onSurface,
 ) {
-    if (isMaterial) return IconButton(onClick, modifier) { Icon(androidIcon(icon), contentDescription, tint = tint) }
+    if (isMaterial) return IconButton(onClick, modifier) { Icon(icon, contentDescription, tint = tint) }
     val source = remember { MutableInteractionSource() }
     Box(
         modifier

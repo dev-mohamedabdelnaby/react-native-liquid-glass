@@ -31,15 +31,15 @@ struct GlassEffectScreen: View {
                 section("Regular (default capsule)") {
                     Menu {
                         Picker("Variant", selection: $isGreetingClear) {
-                            Label("Regular", systemImage: "drop.fill").tag(false)
-                            Label("Clear", systemImage: "drop").tag(true)
+                            Label("Regular", glassImage: "drop.fill", uiKit: true).tag(false)
+                            Label("Clear", glassImage: "drop", uiKit: true).tag(true)
                         }
                         Section("Greeting") {
                             ForEach(["Hello, Liquid Glass!", "Hi there 👋", "Welcome!"], id: \.self) { text in
                                 Button(text) { withAnimation { greeting = text } }
                             }
                         }
-                        Button("Copy Text", systemImage: "doc.on.doc") {
+                        Button("Copy Text", glassImage: "doc.on.doc", uiKit: true) {
                             UIPasteboard.general.string = greeting
                         }
                     } label: {
@@ -54,9 +54,9 @@ struct GlassEffectScreen: View {
 
                 section("Clear variant") {
                     Menu {
-                        Toggle("Dimming Layer", systemImage: "circle.lefthalf.filled", isOn: $isClearDimmed.animation())
+                        Toggle("Dimming Layer", glassImage: "circle.lefthalf.filled", uiKit: true, isOn: $isClearDimmed.animation())
                     } label: {
-                        Label("Clear glass", systemImage: "drop")
+                        Label("Clear glass", glassImage: "drop")
                             .glassFont(.title3)
                             .padding()
                     }
@@ -78,11 +78,11 @@ struct GlassEffectScreen: View {
                     HStack(spacing: 16) {
                         Menu {
                             Button(isStarFilled ? "Unfavorite" : "Favorite",
-                                   systemImage: isStarFilled ? "star.slash" : "star") {
+                                   glassImage: isStarFilled ? "star.slash" : "star", uiKit: true) {
                                 isStarFilled.toggle()
                             }
                         } label: {
-                            Image(systemName: isStarFilled ? "star.fill" : "star")
+                            GlassImage(isStarFilled ? "star.fill" : "star")
                                 .font(.title)
                                 .contentTransition(.symbolEffect(.replace))
                                 .frame(width: 70, height: 70)
@@ -104,7 +104,7 @@ struct GlassEffectScreen: View {
                         .appGlassEffect(.regular.interactive(), in: .rect(cornerRadius: cornerRadius))
 
                         Menu {
-                            Toggle("Tint", systemImage: "paintpalette", isOn: $isRectTinted.animation())
+                            Toggle("Tint", glassImage: "paintpalette", uiKit: true, isOn: $isRectTinted.animation())
                         } label: {
                             Text("Rect")
                                 .padding()
@@ -130,7 +130,7 @@ struct GlassEffectScreen: View {
                     }
                 }
             }
-            Button("Remove Tint", systemImage: "xmark.circle") {
+            Button("Remove Tint", glassImage: "xmark.circle", uiKit: true) {
                 withAnimation { chipTints[chip] = .clear }
             }
         } label: {

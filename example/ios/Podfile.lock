@@ -1835,6 +1835,7 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
+    - SwiftDraw (= 0.30.0)
     - Yoga
   - ReactNativeLiquidGlass/Tests (0.1.0):
     - hermes-engine
@@ -1858,6 +1859,7 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
+    - SwiftDraw (= 0.30.0)
     - Yoga
   - RNScreens (4.30.1):
     - hermes-engine
@@ -1908,8 +1910,34 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
+  - RNVectorIcons (10.3.0):
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-bridging
+    - React-Core
+    - React-Core-prebuilt
+    - React-cxxstableapi
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - Yoga
   - SocketRocket (0.7.1):
     - ReactNativeDependencies
+  - SwiftDraw (0.30.0):
+    - SwiftDrawDOM (~> 0.30.0)
+  - SwiftDrawDOM (0.30.0)
   - Yoga (0.0.0):
     - React-Core-prebuilt
 
@@ -2003,8 +2031,14 @@ DEPENDENCIES:
   - ReactNativeLiquidGlass (from `../..`)
   - ReactNativeLiquidGlass/Tests (from `../..`)
   - RNScreens (from `../node_modules/react-native-screens`)
+  - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - SocketRocket (from `build/rndeps-facades/SocketRocket`)
   - Yoga (from `build/rncore-facades/Yoga`)
+
+SPEC REPOS:
+  trunk:
+    - SwiftDraw
+    - SwiftDrawDOM
 
 EXTERNAL SOURCES:
   boost:
@@ -2182,6 +2216,8 @@ EXTERNAL SOURCES:
     :path: "../.."
   RNScreens:
     :path: "../node_modules/react-native-screens"
+  RNVectorIcons:
+    :path: "../node_modules/react-native-vector-icons"
   SocketRocket:
     :path: build/rndeps-facades/SocketRocket
   Yoga:
@@ -2273,9 +2309,12 @@ SPEC CHECKSUMS:
   ReactCodegen: 3840312f5071bb6b953b35a029c5c6dcf06b435e
   ReactCommon: b63ce798b898ed77c6cfdeb80b18080161f52ed5
   ReactNativeDependencies: a5164c3ebbe90d992022b5d9cbabbf770a6d7d05
-  ReactNativeLiquidGlass: 807f1be9ef9f305bc76b0e361d2a1ea5f09c000d
+  ReactNativeLiquidGlass: 011f56d9fe28c153e33fd9f4b049750fe0206d71
   RNScreens: f15a5bda1ddeff8575b8ce41d83885b67129f84b
+  RNVectorIcons: 8e7890bf2ce85e41df79133e7778070c37dc8d70
   SocketRocket: 37aec555668fb852ec12e3c0de59a86ca58f0871
+  SwiftDraw: 793739c50e05175c462759067787917a7e40f0f8
+  SwiftDrawDOM: 09f5707e325ee2337cf71dfbb1e52a5cc16ba79a
   Yoga: d1c536142c5ff8ec8cd856ab2a7c227a1d875c8e
 
 PODFILE CHECKSUM: 6bb8aed073e153c3af201f8909c998ca3dc77e18

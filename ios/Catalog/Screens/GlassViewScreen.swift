@@ -51,11 +51,11 @@ struct GlassViewScreen: View {
     @ViewBuilder
     private var preview: some View {
         if shape == .circle {
-            Image(systemName: "drop.fill")
+            GlassImage("drop.fill")
                 .font(.system(size: 48))
         } else {
             VStack(alignment: .leading, spacing: 8) {
-                Label("Liquid Glass View", systemImage: "drop.fill")
+                Label("Liquid Glass View", glassImage: "drop.fill")
                     .glassFont(.title3, weight: .bold)
                 Text("Any content can sit on a glass surface. Adjust the options below.")
                     .foregroundStyle(.secondary)

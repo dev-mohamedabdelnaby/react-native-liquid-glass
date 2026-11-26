@@ -1,5 +1,6 @@
 package com.mohamedabdelnaby.liquidglass.catalog.screens
 
+import com.mohamedabdelnaby.liquidglass.glassIcon
 import com.mohamedabdelnaby.liquidglass.catalog.glass.platformTextStyle
 import com.mohamedabdelnaby.liquidglass.catalog.glass.platformCopy
 import androidx.activity.compose.BackHandler
@@ -96,7 +97,7 @@ fun ZoomTransitionsScreen() {
             title = "",
             titleContent = {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Icon(Icons.Filled.Circle, null, Modifier.size(8.dp), tint = SystemColors.Green)
+                    Icon(glassIcon("circle.fill", Icons.Filled.Circle), null, Modifier.size(8.dp), tint = SystemColors.Green)
                     Text("Online", color = SystemColors.Green, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
                 }
             },
@@ -107,7 +108,7 @@ fun ZoomTransitionsScreen() {
                     // zoom's overlay clipped to this Box.
                     Box(Modifier.offset(x = 4.dp, y = (-2).dp)) {
                         Box(Modifier.padding(top = 4.dp, end = 4.dp).zoomSource(shared, this@AnimatedVisibility, Panel.Inbox)) {
-                            GlassIconButton(Icons.Filled.Inbox, "Inbox, $unread unread", { panel = Panel.Inbox })
+                            GlassIconButton(glassIcon("tray.fill", Icons.Filled.Inbox), "Inbox, $unread unread", { panel = Panel.Inbox })
                         }
                         if (unread > 0) {
                             // Outside the zooming bounds, whose clip cut the badge while the panel
@@ -154,7 +155,7 @@ fun ZoomTransitionsScreen() {
                         Modifier.zoomSource(shared, this, Panel.Compose),
                         size = GlassControlSize.Large,
                     ) {
-                        Icon(Icons.Filled.EditNote, null)
+                        Icon(glassIcon("square.and.pencil", Icons.Filled.EditNote), null)
                         Text("New Message")
                     }
                 }
@@ -207,12 +208,12 @@ private fun PanelFrame(
 
 @Composable
 private fun InboxPanel(unread: Int, modifier: Modifier, onDone: () -> Unit) {
-    PanelFrame("Inbox", modifier, leading = {}, trailing = { GlassIconButton(Icons.Filled.Check, "Done", onDone) }, height = 0.5f) {
+    PanelFrame("Inbox", modifier, leading = {}, trailing = { GlassIconButton(glassIcon("checkmark", Icons.Filled.Check), "Done", onDone) }, height = 0.5f) {
         val count = maxOf(unread, 1)
         LazyColumn {
             items(count) { index ->
                 ListRow(Modifier.groupedRow(index, count), divider = index != count - 1) {
-                    Icon(Icons.Filled.MarkEmailUnread, null, tint = MaterialTheme.colorScheme.primary)
+                    Icon(glassIcon("envelope.badge", Icons.Filled.MarkEmailUnread), null, tint = MaterialTheme.colorScheme.primary)
                     Text("Message ${index + 1}")
                 }
             }
@@ -226,8 +227,8 @@ private fun ComposePanel(modifier: Modifier, onClose: () -> Unit) {
     var subject by remember { mutableStateOf("") }
     PanelFrame(
         "New Message", modifier,
-        leading = { GlassIconButton(Icons.Filled.Close, "Cancel", onClose) },
-        trailing = { GlassProminentButton(onClose, shape = GlassCircle) { Icon(Icons.Filled.ArrowUpward, "Send") } },
+        leading = { GlassIconButton(glassIcon("xmark", Icons.Filled.Close), "Cancel", onClose) },
+        trailing = { GlassProminentButton(onClose, shape = GlassCircle) { Icon(glassIcon("arrow.up", Icons.Filled.ArrowUpward), "Send") } },
     ) {
         Column {
             listOf("To" to to, "Subject" to subject).forEachIndexed { index, (label, value) ->

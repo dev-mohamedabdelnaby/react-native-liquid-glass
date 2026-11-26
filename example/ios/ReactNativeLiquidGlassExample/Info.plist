@@ -62,6 +62,7 @@
 		<string>fonts/Cairo-SemiBold.ttf</string>
 		<string>fonts/Cairo-Bold.ttf</string>
 		<string>fonts/Cairo-ExtraBold.ttf</string>
+		<string>Ionicons.ttf</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>

@@ -28,7 +28,7 @@ struct GlassButtonsScreen: View {
                 .buttonStyle(.glassProminent)
                 .tint(.orange)
 
-            Button("Large", systemImage: "bolt.fill") { lastAction = "Large" }
+            Button("Large", glassImage: "bolt.fill") { lastAction = "Large" }
                 .buttonStyle(.glass)
                 .controlSize(.large)
 
@@ -37,7 +37,7 @@ struct GlassButtonsScreen: View {
                     Button {
                         lastAction = symbol
                     } label: {
-                        Image(systemName: symbol)
+                        GlassImage(symbol)
                             .frame(width: 32, height: 32)
                     }
                     .buttonStyle(.glass)

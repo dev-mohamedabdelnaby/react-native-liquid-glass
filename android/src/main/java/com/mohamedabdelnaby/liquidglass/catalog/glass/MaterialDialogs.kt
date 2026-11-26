@@ -1,5 +1,6 @@
 package com.mohamedabdelnaby.liquidglass.catalog.glass
 
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -67,7 +68,7 @@ internal fun MaterialDropdownMenu(expanded: Boolean, onDismissRequest: () -> Uni
     DropdownMenu(expanded, onDismissRequest, modifier, offset, content = content)
 
 @Composable
-internal fun MaterialMenuItem(text: String, onClick: () -> Unit, icon: ImageVector?, destructive: Boolean, checked: Boolean) {
+internal fun MaterialMenuItem(text: String, onClick: () -> Unit, icon: Painter?, destructive: Boolean, checked: Boolean) {
     val error = MaterialTheme.colorScheme.error
     DropdownMenuItem(
         text = { Text(text) },

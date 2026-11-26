@@ -1,5 +1,7 @@
 package com.mohamedabdelnaby.liquidglass.catalog.screens
 
+import com.mohamedabdelnaby.liquidglass.LocalGlassIcons
+import com.mohamedabdelnaby.liquidglass.glassIcon
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.AnimatedContent
@@ -73,16 +75,18 @@ private data class Forecast(
     val name: String,
     val detail: String,
     val group: String,
+    // The SF Symbol iOS shows (the `icons` key); [icon] and [accent] are Android's two-colour stand-in.
+    val symbol: String,
     val icon: ImageVector,
     val color: Color,
     val accent: Pair<ImageVector, Color>? = null,
 )
 
 private val Forecasts = listOf(
-    Forecast("Thunderstorm", "18° · 80% rain · Afternoon", "day", Icons.Filled.Cloud, Color(0xFF8E8E93), Icons.Filled.Bolt to SystemColors.Yellow),
-    Forecast("Sun Showers", "22° · 40% rain · Morning", "day", Icons.Filled.WbSunny, SystemColors.Orange, Icons.Filled.WaterDrop to SystemColors.Blue),
-    Forecast("Clear Night", "14° · Starry skies · Evening", "night", Icons.Filled.NightsStay, SystemColors.Yellow),
-    Forecast("Calm Night", "12° · Light wind · Late night", "night", Icons.Filled.DarkMode, SystemColors.Indigo),
+    Forecast("Thunderstorm", "18° · 80% rain · Afternoon", "day", "cloud.bolt.rain.fill", Icons.Filled.Cloud, Color(0xFF8E8E93), Icons.Filled.Bolt to SystemColors.Yellow),
+    Forecast("Sun Showers", "22° · 40% rain · Morning", "day", "sun.rain.fill", Icons.Filled.WbSunny, SystemColors.Orange, Icons.Filled.WaterDrop to SystemColors.Blue),
+    Forecast("Clear Night", "14° · Starry skies · Evening", "night", "moon.stars.fill", Icons.Filled.NightsStay, SystemColors.Yellow),
+    Forecast("Calm Night", "12° · Light wind · Late night", "night", "moon.fill", Icons.Filled.DarkMode, SystemColors.Indigo),
 )
 
 @Composable
@@ -127,7 +131,7 @@ fun UnionScreen() {
                                     val bell by animateFloatAsState(if (alerted) 1f else 0f, label = "bell")
                                     if (bell > 0f) {
                                         Icon(
-                                            Icons.Filled.Notifications, "Alert set",
+                                            glassIcon("bell.fill", Icons.Filled.Notifications), "Alert set",
                                             tint = SystemColors.Orange,
                                             // The size of iOS's caption2 bell, with more room above it than
                                             // iOS's 6 pt so it sits inside the glass's curved rim, and
@@ -139,16 +143,16 @@ fun UnionScreen() {
                             },
                         ) { dismiss ->
                             GlassMenuHeader("${forecast.name} · ${forecast.detail}")
-                            GlassMenuItem("Show Details", { afterMenu = { selected = forecast }; dismiss() }, icon = Icons.Outlined.Info)
+                            GlassMenuItem("Show Details", { afterMenu = { selected = forecast }; dismiss() }, icon = glassIcon("info.circle", Icons.Outlined.Info))
                             GlassMenuItem(
                                 if (alerted) "Remove Alert" else "Set Alert",
                                 { if (alerted) alerts.remove(forecast.name) else alerts.add(forecast.name); dismiss() },
-                                icon = if (alerted) Icons.Outlined.NotificationsOff else Icons.Outlined.Notifications,
+                                icon = if (alerted) glassIcon("bell.slash", Icons.Outlined.NotificationsOff) else glassIcon("bell", Icons.Outlined.Notifications),
                             )
-                            GlassMenuItem("Share", { context.shareText("${forecast.name}: ${forecast.detail}"); dismiss() }, icon = Icons.Outlined.Share)
+                            GlassMenuItem("Share", { context.shareText("${forecast.name}: ${forecast.detail}"); dismiss() }, icon = glassIcon("square.and.arrow.up", Icons.Outlined.Share))
                             if (selected == forecast) {
                                 GlassMenuDivider()
-                                GlassMenuItem("Hide Details", { afterMenu = { selected = null }; dismiss() }, icon = Icons.Filled.Close, destructive = true)
+                                GlassMenuItem("Hide Details", { afterMenu = { selected = null }; dismiss() }, icon = glassIcon("xmark", Icons.Filled.Close), destructive = true)
                             }
                         }
                     }
@@ -194,6 +198,8 @@ fun UnionScreen() {
 /** A two-color weather symbol, standing in for SF Symbols' multicolor rendering. */
 @Composable
 private fun ForecastIcon(forecast: Forecast, size: Dp) {
+    // The app's icon replaces the whole symbol, accent and all.
+    if (forecast.symbol in LocalGlassIcons.current) return Icon(glassIcon(forecast.symbol, forecast.icon), forecast.name, tint = forecast.color, modifier = Modifier.size(size))
     Box {
         Icon(forecast.icon, forecast.name, tint = forecast.color, modifier = Modifier.size(size))
         forecast.accent?.let { (icon, color) ->

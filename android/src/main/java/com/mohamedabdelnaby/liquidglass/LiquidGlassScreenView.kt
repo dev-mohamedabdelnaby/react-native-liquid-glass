@@ -76,6 +76,7 @@ internal class LiquidGlassScreenView(context: Context) : ComposeHost(context) {
   var controlShape by mutableStateOf(ControlShape.Pill)
   var glowIntensity by mutableFloatStateOf(DEFAULT_GLOW_INTENSITY)
   var faces by mutableStateOf(FontFaces())
+  var icons by mutableStateOf(emptyMap<String, GlassIcon>())
 
   private val onBack: () -> Unit = { emit(EVENT_BACK, null) }
 
@@ -93,7 +94,7 @@ internal class LiquidGlassScreenView(context: Context) : ComposeHost(context) {
       }
       val glassSettings = remember(settings, fontFamily) { settings.copy(fontFamily = fontFamily) }
       // Outside the theme: Material takes Android's own colors and type, with Home's tint as the accent.
-      CompositionLocalProvider(LocalAndroidStyle provides androidStyle, LocalGlassSettings provides glassSettings, LocalControlShape provides controlShape, LocalGlowIntensity provides glowIntensity) { LiquidGlassTheme(mode) {
+      CompositionLocalProvider(LocalAndroidStyle provides androidStyle, LocalGlassSettings provides glassSettings, LocalControlShape provides controlShape, LocalGlowIntensity provides glowIntensity, LocalGlassIcons provides icons) { LiquidGlassTheme(mode) {
         // The theme's forced appearance, or the system's.
         val dark = isSystemInDarkTheme()
         SideEffect { bars.appearance(dark) }
