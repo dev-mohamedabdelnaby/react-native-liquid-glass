@@ -95,8 +95,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.ui.geometry.Offset
@@ -134,6 +132,7 @@ import com.mohamedabdelnaby.liquidglass.catalog.glass.glassClickable
 import com.mohamedabdelnaby.liquidglass.catalog.glass.glassEffect
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.LiquidTabBar
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.LiquidTabItem
+import com.mohamedabdelnaby.liquidglass.catalog.liquid.TabBadge
 
 private enum class Tab(val title: String, val icon: ImageVector, val badge: Int = 0) {
     Home("Home", Icons.Filled.Home),
@@ -515,12 +514,7 @@ private fun TabsCapsule(selected: Tab, onSelect: (Tab) -> Unit) {
                 Box {
                     Icon(t.icon, null, Modifier.size(22.dp), tint = tint)
                     if (t.badge > 0) {
-                        Text(
-                            "${t.badge}",
-                            Modifier.align(Alignment.TopEnd).offset(x = 14.dp, y = (-6).dp).defaultMinSize(18.dp, 18.dp)
-                                .background(SystemColors.Red, CircleShape).wrapContentSize(),
-                            color = Color.White, fontSize = 11.sp, lineHeight = 13.sp, fontWeight = FontWeight.Bold,
-                        )
+                        TabBadge(t.badge, SystemColors.Red, Modifier.align(Alignment.TopEnd).offset(x = 14.dp, y = (-6).dp))
                     }
                 }
                 Text(t.title, color = tint, fontSize = 11.sp, lineHeight = 13.sp, fontWeight = FontWeight.Medium)

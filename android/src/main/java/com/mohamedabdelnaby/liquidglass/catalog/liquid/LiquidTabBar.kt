@@ -62,14 +62,18 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.widthIn
 import com.mohamedabdelnaby.liquidglass.catalog.glass.LocalGlassBackdrop
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.backdrop.backdrops.emptyBackdrop
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.backdrop.backdrops.layerBackdrop
@@ -775,20 +779,8 @@ private fun TabItems(
                     Box {
                         Icon(it, contentDescription = null, Modifier.size(24.dp), tint = tabColor)
                         if (tab.badge > 0) {
-                            Text(
-                                "${tab.badge}",
-                                Modifier
-                                    // At the icon's trailing top corner, as UITabBar mirrors it in RTL.
-                                    .align(Alignment.TopEnd)
-                                    .offset(x = 12.dp, y = (-4).dp)
-                                    .defaultMinSize(18.dp, 18.dp)
-                                    .background(Color(0xFFFF3B30), RoundedCornerShape(percent = 50))
-                                    .wrapContentSize(),
-                                color = Color.White,
-                                fontSize = 11.sp,
-                                lineHeight = 13.sp,
-                                fontWeight = FontWeight.Bold,
-                            )
+                            // At the icon's trailing top corner, as UITabBar mirrors it in RTL.
+                            TabBadge(tab.badge, Color(0xFFFF3B30), Modifier.align(Alignment.TopEnd).offset(x = 12.dp, y = (-4).dp))
                         }
                     }
                 }
@@ -811,3 +803,30 @@ private fun TabItems(
 /** Left edge of the pill at [position] in tabs, mirrored in right-to-left layout. */
 private fun pillLeft(rtl: Boolean, width: Float, inset: Float, tabWidth: Float, position: Float): Float =
     if (rtl) width - inset - (position + 1f) * tabWidth else inset + position * tabWidth
+
+/**
+ * A tab's count badge: 18 dp tall and at least as wide, so one digit is a circle and more a
+ * capsule. Fixed, not the text's measured height, which font padding and scale make an oval.
+ */
+@Composable
+internal fun TabBadge(count: Int, color: Color, modifier: Modifier = Modifier) {
+    Box(
+        modifier.height(18.dp).widthIn(min = 18.dp).background(color, CircleShape).padding(horizontal = 5.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            "$count",
+            color = Color.White,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Bold,
+            maxLines = 1,
+            style = LocalTextStyle.current.merge(BadgeText),
+        )
+    }
+}
+
+/** A badge's count: no font padding or line gap, so its box is its glyphs and it centres in the badge. */
+internal val BadgeText = TextStyle(
+    platformStyle = PlatformTextStyle(includeFontPadding = false),
+    lineHeightStyle = LineHeightStyle(LineHeightStyle.Alignment.Center, LineHeightStyle.Trim.Both),
+)
