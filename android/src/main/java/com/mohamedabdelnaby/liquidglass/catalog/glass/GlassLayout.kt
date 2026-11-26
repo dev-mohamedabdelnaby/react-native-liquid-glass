@@ -81,18 +81,37 @@ fun DemoColumn(
 fun DemoSection(title: String, modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         if (isMaterial) MaterialSectionHeader(title)
-        else Text(title, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        else Text(title, Modifier.captionPlate(), style = MaterialTheme.typography.titleSmall, color = captionColors().first)
         content()
     }
+}
+
+/**
+ * Grey secondary text straight on the page (captions, section headers): its colour and the plate under
+ * it. Glass pages are a photo of any colour, so a plate of the surface colour and a stronger grey keep
+ * it at 4.5:1 or more over any pixel; Material's plain page needs neither.
+ */
+@Composable
+internal fun captionColors(): Pair<Color, Color> {
+    val colors = MaterialTheme.colorScheme
+    return if (isMaterial) colors.onSurfaceVariant to Color.Transparent
+    else colors.onSurfaceVariant.copy(alpha = 0.85f) to colors.surface.copy(alpha = 0.8f)
+}
+
+/** [captionColors]' plate, padded a little around the text. */
+@Composable
+private fun Modifier.captionPlate(): Modifier {
+    val plate = captionColors().second
+    return if (plate == Color.Transparent) this else background(plate, RoundedCornerShape(8.dp)).padding(horizontal = 6.dp, vertical = 2.dp)
 }
 
 @Composable
 fun Footnote(text: String, modifier: Modifier = Modifier, textAlign: TextAlign = TextAlign.Start) {
     Text(
         text,
-        modifier = modifier,
+        modifier = modifier.captionPlate(),
         style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        color = captionColors().first,
         textAlign = textAlign,
     )
 }
@@ -128,8 +147,8 @@ fun GlassListSection(
                 // iOS 26 section headers: title case, headline weight.
                 it,
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(start = 16.dp),
+                color = captionColors().first,
+                modifier = Modifier.padding(start = 16.dp).captionPlate(),
             )
         }
         // Opaque sections (like an iOS Form) keep a long settings page to a few live glass surfaces.

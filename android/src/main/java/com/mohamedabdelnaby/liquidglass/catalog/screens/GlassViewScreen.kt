@@ -48,6 +48,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.state.ToggleableState
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.toggleableState
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.selection.toggleable
 import com.mohamedabdelnaby.liquidglass.catalog.glass.isMaterial
 import com.mohamedabdelnaby.liquidglass.catalog.shapes.ShapedSwitch
@@ -224,10 +232,19 @@ internal fun SwitchRow(label: String, checked: Boolean, onChange: (Boolean) -> U
         Fill()
         ShapedSwitch(checked, null, Modifier)
     }
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(label)
-        Fill()
-        GlassSwitch(checked, onChange)
+    // Glass: the switch keeps its own drag and taps; the row is the one switch node, named by its
+    // label (Android's tree reads a node's own state, so the switch's is moved here), and a tap on
+    // the label toggles it too.
+    Row(
+        Modifier.semantics(mergeDescendants = true) {
+            role = Role.Switch
+            toggleableState = ToggleableState(checked)
+            onClick { onChange(!checked); true }
+        },
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(label, Modifier.weight(1f).pointerInput(checked, onChange) { detectTapGestures { onChange(!checked) } })
+        GlassSwitch(checked, onChange, Modifier.clearAndSetSemantics {})
     }
 }
 

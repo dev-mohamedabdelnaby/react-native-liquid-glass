@@ -49,7 +49,7 @@ In Material, the switch, slider, segmented control and bottom tab bar are pill-s
 | Liquid slider | The control shape's slider, with a light haptic each tenth of the way (not continuously) |
 | Segmented control (and the Recipes selector) | The control shape's segmented control |
 | Scroll Edge's filters and edge styles | `FilterChip` rows |
-| Bottom tab bar | The control shape's tab bar with badges, floating above the navigation bar (content scrolls under it) |
+| Bottom tab bar | The control shape's tab bar with badges, floating above the navigation bar (content scrolls under it). It does not minimize on scroll, so the Tab Bar screen hides its "Minimize on scroll" switch |
 | Glass bottom bar | `BottomAppBar` |
 | Menu, context menu | `DropdownMenu` (a context menu opens at the long-pressed item, with no lifted preview) |
 | Popover | `DropdownMenu` holding the same content |

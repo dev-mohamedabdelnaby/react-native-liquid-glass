@@ -83,17 +83,23 @@ struct GlassIcons: Equatable {
 
   /// For places UIKit draws (menus, toolbar and tab bar items), which take a plain image: the icon at
   /// the size UIKit gives the SF Symbol `name` at the body text style, and no smaller than a square
-  /// symbol (an icon fitted to a flat one, such as an ellipsis, would be a dot). Nil when the app has none.
-  func glassUIImage(_ name: String) -> UIImage? {
+  /// symbol (an icon fitted to a flat one, such as an ellipsis, would be a dot). Mirrored in RTL where
+  /// the symbol is: UIKit's bars do not flip an image for SwiftUI's direction (a React Native app's UIKit
+  /// stays left to right). Nil when the app has none.
+  func glassUIImage(_ name: String, layoutDirection: LayoutDirection = .leftToRight) -> UIImage? {
     guard let image = images[name] else { return nil }
     let body = UIImage.SymbolConfiguration(textStyle: .body)
     let symbol = UIImage(systemName: name, withConfiguration: body)?.size ?? .zero
     let square = UIImage(systemName: "square", withConfiguration: body)?.size ?? CGSize(width: 22, height: 22)
     let box = CGSize(width: max(symbol.width, square.width), height: max(symbol.height, square.height))
-    let drawn = UIGraphicsImageRenderer(size: box).image { _ in
+    let mirrored = layoutDirection == .rightToLeft && Self.isDirectional(name)
+    return UIGraphicsImageRenderer(size: box).image { context in
+      if mirrored {
+        context.cgContext.translateBy(x: box.width, y: 0)
+        context.cgContext.scaleBy(x: -1, y: 1)
+      }
       image.draw(in: Self.fit(image.size, in: box))
     }.withRenderingMode(.alwaysTemplate)
-    return Self.isDirectional(name) ? drawn.imageFlippedForRightToLeftLayoutDirection() : drawn
   }
 
   /// Whether the system mirrors SF Symbol `name` in RTL (its right-to-left image differs, as for
@@ -130,6 +136,7 @@ struct GlassImage: View {
   let name: String
   var uiKit = false
   @Environment(\.glassIcons) private var icons
+  @Environment(\.layoutDirection) private var layoutDirection
 
   init(_ name: String, uiKit: Bool = false) {
     self.name = name
@@ -137,21 +144,22 @@ struct GlassImage: View {
   }
 
   var body: some View {
-    if uiKit, let image = icons.glassUIImage(name) {
-      custom(Image(uiImage: image))
+    if uiKit, let image = icons.glassUIImage(name, layoutDirection: layoutDirection) {
+      // Already mirrored for the direction.
+      custom(Image(uiImage: image), mirrors: false)
     } else if !uiKit, let image = icons[name] {
       // The square keeps an icon in a flat symbol's place (an ellipsis) from shrinking to a dot.
       custom(ZStack { Image(systemName: name); Image(systemName: "square") }.hidden().overlay {
         Image(uiImage: image).renderingMode(.template).resizable().scaledToFit()
-      })
+      }, mirrors: GlassIcons.isDirectional(name))
     } else {
       Image(systemName: name)
     }
   }
 
   /// The custom icon mirrored where the symbol is, and read by VoiceOver as the symbol was.
-  private func custom(_ icon: some View) -> some View {
-    icon.flipsForRightToLeftLayoutDirection(GlassIcons.isDirectional(name))
+  private func custom(_ icon: some View, mirrors: Bool) -> some View {
+    icon.flipsForRightToLeftLayoutDirection(mirrors)
       .accessibilityRepresentation { Image(systemName: name) }
   }
 }

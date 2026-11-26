@@ -109,9 +109,62 @@ final class GlassIconTests: XCTestCase {
       let heart = try ink(of: GlassImage("heart", uiKit: uiKit), icons: icons, rtl: true)
       XCTAssertTrue(heart.left && !heart.right, "heart RTL uiKit \(uiKit)")
     }
-    // UIKit places (bar button items) flip a flagged image themselves.
-    XCTAssertTrue(try XCTUnwrap(icons.glassUIImage("chevron.backward")).flipsForRightToLeftLayoutDirection)
-    XCTAssertFalse(try XCTUnwrap(icons.glassUIImage("heart")).flipsForRightToLeftLayoutDirection)
+    // UIKit places get it already mirrored and unflagged: a UIKit laid out RTL would flip a flagged one back.
+    XCTAssertFalse(try XCTUnwrap(icons.glassUIImage("chevron.backward", layoutDirection: .rightToLeft)).flipsForRightToLeftLayoutDirection)
+  }
+
+  /// Whether the left (or right) quarter of the image view, as it draws, has ink.
+  private func ink(of view: UIImageView) throws -> (left: Bool, right: Bool) {
+    let cg = try XCTUnwrap(UIGraphicsImageRenderer(bounds: view.bounds, format: .init(for: .init(displayScale: 1))).image { context in
+      view.layer.render(in: context.cgContext)
+    }.cgImage)
+    let w = cg.width, h = cg.height
+    var px = [UInt8](repeating: 0, count: w * h * 4)
+    let ctx = CGContext(data: &px, width: w, height: h, bitsPerComponent: 8, bytesPerRow: w * 4,
+                        space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+    ctx.draw(cg, in: CGRect(x: 0, y: 0, width: w, height: h))
+    func alpha(_ x: Int) -> Bool { px[((h / 2) * w + x) * 4 + 3] > 128 }
+    return (alpha(w / 4), alpha(w * 3 / 4))
+  }
+
+  // In a React Native app UIKit stays left to right while the screen is RTL (SwiftUI's direction,
+  // which can also change while the screen shows). UIKit's bars (here the bottom toolbar) then do
+  // not flip a flagged image, so the custom chevron must come mirrored, as the SF Symbol does.
+  func testACustomIconInAUIKitBarMirrorsInAnRTLScreenOfAnLTRApp() throws {
+    let icons = GlassIcons(images: ["chevron.backward": leftHalf()])
+    func screen(_ direction: LayoutDirection) -> AnyView {
+      AnyView(NavigationStack {
+        Text("Body").toolbar {
+          ToolbarItemGroup(placement: .bottomBar) {
+            Button("Back", glassImage: "chevron.backward", uiKit: true) {}
+            Button("Forward", glassImage: "chevron.forward", uiKit: true) {}
+          }
+          ToolbarSpacer(.flexible, placement: .bottomBar)
+        }
+      }
+      .environment(\.glassIcons, icons)
+      .environment(\.layoutDirection, direction))
+    }
+    let host = UIHostingController(rootView: screen(.leftToRight))
+    let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 400, height: 800))
+    window.rootViewController = host
+    window.makeKeyAndVisible()
+    func imageViews(_ view: UIView) -> [UIImageView] {
+      ((view as? UIImageView).map { [$0] } ?? []) + view.subviews.flatMap(imageViews)
+    }
+    for direction in [LayoutDirection.leftToRight, .rightToLeft, .leftToRight] {
+      host.rootView = screen(direction)
+      window.layoutIfNeeded()
+      RunLoop.main.run(until: Date().addingTimeInterval(0.5))
+      // The custom icon is the toolbar's only image that is not an SF Symbol.
+      let shown = imageViews(window).filter { $0.image.map { !$0.isSymbolImage && $0.size.width > 0 } ?? false }
+      XCTAssertEqual(shown.count, 1, "\(direction)")
+      let view = try XCTUnwrap(shown.first)
+      let ink = try ink(of: view)
+      XCTAssertEqual(ink.left, direction == .leftToRight, "\(direction)")
+      XCTAssertEqual(ink.right, direction == .rightToLeft, "\(direction)")
+    }
+    window.isHidden = true
   }
 
   // MARK: VoiceOver

@@ -134,7 +134,9 @@ fun RecipesScreen() {
             Recipe("Map controls") { MapControls() }
             Recipe("Mini player") { MiniPlayer() }
             Recipe("Floating action menu") {
-                Footnote("The + button floats at the bottom-right corner. Its actions open upward without moving it.", textAlign = TextAlign.Center)
+                // Inset past the + button (60 dp at 16 dp from the edge, the column's own 16 dp) on both
+                // sides, so it stays centered and clear of the button in LTR and RTL.
+                Footnote("The + button floats at the bottom-right corner. Its actions open upward without moving it.", Modifier.padding(horizontal = 68.dp), textAlign = TextAlign.Center)
             }
             // With the 40 spacing and 16 padding, matches iOS's 16 + 80 so the last content scrolls above the button.
             Spacer(Modifier.height(40.dp))

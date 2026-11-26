@@ -44,6 +44,8 @@ struct GlassButtonsScreen: View {
                     .buttonBorderShape(.circle)
                 }
             }
+            // Media controls follow time, not reading direction: they keep this order in RTL (HIG).
+            .environment(\.layoutDirection, .leftToRight)
 
             Button("Disabled") {}
                 .buttonStyle(.glass)

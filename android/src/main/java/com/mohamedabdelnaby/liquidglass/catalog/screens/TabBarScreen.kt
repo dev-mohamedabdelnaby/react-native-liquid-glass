@@ -229,14 +229,17 @@ fun TabBarScreen() {
                 }
                 // Bar color: Glass keeps the liquid glass; a swatch fills every bar piece instead.
                 val colorRow = @Composable {
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                        BarSwatch(null, barColor == null) { barColor = null }
-                        BarColors.forEach { c -> BarSwatch(c, barColor == c) { barColor = c } }
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("Bar color")
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            BarSwatch(null, barColor == null) { barColor = null }
+                            BarColors.forEach { c -> BarSwatch(c, barColor == c) { barColor = c } }
+                        }
                     }
                 }
-                // Material: a settings group, each row its own segment.
+                // Material: a settings group, each row its own segment. Its navigation bar stays put
+                // while scrolling, so there is no minimize switch.
                 if (isMaterial) GlassListSection {
-                    ListRow { Box(Modifier.weight(1f)) { minimizeRow() } }
                     ListRow { Text("Search field"); Fill(); searchFieldRow() }
                     ListRow { colorRow() }
                 } else Column(
@@ -246,7 +249,7 @@ fun TabBarScreen() {
                 ) {
                     minimizeRow()
                     HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
-                    searchFieldRow()
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) { Text("Search field"); Fill(); searchFieldRow() }
                     HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
                     colorRow()
                 }
