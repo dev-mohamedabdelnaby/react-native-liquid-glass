@@ -18,29 +18,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.union
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarDefaults
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBarDefaults
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.LargeTopAppBar
@@ -48,7 +38,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.runtime.CompositionLocalProvider
@@ -57,7 +46,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -68,7 +56,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.mohamedabdelnaby.liquidglass.catalog.liquid.LiquidTabItem
 
 /*
  * Material counterparts of the screen scaffolding: top and bottom bars, tab bars, surfaces. Each glass building block
@@ -170,50 +157,6 @@ internal fun MaterialBottomBar(modifier: Modifier, content: @Composable RowScope
     CompositionLocalProvider(LocalMaterialBar provides true) {
         BottomAppBar(modifier, windowInsets = WindowInsets.navigationBars.union(WindowInsets.ime), content = content)
     }
-
-/** Segmented controls are segmented buttons; bottom tab bars are a navigation bar. */
-@Composable
-internal fun MaterialTabs(selectedIndex: Int, onSelect: (Int) -> Unit, tabs: List<LiquidTabItem>, modifier: Modifier, segmented: Boolean, color: Color?) {
-    if (segmented) {
-        val check = LocalGlassSettings.current.segmentedCheck
-        // A direction switch keeps the buttons' sizes, and their borders (Modifier.border's draw
-        // cache, which Compose doesn't tell of the switch) would keep the old start/end corners.
-        key(LocalLayoutDirection.current) { SingleChoiceSegmentedButtonRow(modifier) {
-            tabs.forEachIndexed { index, tab ->
-                SegmentedButton(
-                    selected = index == selectedIndex,
-                    onClick = { onSelect(index) },
-                    shape = SegmentedButtonDefaults.itemShape(index, tabs.size),
-                    icon = { if (check) SegmentedButtonDefaults.Icon(index == selectedIndex) },
-                ) { Text(tab.label, maxLines = 1, overflow = TextOverflow.Ellipsis) }
-            }
-        } }
-        return
-    }
-    // A picked bar color fills the bar; its items take whichever of the surface and on-surface
-    // colors reads better on it.
-    val scheme = MaterialTheme.colorScheme
-    val on = color?.let { moreContrasting(it, scheme.surface, scheme.onSurface) }
-    NavigationBar(modifier, containerColor = color ?: NavigationBarDefaults.containerColor) {
-        tabs.forEachIndexed { index, tab ->
-            NavigationBarItem(
-                selected = index == selectedIndex,
-                onClick = { onSelect(index) },
-                icon = {
-                    BadgedBox(badge = { if (tab.badge > 0) Badge { Text("${tab.badge}") } }) { tab.icon?.let { Icon(it, null) } }
-                },
-                label = { Text(tab.label) },
-                colors = if (on == null) NavigationBarItemDefaults.colors() else NavigationBarItemDefaults.colors(
-                    selectedIconColor = on,
-                    selectedTextColor = on,
-                    indicatorColor = on.copy(alpha = 0.24f),
-                    unselectedIconColor = on.copy(alpha = 0.75f),
-                    unselectedTextColor = on.copy(alpha = 0.75f),
-                ),
-            )
-        }
-    }
-}
 
 /**
  * Material's search bar at the top of a screen (under its top app bar): a search icon, the field

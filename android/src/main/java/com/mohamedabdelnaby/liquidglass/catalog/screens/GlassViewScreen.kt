@@ -48,8 +48,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.selection.toggleable
-import com.mohamedabdelnaby.liquidglass.catalog.shapes.ShapedSwitch
 import com.mohamedabdelnaby.liquidglass.catalog.glass.isMaterial
+import com.mohamedabdelnaby.liquidglass.catalog.shapes.ShapedSwitch
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -64,6 +64,7 @@ import com.mohamedabdelnaby.liquidglass.catalog.glass.Fill
 import com.mohamedabdelnaby.liquidglass.catalog.glass.Glass
 import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassScreen
 import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassSlider
+import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassSwitch
 import com.mohamedabdelnaby.liquidglass.catalog.glass.GlassSegmented
 import com.mohamedabdelnaby.liquidglass.catalog.glass.LiquidGlassShape
 import com.mohamedabdelnaby.liquidglass.catalog.glass.LiquidGlassView
@@ -213,14 +214,19 @@ private fun PercentSlider(label: String, value: Float, onChange: (Float) -> Unit
 
 @Composable
 internal fun SwitchRow(label: String, checked: Boolean, onChange: (Boolean) -> Unit) {
-    // The whole row toggles, so TalkBack reads the label with the switch's state.
-    Row(
+    // Material: the whole row toggles, so TalkBack reads the label with the switch's state.
+    if (isMaterial) return Row(
         Modifier.fillMaxWidth().heightIn(min = 56.dp).toggleable(checked, role = Role.Switch, onValueChange = onChange),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(label)
         Fill()
         ShapedSwitch(checked, null, Modifier)
+    }
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(label)
+        Fill()
+        GlassSwitch(checked, onChange)
     }
 }
 

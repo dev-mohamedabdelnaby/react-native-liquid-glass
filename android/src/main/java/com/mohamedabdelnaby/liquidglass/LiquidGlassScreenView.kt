@@ -140,33 +140,8 @@ internal class LiquidGlassScreenView(context: Context) : ComposeHost(context) {
   }
 
   // Only Home's own controls call this, never the prop setters: JS state and props would echo.
-  private fun emitSettings(mode: AppearanceMode, s: GlassSettings, direction: String, style: AndroidStyle, shape: ControlShape = controlShape, glow: Float = glowIntensity) = emit(
-    EVENT_SETTINGS_CHANGE,
-    Arguments.createMap().apply {
-      putString("appearance", mode.name.lowercase())
-      putString("layoutDirection", direction)
-      putString("androidStyle", style.name.lowercase())
-      putBoolean("androidSegmentedCheck", s.segmentedCheck)
-      putString("androidControlShape", shape.name.lowercase())
-      putDouble("androidGlowIntensity", glow.toDouble())
-      putString("tint", s.tint.toRgba())
-      putBoolean("clear", s.clear)
-      putDouble("blur", s.blur.value.toDouble())
-      putDouble("white", s.white.toDouble())
-      putDouble("black", s.black.toDouble())
-      putDouble("edgeLight", s.edgeLight.toDouble())
-      putDouble("refractionHeight", s.refractionHeight.value.toDouble())
-      putDouble("refractionAmount", s.refractionAmount.value.toDouble())
-      putBoolean("opaque", s.opaque)
-      putBoolean("liquid", s.liquid)
-      putString("dropColor", s.dropColor.toRgba())
-      putBoolean("sliderLiquid", s.sliderLiquid)
-      putBoolean("switchLiquid", s.switchLiquid)
-      putBoolean("segmentedLiquid", s.segmentedLiquid)
-      putBoolean("tabBarLiquid", s.tabBarLiquid)
-      putBoolean("tabBarDrop", s.tabBarDrop)
-    },
-  )
+  private fun emitSettings(mode: AppearanceMode, s: GlassSettings, direction: String, style: AndroidStyle, shape: ControlShape = controlShape, glow: Float = glowIntensity) =
+    emit(EVENT_SETTINGS_CHANGE, Arguments.createMap().putSettings(mode, s, direction, style, shape, glow))
 
   private fun emit(name: String, data: WritableMap?) {
     val reactContext = context as? ReactContext ?: return
@@ -187,4 +162,29 @@ internal class LiquidGlassScreenView(context: Context) : ComposeHost(context) {
     const val EVENT_OPEN = "topOpen"
     const val EVENT_SETTINGS_CHANGE = "topSettingsChange"
   }
+}
+
+/** `onSettingsChange`'s payload: everything Home can change, as JS's `GlassSettings` names it. */
+internal fun WritableMap.putSettings(mode: AppearanceMode, s: GlassSettings, direction: String, style: AndroidStyle, shape: ControlShape, glow: Float): WritableMap = apply {
+  putString("appearance", mode.name.lowercase())
+  putString("layoutDirection", direction)
+  putString("androidStyle", style.name.lowercase())
+  putString("androidControlShape", shape.name.lowercase())
+  putDouble("androidGlowIntensity", glow.toDouble())
+  putString("tint", s.tint.toRgba())
+  putBoolean("clear", s.clear)
+  putDouble("blur", s.blur.value.toDouble())
+  putDouble("white", s.white.toDouble())
+  putDouble("black", s.black.toDouble())
+  putDouble("edgeLight", s.edgeLight.toDouble())
+  putDouble("refractionHeight", s.refractionHeight.value.toDouble())
+  putDouble("refractionAmount", s.refractionAmount.value.toDouble())
+  putBoolean("opaque", s.opaque)
+  putBoolean("liquid", s.liquid)
+  putString("dropColor", s.dropColor.toRgba())
+  putBoolean("sliderLiquid", s.sliderLiquid)
+  putBoolean("switchLiquid", s.switchLiquid)
+  putBoolean("segmentedLiquid", s.segmentedLiquid)
+  putBoolean("tabBarLiquid", s.tabBarLiquid)
+  putBoolean("tabBarDrop", s.tabBarDrop)
 }

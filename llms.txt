@@ -22,7 +22,7 @@ Key rules: give every screen `style={{ flex: 1 }}`; hide the navigator header; w
 
 - [Layout direction](https://github.com/dev-mohamedabdelnaby/react-native-liquid-glass/blob/main/docs/layout-direction.md): right-to-left on both platforms, RTL stack animations, known differences
 - [Android style](https://github.com/dev-mohamedabdelnaby/react-native-liquid-glass/blob/main/docs/android-style.md): Material 3 on Android, coming in the next version
-- [Control shapes](https://github.com/dev-mohamedabdelnaby/react-native-liquid-glass/blob/main/docs/control-shapes.md): Android switches, sliders, top and bottom tabs as pill (default), labeled or glow (`androidControlShape`, `androidGlowIntensity`)
+- [Control shapes](https://github.com/dev-mohamedabdelnaby/react-native-liquid-glass/blob/main/docs/control-shapes.md): Android Material switches, sliders, top and bottom tabs as pill (default), labeled or glow (`androidControlShape`, `androidGlowIntensity`)
 - [Fonts](https://github.com/dev-mohamedabdelnaby/react-native-liquid-glass/blob/main/docs/fonts.md): custom fonts (`fontFamily`: one family or a font per weight)
 - [Icons](https://github.com/dev-mohamedabdelnaby/react-native-liquid-glass/blob/main/docs/icons.md): custom icons, coming in the next version
 - [Contributing](https://github.com/dev-mohamedabdelnaby/react-native-liquid-glass/blob/main/AGENTS.md): repository layout and commands

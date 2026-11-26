@@ -11,7 +11,6 @@ export interface NativeProps extends ViewProps {
   appearance?: CodegenTypes.WithDefault<string, 'system'>;
   layoutDirection?: CodegenTypes.WithDefault<string, 'system'>;
   androidStyle?: CodegenTypes.WithDefault<string, 'glass'>;
-  androidSegmentedCheck?: CodegenTypes.WithDefault<boolean, true>;
   androidControlShape?: CodegenTypes.WithDefault<string, 'pill'>;
   androidGlowIntensity?: CodegenTypes.WithDefault<CodegenTypes.Float, 0.35>;
   tintColor?: ColorValue;
@@ -45,7 +44,6 @@ export interface NativeProps extends ViewProps {
       appearance: string;
       layoutDirection: string;
       androidStyle: string;
-      androidSegmentedCheck: boolean;
       androidControlShape: string;
       androidGlowIntensity: CodegenTypes.Float;
       tint: string;

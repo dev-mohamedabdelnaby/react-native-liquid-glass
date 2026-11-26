@@ -1,5 +1,14 @@
 package com.mohamedabdelnaby.liquidglass.catalog.shapes
 
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.Key
+import androidx.compose.material3.ripple
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.indication
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.Orientation
@@ -61,6 +70,7 @@ internal fun ShapedSlider(
     val onChange by rememberUpdatedState(onValueChange)
     val current by rememberUpdatedState(value)
     val haptics = LocalHapticFeedback.current
+    val interaction = remember { MutableInteractionSource() }
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val trackHeight = when (shape) { ControlShape.Pill -> 16.dp; ControlShape.Glow -> 6.dp; ControlShape.Labeled -> 4.dp }
     val handle = if (shape == ControlShape.Pill) 24.dp else 20.dp
@@ -82,13 +92,11 @@ internal fun ShapedSlider(
     ) {
         val travel = with(LocalDensity.current) { (maxWidth - handle).toPx() }.coerceAtLeast(1f)
         val half = with(LocalDensity.current) { (handle / 2).toPx() }
-        // x is measured from the left edge of the box, whatever the direction.
-        fun moveTo(x: Float) {
-            val f = (((if (rtl) constraints.maxWidth - x else x) - half) / travel).coerceIn(0f, 1f)
-            val next = min + f * (max - min)
+        fun set(next: Float) {
             if (sliderDetent(next, valueRange) != sliderDetent(current, valueRange)) haptics.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
             onChange(next)
         }
+        fun moveTo(x: Float) = set(min + sliderFraction(x, constraints.maxWidth.toFloat(), half, rtl) * (max - min))
         val x = remember { mutableFloatStateOf(0f) }
         Box(
             Modifier
@@ -97,8 +105,16 @@ internal fun ShapedSlider(
                 .draggable(
                     rememberDraggableState { x.floatValue += it; moveTo(x.floatValue) },
                     Orientation.Horizontal,
+                    interactionSource = interaction,
                     onDragStarted = { x.floatValue = it.x; moveTo(it.x) },
-                ),
+                )
+                // Keyboard and D-pad: focus it, then arrows, page keys, Home and End.
+                .focusable(interactionSource = interaction)
+                .onKeyEvent { e ->
+                    val d = if (e.type == KeyEventType.KeyDown) sliderKeyDelta(e.key, rtl) else null
+                    if (d != null) set((current + d * (max - min)).coerceIn(min, max))
+                    d != null
+                },
         )
         val track = Capsule
         val reach = handle / 2 + (maxWidth - handle) * fraction
@@ -110,6 +126,8 @@ internal fun ShapedSlider(
             Modifier
                 .offset { IntOffset(((maxWidth - handle) * fraction).roundToPx(), 0) }
                 .size(handle)
+                // Pressed, dragged and focused show as Material's halo around the handle.
+                .indication(interaction, ripple(bounded = false, radius = 20.dp))
                 .glow(accent, handleShape, glowStrength())
                 .background(
                     when {
@@ -128,4 +146,21 @@ internal fun ShapedSlider(
                 ),
         )
     }
+}
+
+/** Where a touch at [x] (from the left edge of a [width] wide slider, handle radius [half]) puts the value, 0..1 from the start edge. */
+internal fun sliderFraction(x: Float, width: Float, half: Float, rtl: Boolean): Float =
+    (((if (rtl) width - x else x) - half) / (width - half * 2).coerceAtLeast(1f)).coerceIn(0f, 1f)
+
+/** A hardware key's move as a fraction of the range (arrows 1%, page keys 10%, Home / End to the ends), or null. */
+internal fun sliderKeyDelta(key: Key, rtl: Boolean): Float? = when (key) {
+    Key.DirectionRight -> if (rtl) -0.01f else 0.01f
+    Key.DirectionLeft -> if (rtl) 0.01f else -0.01f
+    Key.DirectionUp -> 0.01f
+    Key.DirectionDown -> -0.01f
+    Key.PageUp -> 0.1f
+    Key.PageDown -> -0.1f
+    Key.MoveHome -> -1f
+    Key.MoveEnd -> 1f
+    else -> null
 }

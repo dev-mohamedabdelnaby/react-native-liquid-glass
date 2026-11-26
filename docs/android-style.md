@@ -9,17 +9,10 @@ androidStyle?: 'glass' | 'material'; // default 'glass'; iOS ignores it
 - `'material'`: the same 21 screens and Home, with the same content, drawn with Android's own Material 3 components. No glass and no liquid drops.
 - Android Home has a Glass / Material picker. It sends `onSettingsChange` with the new `androidStyle`, like its other controls.
 
-```ts
-androidSegmentedCheck?: boolean; // default true; Material only
-```
-
-- The check mark on the selected segment of Material segmented buttons. `false` hides it.
-- In `GlassSettings` and as a screen prop (the prop wins), like `androidStyle`. In Material, Android Home shows a "Check on the selected segment" switch for it.
-
 ```tsx
 import { useMemo } from 'react';
 import {
-  GlassButtonsScreen, GlassControlsScreen, GlassHomeScreen, GlassSettingsProvider,
+  GlassButtonsScreen, GlassHomeScreen, GlassSettingsProvider,
 } from '@native-dev-kit/react-native-liquid-glass';
 
 export function MaterialHome() {
@@ -35,16 +28,11 @@ export function MaterialHome() {
 export function GlassButtons() {
   return <GlassButtonsScreen androidStyle="glass" style={{ flex: 1 }} />;
 }
-
-// Material segmented buttons without the check mark on this screen.
-export function NoCheckControls() {
-  return <GlassControlsScreen androidStyle="material" androidSegmentedCheck={false} style={{ flex: 1 }} />;
-}
 ```
 
 Use `Platform.OS` if you want Material only on some devices; iOS always shows glass.
 
-The switch, slider, segmented control and bottom tab bar are pill-shaped in either style, or labeled or glowing: see [control-shapes.md](control-shapes.md) (`androidControlShape`).
+In Material, the switch, slider, segmented control and bottom tab bar are pill-shaped by default, or labeled or glowing: see [control-shapes.md](control-shapes.md) (`androidControlShape`). Glass keeps its liquid controls.
 
 ## What changes
 
@@ -57,11 +45,11 @@ The switch, slider, segmented control and bottom tab bar are pill-shaped in eith
 | Prominent / glass / clear / frosted button | `Button` (in the prominent button's tint) / `FilledTonalButton` / `OutlinedButton` / `TextButton` |
 | Floating glass compose / add button (Toolbar, Recipes) | `FloatingActionButton` |
 | Glass icon button | `FilledTonalIconButton`; `IconButton` inside a bar |
-| Liquid switch | Material 3's stock `Switch`, with a check on the thumb while it is on |
-| Liquid slider | Material 3's classic `Slider`: a round handle on a thin track, and a light haptic each tenth of the way (not continuously) |
-| Segmented control (and the Recipes selector) | Material 3's stock `SingleChoiceSegmentedButtonRow` (check mark per `androidSegmentedCheck`) |
+| Liquid switch | The [control shape](control-shapes.md)'s switch (pill by default) |
+| Liquid slider | The control shape's slider, with a light haptic each tenth of the way (not continuously) |
+| Segmented control (and the Recipes selector) | The control shape's segmented control |
 | Scroll Edge's filters and edge styles | `FilterChip` rows |
-| Bottom tab bar | `NavigationBar` with badges |
+| Bottom tab bar | The control shape's tab bar with badges, floating above the navigation bar (content scrolls under it) |
 | Glass bottom bar | `BottomAppBar` |
 | Menu, context menu | `DropdownMenu` (a context menu opens at the long-pressed item, with no lifted preview) |
 | Popover | `DropdownMenu` holding the same content |
@@ -75,10 +63,10 @@ The switch, slider, segmented control and bottom tab bar are pill-shaped in eith
 | iOS-style symbols in bars and pickers (`···`, the share box, `‹ ›`, the up-down picker arrows) | `MoreVert`, `Share`, `ArrowBack` / `ArrowForward`, `ArrowDropDown` |
 
 - Colors are the device's dynamic colors (Android 12+), else Material's baseline. `tint` becomes the scheme's primary roles: in light mode it is darkened until white reads on it, in dark mode lifted to a light tone with a dark on-color; the containers, on-colors and inverse primary are lighter or darker tones of it. It is a blend toward white or black, not a full tonal palette; secondary, tertiary and the surfaces stay the device's. Text uses Material's type scale, also for the screens' own texts. Presses show ripples.
-- Android Home shows only the settings Material uses: Appearance, Layout direction, Android style, the segmented check, the control shape (and glow intensity), `tint` and `dropColor`.
-- Sliders take `dropColor` for their handle; a slider's own tint wins over the primary.
+- Android Home shows only the settings Material uses: Appearance, Layout direction, Android style, the control shape (and glow intensity) and `tint`.
+- A slider's own tint wins over the primary. `dropColor` does nothing in `'material'`.
 - TalkBack: a switch row reads its label with the switch's state; a slider reads its label and value ("Blur, 3", "White, 25%").
-- Touch targets are at least 48 dp. Animations are the Material components' own.
+- Touch targets are at least 48 dp. Material components animate as their own; the control shapes slide with a spring, and show ripples and keyboard focus.
 - Screens about glass itself (Glass Effect, Glass View, Union, Morphing, Glass Container) show Material surfaces in its place, on the plain page instead of the photo.
 - The other Android glass settings (`clear`, `blur`, `liquid` and the rest) do nothing in `'material'`.
 - `appearance`, `layoutDirection` and the back key work as in glass: back closes an open sheet, dialog, menu or search first.

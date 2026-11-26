@@ -6,7 +6,6 @@ export const DEFAULT_SETTINGS: Required<GlassSettings> = {
   tint: null,
   layoutDirection: 'system',
   androidStyle: 'glass',
-  androidSegmentedCheck: true,
   androidControlShape: 'pill',
   androidGlowIntensity: 0.35,
   clear: true,

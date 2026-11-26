@@ -1,10 +1,10 @@
 package com.mohamedabdelnaby.liquidglass.catalog.shapes
 
+import androidx.compose.ui.draw.clip
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -24,13 +25,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.onClick
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -88,20 +85,18 @@ internal fun ShapedTabRow(
                 .glow(accent, corners, glowStrength())
                 .background(marker, corners),
         )
-        Row(Modifier.matchParentSize().padding(inset).selectableGroup()) {
+        // Tabs fill the full height (48 dp targets); only the marker is inset.
+        Row(Modifier.matchParentSize().padding(horizontal = inset).selectableGroup()) {
             labels.forEachIndexed { i, label ->
                 val color by animateColorAsState(if (i == selectedIndex) selectedColor else otherColor, shapeSpring(), label = "tab")
                 Box(
                     Modifier
                         .weight(1f)
                         .fillMaxHeight()
-                        .pointerInput(i) { detectTapGestures { select(i) } }
-                        .clearAndSetSemantics {
-                            role = Role.Tab
-                            selected = i == selectedIndex
-                            contentDescription = label
-                            onClick { onSelect(i); true }
-                        },
+                        .clip(corners)
+                        // Ripple, keyboard / D-pad focus, and role Tab + selected + click for TalkBack.
+                        .selectable(i == selectedIndex, role = Role.Tab) { select(i) }
+                        .clearAndSetSemantics { contentDescription = label },
                     contentAlignment = Alignment.Center,
                 ) { item(i, color) }
             }
@@ -109,5 +104,5 @@ internal fun ShapedTabRow(
     }
 }
 
-/** The accent as text on the white marker when it reads (3:1), else black. */
-private fun onWhite(accent: Color): Color = if (accent.luminance() <= 0.3f) accent else Color.Black
+/** The accent as text on the white marker when it reads (4.5:1, luminance up to 0.18), else black. */
+internal fun onWhite(accent: Color): Color = if (accent.luminance() <= 0.18f) accent else Color.Black

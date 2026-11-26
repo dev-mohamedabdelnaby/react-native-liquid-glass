@@ -75,7 +75,6 @@ type GlassScreenProps = {
   onOpen?: (screen: GlassScreenId) => void;              // Home only: a row was tapped
   onSettingsChange?: (settings: GlassSettings) => void;  // Home only: user changed a setting
   androidStyle?: 'glass' | 'material';                   // Android only; wins over the provider
-  androidSegmentedCheck?: boolean;                       // Android Material only; wins over the provider
   androidControlShape?: GlassSettings['androidControlShape']; // Android only; wins over the provider
   androidGlowIntensity?: number; // Android only; wins over the provider
   fontFamily?: GlassSettings['fontFamily'];              // wins over the provider
@@ -95,7 +94,6 @@ type GlassSettings = {
   layoutDirection?: 'system' | 'ltr' | 'rtl'; // iOS + Android
   // Android only (iOS ignores them):
   androidStyle?: 'glass' | 'material';        // 'material': Material 3 components, no glass
-  androidSegmentedCheck?: boolean;            // Material segmented buttons: check on the selected one
   androidControlShape?: 'pill' | 'labeled' | 'glow'; // switch, slider, top and bottom tabs
   androidGlowIntensity?: number; // 0..1, how strongly 'glow' glows
   clear?: boolean; blur?: number; white?: number; black?: number; edgeLight?: number;
@@ -108,7 +106,7 @@ type GlassSettings = {
 };
 
 DEFAULT_SETTINGS = {
-  appearance: 'system', tint: null, layoutDirection: 'system', androidStyle: 'glass', androidSegmentedCheck: true, androidControlShape: 'pill', androidGlowIntensity: 0.35, clear: true, blur: 3,
+  appearance: 'system', tint: null, layoutDirection: 'system', androidStyle: 'glass', androidControlShape: 'pill', androidGlowIntensity: 0.35, clear: true, blur: 3,
   white: 0.25, black: 0.05, edgeLight: 0.15, refraction: { height: 14, amount: 24 },
   opaque: false, liquid: true, dropColor: null, sliderLiquid: true, switchLiquid: true,
   segmentedLiquid: true, tabBarLiquid: true, tabBarDrop: true, fontFamily: '',
@@ -218,7 +216,7 @@ If the user wants only a few screens, register only those routes and guard `onOp
 | `appearance` | Window-wide: sets the window's `overrideUserInterfaceStyle`, so the whole app (RN views and status bar) follows. | Inside the screen (Compose theme) plus the status/navigation bar icons. RN views unchanged. |
 | `tint` | Glass tint. Home's picker shows None/Blue/Purple/Pink/Orange/Green/Teal; other colours still tint but Home shows None. | Tint of every glass surface without its own. |
 | `layoutDirection` | Mirrors the screens; Home has a picker. `system` = device direction. Full-screen covers (Tab Bar "With Now Playing Bar") and UIKit pieces (menu rows, the open search field) stay LTR. | Mirrors the screens and controls; Home has the same picker. `system` = React Native's `I18nManager.isRTL`. Text reads in its own script's direction (English keeps its period last), so a wrapped English paragraph aligns left in RTL where iOS aligns it right. |
-| `androidStyle` | Ignored: always glass. | `'material'`: the same screens drawn with Material 3 (top app bar with the back arrow, buttons, switches, sliders, segmented buttons, navigation bar, sheets, dialogs, menus, search bar, Android colors, type and ripples). Home has a Glass / Material picker. A screen's `androidStyle` prop wins over the provider. `androidSegmentedCheck` (default `true`, Material only; Home's switch in Material): `false` hides the check on the selected segment; also a screen prop. `androidControlShape` (default `'pill'`, both styles; Home's picker): `'pill'`, `'labeled'` or `'glow'` shapes the switch, slider, segmented control and bottom tab bar; `androidGlowIntensity` (0..1, default 0.35; Home's slider while Glow is picked) sets the glow; both also screen props. iOS ignores it. |
+| `androidStyle` | Ignored: always glass. | `'material'`: the same screens drawn with Material 3 (top app bar with the back arrow, buttons, shaped switches, sliders, segmented controls and tab bar, sheets, dialogs, menus, search bar, Android colors, type and ripples). Home has a Glass / Material picker. A screen's `androidStyle` prop wins over the provider. `androidControlShape` (default `'pill'`, Material only; Home's picker in Material): `'pill'`, `'labeled'` or `'glow'` shapes the Material switch, slider, segmented control and bottom tab bar (glass keeps its liquid controls); `androidGlowIntensity` (0..1, default 0.35; Home's slider while Glow is picked) sets the glow; both also screen props. iOS ignores it. |
 | Other Android-only keys | Ignored. | The glass engine's options; Home has controls for them. They do nothing in `'material'`. |
 
 Appearance requests on both platforms: the **latest mounted** screen asking for `'light'` or `'dark'` wins; the app's own value comes back when the last one **unmounts**. A screen keeps its request while mounted even if off screen (under a pushed screen, in an inactive tab). `'system'` never writes the iOS window. On iOS, an `Appearance.setColorScheme` call made while a glass screen holds a request is lost when the request ends.

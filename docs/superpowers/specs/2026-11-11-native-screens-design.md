@@ -207,15 +207,15 @@ androidStyle?: 'glass' | 'material';   // default 'glass'; iOS ignores it
   menu, dialog, sheet, search field) switches to its Material counterpart in one place; screens are
   not rewritten.
 - Built before custom fonts and icons, which then apply to both styles.
-- Material switches, sliders and segmented buttons are Compose Material 3's stock widgets in their
-  stock look (user, 2026-11-21: "stock look in screens", "classic M3" slider): the switch shows a
-  check on its thumb only when on; the slider is the round handle on the thin track, no value
-  indicator; 48 dp touch targets, a light haptic on slider steps, colours from Material tokens with the settings' tint and drop colour
-  as accent, contrast checked in light and dark, and TalkBack state and value announcements.
-- `androidSegmentedCheck?: boolean` (default `true`): the check mark on the selected segment of
-  Material segmented buttons; `false` hides it. Provider setting and per-screen prop, like the others.
+- Material switches, sliders, segmented controls and bottom tab bars are the control shapes below
+  (revised 2026-11-26; they replaced the stock M3 `Switch`, `Slider`, segmented buttons and
+  `NavigationBar`): 48 dp touch targets, ripples and keyboard / D-pad focus, a light haptic on
+  slider steps, colours from the Material theme's primary (the tint, contrast-adjusted), contrast
+  checked in light and dark, and TalkBack state and value announcements.
+- `androidSegmentedCheck` (the check on stock segmented buttons) was removed with those buttons
+  (2026-11-26).
 
-### Android control shapes (approved 2026-11-21, revised 2026-11-26)
+### Android control shapes (approved 2026-11-21, revised 2026-11-26 twice)
 
 ```ts
 androidControlShape?: 'pill' | 'labeled' | 'glow'; // default 'pill'; iOS ignores it
@@ -225,10 +225,15 @@ androidGlowIntensity?: number; // 0..1, default 0.35; only 'glow' uses it; iOS i
 - Android only; iOS is unchanged (user, 2026-11-21). Provider setting and per-screen prop (wins), like
   the others. Revised 2026-11-26 (user): `'default'` and `'squared'` are removed; `'pill'` is the
   default, so every app gets pill controls; unknown values (and the old `'default'` / `'squared'`)
-  read as `'pill'`. The four controls no longer have the liquid drop or Material's stock widgets.
-- Reaches four controls, in both `androidStyle`s: top tabs (segmented control), slider, switch, bottom
-  tab bar. Everything else keeps its style.
-- `pill`: a solid pill in the accent (tint, else the theme's primary). Switch with ON / OFF text
+  read as `'pill'`.
+- Second revision 2026-11-26 (user): the shapes are **Material only**. `androidStyle: 'glass'` keeps
+  its liquid switch, slider, segmented control and tab bar with the drop exactly as before, and
+  `sliderLiquid`, `switchLiquid`, `segmentedLiquid`, `tabBarLiquid`, `tabBarDrop` and `dropColor`
+  work there. Home shows the shape picker (and the Glow intensity slider) only in Material, and the
+  liquid switches only in Glass.
+- Reaches four controls in Material: top tabs (segmented control), slider, switch, bottom tab bar.
+  Everything else keeps its style.
+- `pill`: a solid pill in the accent (a control's own colour, else the Material primary). Switch with ON / OFF text
   inside; top tabs with the selected tab a white pill inside the accent pill; slider a thick rounded
   track with a white round handle; bottom tabs an accent bar with a white pill behind the selected tab.
 - `labeled`: outlined pills. Switch outlined with ON / OFF text and a filled thumb; top tabs outlined
@@ -242,7 +247,10 @@ androidGlowIntensity?: number; // 0..1, default 0.35; only 'glow' uses it; iOS i
   TalkBack reading as Android's own controls (switch state and label, slider label, value and
   adjust, tabs selected with role Tab), 48 dp touch targets and slider haptics; motion is a spring
   slide (no liquid drop). Drawn natively in Compose (no stock Android widget has these looks).
-  ON / OFF are fixed English (custom labels out of scope). Home gets a Pill / Labeled / Glow picker.
+  ON / OFF are fixed English, at a fixed size so they fit at any font scale (custom labels out of
+  scope). Ripples and keyboard / D-pad focus as Material's controls. The bottom bar floats (user,
+  2026-11-26) in its own container colour above the navigation bar; content scrolls under it.
+  Home gets a Pill / Labeled / Glow picker.
 
 ## Out of scope for this version
 

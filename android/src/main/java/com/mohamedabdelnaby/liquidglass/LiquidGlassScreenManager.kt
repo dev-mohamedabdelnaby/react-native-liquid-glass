@@ -62,7 +62,6 @@ internal class LiquidGlassScreenManager :
     view.glowIntensity = glowIntensityOf(value)
   }
 
-  override fun setAndroidSegmentedCheck(view: LiquidGlassScreenView, value: Boolean) = update(view) { copy(segmentedCheck = value) }
 
   override fun setTintColor(view: LiquidGlassScreenView, value: Int?) = update(view) { copy(tint = value?.let { Color(it) }) }
 

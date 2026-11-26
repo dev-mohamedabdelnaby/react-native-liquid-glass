@@ -74,7 +74,7 @@ fun HomeScreen(
     // JS `androidStyle`: Glass, or Android's own Material 3 components.
     style: AndroidStyle = AndroidStyle.Glass,
     onStyleChange: (AndroidStyle) -> Unit = {},
-    // JS `androidControlShape`: switches, sliders, top and bottom tabs, in both styles.
+    // JS `androidControlShape`: switches, sliders, top and bottom tabs in Material.
     shape: ControlShape = ControlShape.Pill,
     onShapeChange: (ControlShape) -> Unit = {},
     // JS `androidGlowIntensity`: only Glow uses it.
@@ -119,12 +119,9 @@ fun HomeScreen(
                             onSelect = { onStyleChange(AndroidStyle.entries[it]) },
                         )
                         Footnote("Material draws every screen with Android's own components.", Modifier.padding(horizontal = 16.dp))
-                        // JS `androidSegmentedCheck`: only Material segmented buttons have the check.
-                        if (style == AndroidStyle.Material) Box(Modifier.padding(horizontal = 16.dp)) {
-                            SwitchRow("Check on the selected segment", settings.segmentedCheck) { onSettingsChange(settings.copy(segmentedCheck = it)) }
-                        }
                     }
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    // JS `androidControlShape`: Material only; glass keeps its liquid controls.
+                    if (material) Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         GlassSegmented(
                             options = ControlShape.entries.map { it.name },
                             selected = shape.ordinal,
@@ -226,15 +223,11 @@ private fun ColorChoices(picked: Color?, label: String, onPick: (Color?) -> Unit
 /** The Glass Lab controls every component in the catalog follows. */
 @Composable
 private fun GlassSettingsPanel(settings: GlassSettings, onChange: (GlassSettings) -> Unit) {
-    // Material has no glass: only the two colors it uses.
-    if (isMaterial) return GlassListSection(header = "Colors", footer = "The tint is every screen's accent; the drop color fills slider handles.") {
+    // Material has no glass and no drop: only the tint.
+    if (isMaterial) return GlassListSection(header = "Colors", footer = "The tint is every screen's accent.") {
         ListRow { Column(Modifier.padding(vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("Tint")
             ColorChoices(settings.tint?.copy(alpha = 1f), "Glass tint") { onChange(settings.copy(tint = it?.copy(alpha = GlassTintAlpha))) }
-        } }
-        ListRow { Column(Modifier.padding(vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Drop color")
-            ColorChoices(settings.dropColor, "Drop color") { onChange(settings.copy(dropColor = it)) }
         } }
     }
     GlassListSection(header = "Glass", footer = "Every component follows these, like the Glass Lab in LiquidPlayground.") {

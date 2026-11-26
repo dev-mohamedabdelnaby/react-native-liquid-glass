@@ -12,17 +12,18 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import kotlin.math.roundToInt
 
 /**
@@ -62,7 +63,7 @@ internal fun ShapedSwitch(checked: Boolean, onCheckedChange: ((Boolean) -> Unit)
             .minimumInteractiveComponentSize()
             .then(
                 if (onCheckedChange == null) Modifier
-                else Modifier.toggleable(checked, interactionSource = null, indication = null, role = Role.Switch, onValueChange = onCheckedChange),
+                else Modifier.toggleable(checked, interactionSource = null, indication = ripple(bounded = false, radius = 24.dp), role = Role.Switch, onValueChange = onCheckedChange),
             ),
         contentAlignment = Alignment.Center,
     ) {
@@ -81,7 +82,8 @@ internal fun ShapedSwitch(checked: Boolean, onCheckedChange: ((Boolean) -> Unit)
                     .padding(horizontal = 8.dp)
                     .clearAndSetSemantics {},
                 color = text,
-                fontSize = 11.sp,
+                // Fixed, not scaled with the font size: it must fit its 28 dp slot (TalkBack reads the state, not this).
+                fontSize = with(LocalDensity.current) { 11.dp.toSp() },
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
             )

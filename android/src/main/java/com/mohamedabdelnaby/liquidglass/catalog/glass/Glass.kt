@@ -159,8 +159,6 @@ data class GlassSettings(
     // Bottom tab bars: their glass (frosted when off) and, separately, the drop.
     val tabBarLiquid: Boolean = true,
     val tabBarDrop: Boolean = true,
-    // Android Material only: the check mark on the selected segment of segmented buttons.
-    val segmentedCheck: Boolean = true,
     // Every screen text's family (the theme's type and the texts that build their own style); null is the system font.
     val fontFamily: FontFamily? = null,
 )

@@ -50,6 +50,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.isSpecified
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -57,31 +59,31 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.LiquidSlider
 import com.mohamedabdelnaby.liquidglass.catalog.liquid.LiquidSwitch
-import com.mohamedabdelnaby.liquidglass.catalog.ui.theme.SystemColors
 import com.mohamedabdelnaby.liquidglass.catalog.shapes.ShapedSlider
 import com.mohamedabdelnaby.liquidglass.catalog.shapes.ShapedSwitch
 import com.mohamedabdelnaby.liquidglass.catalog.shapes.shapeAccent
+import com.mohamedabdelnaby.liquidglass.catalog.ui.theme.SystemColors
 
-/** The slider, in Home's control shape (see ShapedSlider); [dropColor] and [liquid] no longer apply. */
+/** The iOS 26 slider: its thumb lifts into a glass lens while dragged (react-native-liquid). */
 @Composable
 fun GlassSlider(
     value: Float,
     onValueChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
-    tint: Color = MaterialTheme.colorScheme.primary,
+    // Unspecified: the theme's primary (glass) or the Material accent (shapes).
+    tint: Color = Color.Unspecified,
     contentDescription: String? = null,
     dropColor: Color? = null,
     // false: no liquid lift for this slider; null follows Home's setting.
     liquid: Boolean? = null,
-) =
-    // Only a slider's own tint (not the default, the theme's primary) wins over Home's tint.
-    ShapedSlider(value, onValueChange, modifier, valueRange, shapeAccent(tint.takeIf { it != MaterialTheme.colorScheme.primary }), contentDescription)
+) = if (isMaterial) ShapedSlider(value, onValueChange, modifier, valueRange, shapeAccent(tint.takeIf { it.isSpecified }), contentDescription)
+else LiquidSlider(value, onValueChange, modifier, valueRange, tint = tint.takeOrElse { MaterialTheme.colorScheme.primary }, contentDescription = contentDescription, dropColor = dropColor, liquid = liquid)
 
-/** The switch, in Home's control shape (see ShapedSwitch); [dropColor] and [liquid] no longer apply. */
+/** The iOS 26 switch: its thumb lifts into a glass lens while pressed (react-native-liquid). */
 @Composable
 fun GlassSwitch(checked: Boolean, onCheckedChange: (Boolean) -> Unit, modifier: Modifier = Modifier, dropColor: Color? = null, liquid: Boolean? = null) =
-    ShapedSwitch(checked, onCheckedChange, modifier)
+    if (isMaterial) ShapedSwitch(checked, onCheckedChange, modifier) else LiquidSwitch(checked, onCheckedChange, modifier, onTint = SystemColors.Green, dropColor = dropColor, liquid = liquid)
 
 /** The inside of a glass search field: magnifier, text, and a clear button once there is text. */
 @Composable

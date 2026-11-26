@@ -6,6 +6,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.dropShadow
@@ -13,10 +14,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.unit.dp
-import com.mohamedabdelnaby.liquidglass.catalog.glass.LocalGlassSettings
 import com.mohamedabdelnaby.liquidglass.catalog.glass.moreContrasting
 
-/** JS `androidControlShape`: how switches, sliders, top tabs and bottom tabs look, in both styles. */
+/** JS `androidControlShape`: how switches, sliders, top tabs and bottom tabs look in Material (glass keeps its liquid controls). */
 enum class ControlShape { Pill, Labeled, Glow }
 
 /** `'pill' | 'labeled' | 'glow'`, as JS sends it; anything else (old `'default'` / `'squared'` too) is Pill. */
@@ -30,12 +30,12 @@ const val DEFAULT_GLOW_INTENSITY = 0.35f
 /** The shape every switch, slider and tab row follows. Provided by the host. */
 val LocalControlShape = staticCompositionLocalOf { ControlShape.Pill }
 
-/** How strongly Glow glows. Provided by the host next to [LocalControlShape]. */
-val LocalGlowIntensity = staticCompositionLocalOf { DEFAULT_GLOW_INTENSITY }
+/** How strongly Glow glows. Provided by the host next to [LocalControlShape]; not static, so a Home slider tick recomposes only the glows. */
+val LocalGlowIntensity = compositionLocalOf { DEFAULT_GLOW_INTENSITY }
 
-/** A control's own colour, else Home's tint, else the theme's primary. */
+/** A control's own colour, else the theme's primary (Home's tint, contrast-adjusted by the Material theme). */
 @Composable
-internal fun shapeAccent(own: Color? = null): Color = own ?: LocalGlassSettings.current.tint?.copy(alpha = 1f) ?: MaterialTheme.colorScheme.primary
+internal fun shapeAccent(own: Color? = null): Color = own ?: MaterialTheme.colorScheme.primary
 
 /** Text and marks on [accent]: white or black, whichever reads better. */
 internal fun onAccent(accent: Color): Color = moreContrasting(accent, Color.White, Color.Black)
