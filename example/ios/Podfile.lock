@@ -2309,7 +2309,7 @@ SPEC CHECKSUMS:
   ReactCodegen: 3840312f5071bb6b953b35a029c5c6dcf06b435e
   ReactCommon: b63ce798b898ed77c6cfdeb80b18080161f52ed5
   ReactNativeDependencies: a5164c3ebbe90d992022b5d9cbabbf770a6d7d05
-  ReactNativeLiquidGlass: 011f56d9fe28c153e33fd9f4b049750fe0206d71
+  ReactNativeLiquidGlass: e37a73d3283d0e261ca832386541eece46535269
   RNScreens: f15a5bda1ddeff8575b8ce41d83885b67129f84b
   RNVectorIcons: 8e7890bf2ce85e41df79133e7778070c37dc8d70
   SocketRocket: 37aec555668fb852ec12e3c0de59a86ca58f0871

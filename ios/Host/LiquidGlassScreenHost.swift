@@ -222,12 +222,24 @@ enum WindowStyle {
   private final class Requests {
     weak var window: UIWindow?
     let original: UIUserInterfaceStyle
+    // shortcut: one saved scene style per window; two styled windows in one scene released out of
+    // order can leave the scene styled. Save it per scene if an app needs that.
+    let sceneOriginal: UIUserInterfaceStyle?
     var stack: [(host: ObjectIdentifier, style: UIUserInterfaceStyle)] = []
 
     init(_ window: UIWindow) {
       self.window = window
       original = window.overrideUserInterfaceStyle
+      sceneOriginal = window.windowScene?.traitOverrides.userInterfaceStyleOverride
     }
+  }
+
+  // React Native Screens answers the status bar style ('auto') from `UITraitCollection.current`,
+  // which outside trait callbacks is the window scene's style, not the window's: the scene takes
+  // the style too, or the status bar keeps the system's.
+  private static func write(_ style: UIUserInterfaceStyle, scene sceneStyle: UIUserInterfaceStyle?, to window: UIWindow) {
+    window.windowScene?.traitOverrides.userInterfaceStyleOverride = sceneStyle
+    window.overrideUserInterfaceStyle = style
   }
 
   /// Weak windows: a window closed with screens still in it is dropped, not inherited by a new one.
@@ -247,7 +259,7 @@ enum WindowStyle {
     if requests.stack.contains(where: { $0.host == id && $0.style == style }) { return }
     requests.stack.removeAll { $0.host == id }
     requests.stack.append((id, style))
-    window.overrideUserInterfaceStyle = style
+    write(style, scene: style, to: window)
   }
 
   static func release(_ host: AnyObject, in window: UIWindow) {
@@ -255,8 +267,22 @@ enum WindowStyle {
           requests.stack.contains(where: { $0.host == ObjectIdentifier(host) })
     else { return }
     requests.stack.removeAll { $0.host == ObjectIdentifier(host) }
-    window.overrideUserInterfaceStyle = requests.stack.last?.style ?? requests.original
+    if let style = requests.stack.last?.style {
+      write(style, scene: style, to: window)
+    } else {
+      write(requests.original, scene: requests.sceneOriginal, to: window)
+    }
     if requests.stack.isEmpty { all.removeAll { $0 === requests } }
+  }
+}
+
+extension UITraitOverrides {
+  /// The overridden style, nil for none (setting nil removes it).
+  var userInterfaceStyleOverride: UIUserInterfaceStyle? {
+    get { contains(UITraitUserInterfaceStyle.self) ? userInterfaceStyle : nil }
+    set {
+      if let newValue { userInterfaceStyle = newValue } else { remove(UITraitUserInterfaceStyle.self) }
+    }
   }
 }
 

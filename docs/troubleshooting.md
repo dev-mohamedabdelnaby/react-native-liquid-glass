@@ -46,10 +46,6 @@ On iOS, `appearance: 'light'` or `'dark'` sets the window's style, so your React
 
 To keep your own screens in one style, set `appearance` in the provider to match your app, or use `'system'`, which never writes the window.
 
-## iOS: the status bar text stays dark in Dark
-
-Known issue, to be fixed before the 1.0.0 release: with the system in Light and Home (or the provider) set to Dark, the status bar text stays dark on the dark screen. With the system in Dark it is right.
-
 ## iOS: `<StatusBar>` does nothing
 
 Under native-stack, react-native-screens owns the status bar on iOS, so React Native's `<StatusBar>` component has no effect. Use the screen option instead: `options={{ statusBarStyle: 'light' }}`. Glass screens set their own icons; you need this only for your own screens.

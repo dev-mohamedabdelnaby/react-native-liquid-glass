@@ -55,7 +55,7 @@ For a whole app with navigation, copy the recipe in [react-navigation.md](react-
 
 Glass screens set their own status bar style through the window. Under native-stack, React Native's `<StatusBar>` component has no effect on iOS (react-native-screens owns the status bar); for your own screens use the native-stack option `statusBarStyle`.
 
-Known issue (to be fixed before the 1.0.0 release): with the system in Light and Home set to Dark, the status bar text stays dark.
+The status bar text follows the glass screen's appearance even when it differs from the system's (light text on a dark screen on a Light system), and goes back when the screen asks for `'system'` or unmounts.
 
 ## Fonts on iOS
 

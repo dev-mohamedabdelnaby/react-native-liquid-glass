@@ -216,7 +216,7 @@ Units (Android): `blur` and `refraction` in dp; `white`, `black`, `edgeLight` fr
 - A request lasts while the screen is **in the React tree**, not only while it is in the window: leaving the window (a native-stack push, a cover) keeps it. It ends in `willMoveToSuperview:nil` / `invalidate` (`releaseWindowStyle`). So an off-screen mounted screen (under a pushed one, in an inactive tab) still holds its style.
 - An app `Appearance.setColorScheme` made while a glass screen holds a request is **lost** on release: the window gets back the style saved at the first request.
 - Windows are held weakly; a closed window's requests are dropped.
-- **Known issue (to be fixed before release; delete this note when fixed):** with the system in Light and Home set to Dark, the status bar content stays dark (the time and signal are unreadable on the dark screen). With the system in Dark it is right.
+- The window's **scene** takes the same style (`windowScene.traitOverrides.userInterfaceStyle`), saved at the first request and restored (or removed) with the window's. Why: react-native-screens answers the status bar style (`'auto'`, the default) from `UITraitCollection.current`, which outside trait callbacks is the scene's style, not the window's. Without the scene override the status bar kept the system's style (dark text on a dark Home on a Light system, light text on a light Home on a Dark system). A screen with its own native-stack `statusBarStyle` keeps it.
 
 ### 6.4 Home redraw on a direction switch
 
@@ -344,7 +344,6 @@ Only native-stack is verified. Bottom tabs, the JS stack and React Native `<Moda
 ## 14. Known limits and gotchas
 
 - iOS appearance is window-wide; off-screen mounted screens keep their request; an `Appearance.setColorScheme` made during a request is lost on release (6.3).
-- iOS: the status bar stays dark with Home in Dark on a Light system (6.3; to be fixed before release).
 - iOS: each screen has its own navigation bar (it slides on push); the back chevron is a `chevron.backward` image, about 2 px (at 3x) taller than the system's.
 - iOS: switching the direction on Home scrolls Home's list to the top (6.4).
 - iOS: UIKit pieces and covers stay LTR in a forced RTL without the trait override (11).

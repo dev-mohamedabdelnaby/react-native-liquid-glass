@@ -132,7 +132,7 @@ SwiftUI's dark mode is the window's style, so a screen with `'light'` or `'dark'
 - A request lasts while the screen is mounted, **even when it is off screen** (under a pushed screen, in an inactive tab). So an off-screen glass screen still holds its light or dark.
 - A request ends when the screen unmounts.
 - If your app calls `Appearance.setColorScheme` while a glass screen holds a request, your value is lost when the request ends: the window gets back the style saved before the first request.
-- Known issue (to be fixed before the 1.0.0 release): with the system in Light and a screen in `'dark'`, the status bar text stays dark.
+- The window's scene gets the same style, so the status bar text follows the screen's appearance (light text in `'dark'` on a Light system, and the reverse), and goes back with the window's style.
 
 ### Android: inside the screen, plus the bar icons
 

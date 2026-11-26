@@ -169,6 +169,22 @@ final class LiquidGlassScreenHostTests: XCTestCase {
     XCTAssertEqual(second.overrideUserInterfaceStyle, .unspecified)
   }
 
+  // The window scene takes the style too (React Native Screens reads the status bar style from
+  // it) and gets its own back. A logic test has no window scene; a view's overrides are the same
+  // type, so the save and restore are checked there (the scene itself on the simulator).
+  func testStyleOverrideIsSavedAndRemoved() {
+    let view = UIView()
+    XCTAssertNil(view.traitOverrides.userInterfaceStyleOverride, "none set")
+    view.traitOverrides.userInterfaceStyleOverride = .dark
+    XCTAssertEqual(view.traitOverrides.userInterfaceStyleOverride, .dark)
+    view.updateTraitsIfNeeded()
+    XCTAssertEqual(view.traitCollection.userInterfaceStyle, .dark)
+    view.traitOverrides.userInterfaceStyleOverride = .unspecified
+    XCTAssertEqual(view.traitOverrides.userInterfaceStyleOverride, .unspecified, "an explicit unspecified is kept")
+    view.traitOverrides.userInterfaceStyleOverride = nil
+    XCTAssertFalse(view.traitOverrides.contains(UITraitUserInterfaceStyle.self), "nil removes the override")
+  }
+
   @available(iOS, deprecated: 26.0)
   private func makeWindow(_ style: UIUserInterfaceStyle) -> UIWindow {
     let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
