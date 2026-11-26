@@ -28,6 +28,7 @@ export function ForceRtl({ children }: { children: React.ReactNode }) {
 - **iOS:** the screens mirror the way SwiftUI mirrors any app: the layout flips and the back button moves to the right, its chevron pointing the other way.
 - **Android:** the same as iOS. The back arrow moves to the right and points the other way. Sliders fill from the right, switch thumbs and liquid drops slide toward the reading direction, segmented controls, tab bars and sliding selectors follow the selected item, menus and popovers grow from their button's leading side, minimizing tab bars shrink into the leading circle, and sheets, dialogs and the context menu preview follow too.
 - Icons that SF Symbols mirrors (back and forward chevrons, list and sidebar icons) mirror on both platforms. Media controls, checkmarks and similar symbols do not.
+- Media players stay left-to-right on both platforms, as the HIG and Material ask: media controls follow time, not reading direction. The Recipes mini player (artwork, title, play button), its progress slider and transport row, the Buttons media row and the Tab Bar's Now Playing accessory keep their LTR layout in an RTL screen.
 
 ## Screen transitions in RTL
 
@@ -61,11 +62,52 @@ export function stackOptions(settings: GlassSettings) {
 - **iOS:** the system push (`default`) in both directions. `direction` sets the `UINavigationController`'s direction, so in RTL UIKit pushes from the left and the edge and content swipes start at the right.
 - **Always pass `direction`.** React Navigation defaults it to `I18nManager.isRTL`. An Arabic app that shows the screens in LTR would then push from the left.
 
-This is what the example app does (`example/src/App.tsx`).
+The example app does this in `example/src/App.tsx`, plus the iOS trait override below.
+
+### iOS 26: the back button loses its chevron in run-time RTL
+
+With native-stack, `direction` mirrors the stack only through `semanticContentAttribute` (react-native-screens). UIKit's own layout direction (the trait) stays the system's. On iOS 26 and later the glass back button is laid out by the trait and its chevron by the forced attribute. When the app's direction differs from the device's (an RTL app on an English device, or the reverse), they disagree and the chevron collapses to zero width: an empty glass button.
+
+Your app needs the fix when it picks the direction at run time (a `layoutDirection` other than `'system'`) and shows a native-stack header on iOS 26+. Set the window scene's trait to match, from a small native module of your app:
+
+```objc
+// MyLayoutDirection.m, in your app target
+#import <React/RCTBridgeModule.h>
+#import <UIKit/UIKit.h>
+
+@interface MyLayoutDirection : NSObject <RCTBridgeModule>
+@end
+
+@implementation MyLayoutDirection
+RCT_EXPORT_MODULE()
+- (dispatch_queue_t)methodQueue { return dispatch_get_main_queue(); }
+
+// "rtl", "ltr" or "system" (removes the override).
+RCT_EXPORT_METHOD(setDirection : (NSString *)direction)
+{
+  for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
+    if (![scene isKindOfClass:UIWindowScene.class]) continue;
+    id<UITraitOverrides> overrides = ((UIWindowScene *)scene).traitOverrides;
+    if ([direction isEqualToString:@"system"]) [overrides removeTrait:UITraitLayoutDirection.class];
+    else overrides.layoutDirection = [direction isEqualToString:@"rtl"]
+        ? UITraitEnvironmentLayoutDirectionRightToLeft : UITraitEnvironmentLayoutDirectionLeftToRight;
+  }
+}
+@end
+```
+
+```tsx
+// Next to <NavigationContainer direction={…}>:
+useEffect(() => {
+  NativeModules.MyLayoutDirection?.setDirection(settings.layoutDirection ?? 'system');
+}, [settings.layoutDirection]);
+```
+
+On iPad with several windows, also apply it to scenes that connect later (`UISceneWillConnectNotification`). The example's `example/ios/ReactNativeLiquidGlassExample/LayoutDirection.m` does both. The override flips all of UIKit, so with it the UIKit pieces listed under Known differences mirror too.
 
 ## Known differences
 
-- **iOS full-screen covers stay left-to-right.** The Tab Bar "With Now Playing Bar" cover (tabs, close button, title) is not mirrored on iOS, even though Home's footer says RTL mirrors full-screen demos. Android mirrors it.
-- **iOS pieces drawn by UIKit stay left-to-right:** menu rows stay left-aligned, and the open search field keeps its magnifier on the left. Android mirrors both.
+- **iOS full-screen covers stay left-to-right** without the trait override above. The Tab Bar "With Now Playing Bar" cover (tabs, close button, title) is not mirrored on iOS, even though Home's footer says RTL mirrors full-screen demos. Android mirrors it, and so does the example on iOS, which sets the override.
+- **iOS pieces drawn by UIKit stay left-to-right** without the trait override above: menu rows stay left-aligned, and the open search field keeps its magnifier on the left. Android mirrors both. The example app sets the override, so in the example they mirror.
 - **Android, English text in RTL:** text reads in its own script's direction, as in SwiftUI, so an English sentence keeps its period last. A wrapped English paragraph then aligns left, where iOS keeps it right-aligned. Arabic and Hebrew text are right-aligned on both.
 - **iOS, switching the direction on Home:** Home rebuilds its list for each direction, so after a switch that changes the direction the list opens at the top instead of keeping its scroll position. Without the rebuild, a list switched from RTL to LTR kept UIKit's RTL layout and was drawn mirrored.

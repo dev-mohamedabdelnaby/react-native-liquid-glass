@@ -110,6 +110,7 @@ fun EditSearchScreen() {
     GlassScreen(
         title = title,
         backdrop = { PlainBackdrop(it) },
+        photo = false,
         actions = {
             if (material) when (mode) {
                 Mode.Idle -> {

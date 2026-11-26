@@ -156,7 +156,7 @@ private fun SplitViewDemo(onClose: () -> Unit) {
                         Modifier.padding(start = SidebarWidth + 16.dp, end = if (inspector) InspectorWidth + 16.dp else 0.dp),
                     )
                 }
-            }) {
+            }, photo = false) {
                 Row(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing).padding(8.dp)) {
                     Sidebar(selection, { selection = it }, onClose, Modifier.width(SidebarWidth).fillMaxHeight())
                     Box(Modifier.weight(1f)) {
@@ -173,7 +173,7 @@ private fun SplitViewDemo(onClose: () -> Unit) {
                 }
             }
         } else {
-            GlassSurfaceHost(backdrop = { source -> Box(source) { PlainBackdrop(); if (phoneDetail) Detail(selection) } }) {
+            GlassSurfaceHost(backdrop = { source -> Box(source) { PlainBackdrop(); if (phoneDetail) Detail(selection) } }, photo = false) {
                 AnimatedContent(phoneDetail, transitionSpec = { fadeIn() togetherWith fadeOut() }, label = "pane") { detail ->
                     Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing).padding(8.dp)) {
                         if (detail) {

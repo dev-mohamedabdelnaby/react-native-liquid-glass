@@ -7,7 +7,11 @@ import {
   View,
 } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import {
+  createNativeStackNavigator,
+  type NativeStackNavigationOptions,
+  type NativeStackNavigationProp,
+} from '@react-navigation/native-stack';
 import {
   CloseButton,
   Push1,
@@ -80,6 +84,30 @@ type Routes = { Home: undefined } & Record<GlassScreenId, undefined> &
 
 const Stack = createNativeStackNavigator<Routes>();
 
+// Outside App, so its header button is not a component made anew on every render.
+const push3Options = ({
+  navigation,
+}: {
+  navigation: NativeStackNavigationProp<Routes, 'Push3'>;
+}): NativeStackNavigationOptions => ({
+  title: 'Screen 3',
+  headerBackVisible: false,
+  // iOS: a real bar button item, so the glass itself takes the tint.
+  unstable_headerLeftItems: () => [
+    {
+      type: 'button',
+      label: 'Close',
+      icon: { type: 'sfSymbol', name: 'xmark' },
+      variant: 'prominent',
+      tintColor: '#ff3b30',
+      accessibilityLabel: 'Close',
+      onPress: () => navigation.popToTop(),
+    },
+  ],
+  // Android has no bar button items: an RN button instead.
+  headerLeft: () => <CloseButton onPress={() => navigation.popToTop()} />,
+});
+
 export default function App() {
   const [settings, setSettings] = useState<GlassSettings>(
     CUSTOMIZE ? { ...DEFAULT_SETTINGS, ...CUSTOM_SETTINGS } : DEFAULT_SETTINGS
@@ -90,8 +118,8 @@ export default function App() {
   // iOS: UIKit's own direction follows too, or the stack's glass back button loses its chevron in
   // RTL (see ios/ReactNativeLiquidGlassExample/LayoutDirection.m).
   useEffect(() => {
-    NativeModules.ExampleLayoutDirection?.setRTL(rtl);
-  }, [rtl]);
+    NativeModules.ExampleLayoutDirection?.setDirection(direction);
+  }, [direction]);
   return (
     <GlassSettingsProvider value={settings}>
       {/* iOS: the stack's direction is UIKit's, which then mirrors its own push and swipes back. */}
@@ -134,26 +162,7 @@ export default function App() {
             <Stack.Screen
               name="Push3"
               component={Push3}
-              options={({ navigation }) => ({
-                title: 'Screen 3',
-                headerBackVisible: false,
-                // iOS: a real bar button item, so the glass itself takes the tint.
-                unstable_headerLeftItems: () => [
-                  {
-                    type: 'button',
-                    label: 'Close',
-                    icon: { type: 'sfSymbol', name: 'xmark' },
-                    variant: 'prominent',
-                    tintColor: '#ff3b30',
-                    accessibilityLabel: 'Close',
-                    onPress: () => navigation.popToTop(),
-                  },
-                ],
-                // Android has no bar button items: an RN button instead.
-                headerLeft: () => (
-                  <CloseButton onPress={() => navigation.popToTop()} />
-                ),
-              })}
+              options={push3Options}
             />
           </Stack.Group>
           {GLASS_SCREENS.map(({ id }) => {

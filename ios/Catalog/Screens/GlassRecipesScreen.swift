@@ -138,7 +138,7 @@ private struct MapControls: View {
 }
 
 /// A music mini player that expands into full controls, morphing its glass.
-private struct MiniPlayer: View {
+struct MiniPlayer: View {
     @State private var isPlaying = false
     @State private var isExpanded = false
     @State private var progress = 0.35
@@ -197,6 +197,8 @@ private struct MiniPlayer: View {
                 }
             }
         }
+        // A media player follows time, not reading direction: it keeps its LTR layout in RTL (HIG).
+        .environment(\.layoutDirection, .leftToRight)
     }
 }
 

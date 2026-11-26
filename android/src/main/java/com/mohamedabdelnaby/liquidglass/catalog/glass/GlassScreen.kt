@@ -82,6 +82,9 @@ val SecondarySystemBackground: Color @Composable get() =
 fun PlainBackdrop(modifier: Modifier = Modifier, color: Color = MaterialTheme.colorScheme.background) =
     Box(modifier.fillMaxSize().background(color))
 
+/** Whether the host's backdrop is a photo, which grey captions need a plate to stay readable over. */
+internal val LocalOnPhoto = staticCompositionLocalOf { false }
+
 /** The whole screen as glass sees it: the backdrop with the content over it. */
 private val LocalGlassScreenBackdrop = staticCompositionLocalOf<Backdrop?> { null }
 
@@ -106,6 +109,8 @@ val LocalGlassWindowBackdrop = staticCompositionLocalOf<GlassWindowBackdrop?> { 
 fun GlassSurfaceHost(
     modifier: Modifier = Modifier,
     backdrop: @Composable (Modifier) -> Unit = { GlassBackdrop(it) },
+    // false for a plain colour backdrop (PlainBackdrop).
+    photo: Boolean = true,
     content: @Composable BoxScope.() -> Unit,
 ) {
     val back = rememberLayerBackdrop()
@@ -124,6 +129,7 @@ fun GlassSurfaceHost(
         LocalGlassBackdropLayer provides back,
         LocalGlassContentLayer provides front,
         LocalContentColor provides MaterialTheme.colorScheme.onSurface,
+        LocalOnPhoto provides photo,
     ) {
         Box(modifier.fillMaxSize()) {
             backdrop(Modifier.layerBackdrop(back))
@@ -168,13 +174,15 @@ fun GlassScreen(
     // false hides the top bar, as `.searchable` does while its search is active.
     showTopBar: Boolean = true,
     backdrop: @Composable (Modifier) -> Unit = { GlassBackdrop(it) },
+    // false for a plain colour backdrop (PlainBackdrop).
+    photo: Boolean = true,
     overlay: @Composable BoxScope.() -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
 ) {
     if (isMaterial) return MaterialScreen(
         modifier, actions, titleContent, bottomBar, floatingActionButton, topEdge, topAccessory, closeButton, showTopBar, backdrop, overlay, content,
     )
-    GlassSurfaceHost(modifier, backdrop) {
+    GlassSurfaceHost(modifier, backdrop, photo) {
         Scaffold(
             containerColor = Color.Transparent,
             contentColor = MaterialTheme.colorScheme.onSurface,

@@ -167,7 +167,7 @@ fun HomeScreen(
                 }
             }
         }
-    GlassSurfaceHost(backdrop = { PlainBackdrop(it) }) {
+    GlassSurfaceHost(backdrop = { PlainBackdrop(it) }, photo = false) {
         if (material) {
             MaterialHomeScaffold("Liquid Glass") { bar ->
                 GlassContent(Modifier.fillMaxSize()) {

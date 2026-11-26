@@ -62,6 +62,7 @@ fun ScrollEdgeScreen() {
         title = "Scroll Edge",
         topEdge = style.edge,
         backdrop = { PlainBackdrop(it, SystemBackground) },
+        photo = false,
         // safeAreaBar(edge: .top): a custom bar that insets content and carries the edge effect.
         topAccessory = {
             // Material: filter chips.

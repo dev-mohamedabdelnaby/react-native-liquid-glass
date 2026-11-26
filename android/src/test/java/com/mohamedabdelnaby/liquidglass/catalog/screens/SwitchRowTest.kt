@@ -16,6 +16,11 @@ import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.click
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.dp
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -46,5 +51,18 @@ class SwitchRowTest {
     compose.onNodeWithText("Notifications", useUnmergedTree = true).performClick()
     assertTrue(on)
     compose.onNode(isSwitch and hasText("Notifications")).assertIsOn()
+  }
+
+  @Test
+  fun tappingTheSwitchItselfFlipsItExactlyOnce() {
+    var on by mutableStateOf(false)
+    var changes = 0
+    compose.setContent { SwitchRow("Notifications", on) { changes++; on = it } }
+    // The switch has no node of its own: tap the row's trailing end, where it sits.
+    compose.onNode(isSwitch).performTouchInput { click(centerRight - Offset(24.dp.toPx(), 0f)) }
+    compose.waitForIdle()
+    assertEquals(1, changes)
+    assertTrue(on)
+    compose.onNode(isSwitch).assertIsOn()
   }
 }

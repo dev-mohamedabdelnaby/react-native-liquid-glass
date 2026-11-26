@@ -12,6 +12,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.selection.selectable
 import com.mohamedabdelnaby.liquidglass.catalog.glass.CapsuleShape
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntRect
@@ -245,69 +246,72 @@ private fun MiniPlayer() {
     var expanded by remember { mutableStateOf(false) }
     var progress by remember { mutableFloatStateOf(0.35f) }
     Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        // Under the 12 dp gap, so player and controls only bridge while they move, as on iOS.
-        GlassEffectContainer(Modifier.fillMaxWidth(), spacing = 8.dp) {
-            Column {
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .glassEffect(Glass.Regular.interactive(), RoundedCornerShape(24.dp))
-                        .glassClickable(label = if (expanded) "Collapse player" else "Expand player") { expanded = !expanded }
-                        .padding(12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Box(
-                        Modifier.size(44.dp).background(Brush.verticalGradient(listOf(SystemColors.Pink, SystemColors.Orange)), RoundedCornerShape(10.dp)),
-                        contentAlignment = Alignment.Center,
-                    ) { Icon(glassIcon("music.note", Icons.Filled.MusicNote), null, tint = Color.White) }
-                    Column {
-                        Text("Glass Animals", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                        Text("Heat Waves", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    Fill()
-                    Box(Modifier.size(44.dp).glassClickable(label = if (playing) "Pause" else "Play") { playing = !playing }, contentAlignment = Alignment.Center) {
-                        AnimatedContent(playing, transitionSpec = { (scaleIn() + fadeIn()) togetherWith (scaleOut() + fadeOut()) }, label = "play") {
-                            Icon(if (it) glassIcon("pause.fill", Icons.Filled.Pause) else glassIcon("play.fill", Icons.Filled.PlayArrow), null, Modifier.size(32.dp))
-                        }
-                    }
-                }
-                // As on iOS: the controls' glass grows out from under the player (a narrower tab tucked
-                // behind it) into place, riding one spring with the controls; closing runs it back.
-                val reveal = rememberReveal(expanded)
-                if (reveal.shown) {
-                    Box(
+        // A media player follows time, not reading direction: it keeps its LTR layout in RTL (HIG).
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+            // Under the 12 dp gap, so player and controls only bridge while they move, as on iOS.
+            GlassEffectContainer(Modifier.fillMaxWidth(), spacing = 8.dp) {
+                Column {
+                    Row(
                         Modifier
                             .fillMaxWidth()
-                            // The page sees the gap and the height grow with the spring, so what follows
-                            // slides down, and nothing jumps when the panel is finally removed.
-                            .layout { measurable, constraints ->
-                                val placeable = measurable.measure(constraints)
-                                val gap = 12.dp.roundToPx()
-                                layout(placeable.width, ((gap + placeable.height) * reveal.progress.value.coerceIn(0f, 1f)).roundToInt()) {
-                                    placeable.place(0, gap)
-                                }
-                            },
+                            .glassEffect(Glass.Regular.interactive(), RoundedCornerShape(24.dp))
+                            .glassClickable(label = if (expanded) "Collapse player" else "Expand player") { expanded = !expanded }
+                            .padding(12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Box(
+                            Modifier.size(44.dp).background(Brush.verticalGradient(listOf(SystemColors.Pink, SystemColors.Orange)), RoundedCornerShape(10.dp)),
+                            contentAlignment = Alignment.Center,
+                        ) { Icon(glassIcon("music.note", Icons.Filled.MusicNote), null, tint = Color.White) }
+                        Column {
+                            Text("Glass Animals", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                            Text("Heat Waves", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        Fill()
+                        Box(Modifier.size(44.dp).glassClickable(label = if (playing) "Pause" else "Play") { playing = !playing }, contentAlignment = Alignment.Center) {
+                            AnimatedContent(playing, transitionSpec = { (scaleIn() + fadeIn()) togetherWith (scaleOut() + fadeOut()) }, label = "play") {
+                                Icon(if (it) glassIcon("pause.fill", Icons.Filled.Pause) else glassIcon("play.fill", Icons.Filled.PlayArrow), null, Modifier.size(32.dp))
+                            }
+                        }
+                    }
+                    // As on iOS: the controls' glass grows out from under the player (a narrower tab tucked
+                    // behind it) into place, riding one spring with the controls; closing runs it back.
+                    val reveal = rememberReveal(expanded)
+                    if (reveal.shown) {
+                        Box(
                             Modifier
-                                .matchParentSize()
-                                .growFrom(reveal) { width, _ ->
+                                .fillMaxWidth()
+                                // The page sees the gap and the height grow with the spring, so what follows
+                                // slides down, and nothing jumps when the panel is finally removed.
+                                .layout { measurable, constraints ->
+                                    val placeable = measurable.measure(constraints)
                                     val gap = 12.dp.roundToPx()
-                                    // Wholly inside the player, so it merges without a bulge and leaves without a pop.
-                                    IntRect(width * 15 / 100, -gap - 40.dp.roundToPx(), width * 85 / 100, -gap - 8.dp.roundToPx())
-                                }
-                                .glassEffect(Glass.Regular, RoundedCornerShape(24.dp), GlassTransition.Identity),
-                        )
-                        Column(
-                            Modifier.fillMaxWidth().revealContent(reveal).padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                                    layout(placeable.width, ((gap + placeable.height) * reveal.progress.value.coerceIn(0f, 1f)).roundToInt()) {
+                                        placeable.place(0, gap)
+                                    }
+                                },
                         ) {
-                            GlassSlider(progress, { progress = it }, contentDescription = "Playback position")
-                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(40.dp, Alignment.CenterHorizontally)) {
-                                PlayerIcon(glassIcon("backward.fill", Icons.Filled.FastRewind), "Back") { progress = (progress - 0.1f).coerceAtLeast(0f) }
-                                PlayerIcon(glassIcon("shuffle", Icons.Filled.Shuffle), "Shuffle") { progress = 0f }
-                                PlayerIcon(glassIcon("forward.fill", Icons.Filled.FastForward), "Forward") { progress = (progress + 0.1f).coerceAtMost(1f) }
+                            Box(
+                                Modifier
+                                    .matchParentSize()
+                                    .growFrom(reveal) { width, _ ->
+                                        val gap = 12.dp.roundToPx()
+                                        // Wholly inside the player, so it merges without a bulge and leaves without a pop.
+                                        IntRect(width * 15 / 100, -gap - 40.dp.roundToPx(), width * 85 / 100, -gap - 8.dp.roundToPx())
+                                    }
+                                    .glassEffect(Glass.Regular, RoundedCornerShape(24.dp), GlassTransition.Identity),
+                            )
+                            Column(
+                                Modifier.fillMaxWidth().revealContent(reveal).padding(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp),
+                            ) {
+                                GlassSlider(progress, { progress = it }, contentDescription = "Playback position")
+                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(40.dp, Alignment.CenterHorizontally)) {
+                                    PlayerIcon(glassIcon("backward.fill", Icons.Filled.FastRewind), "Back") { progress = (progress - 0.1f).coerceAtLeast(0f) }
+                                    PlayerIcon(glassIcon("shuffle", Icons.Filled.Shuffle), "Shuffle") { progress = 0f }
+                                    PlayerIcon(glassIcon("forward.fill", Icons.Filled.FastForward), "Forward") { progress = (progress + 0.1f).coerceAtMost(1f) }
+                                }
                             }
                         }
                     }

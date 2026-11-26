@@ -116,7 +116,7 @@ fun ControlsScreen() {
     val timeState = rememberTimePickerState(now.hour, now.minute)
     var showColors by remember { mutableStateOf(false) }
 
-    GlassScreen("Controls", backdrop = { PlainBackdrop(it) }) { padding ->
+    GlassScreen("Controls", backdrop = { PlainBackdrop(it) }, photo = false) { padding ->
         DemoColumn(padding, spacing = 24.dp) {
             GlassListSection(glass = false, header = "Slider") {
                 ListRow(divider = false) {

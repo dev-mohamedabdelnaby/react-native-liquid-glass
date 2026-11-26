@@ -9,6 +9,22 @@
 @interface ExampleLayoutDirection : NSObject <RCTBridgeModule>
 @end
 
+// The direction asked for: "rtl", "ltr", or nil for the system's. Scenes that connect later get it too.
+static NSString *requested;
+
+static void apply(UIScene *scene)
+{
+  if (![scene isKindOfClass:UIWindowScene.class]) return;
+  id<UITraitOverrides> overrides = ((UIWindowScene *)scene).traitOverrides;
+  if ([requested isEqualToString:@"rtl"]) {
+    overrides.layoutDirection = UITraitEnvironmentLayoutDirectionRightToLeft;
+  } else if ([requested isEqualToString:@"ltr"]) {
+    overrides.layoutDirection = UITraitEnvironmentLayoutDirectionLeftToRight;
+  } else {
+    [overrides removeTrait:UITraitLayoutDirection.class];
+  }
+}
+
 @implementation ExampleLayoutDirection
 
 RCT_EXPORT_MODULE()
@@ -18,14 +34,18 @@ RCT_EXPORT_MODULE()
   return dispatch_get_main_queue();
 }
 
-RCT_EXPORT_METHOD(setRTL : (BOOL)rtl)
+// "rtl", "ltr" or "system" (no override).
+RCT_EXPORT_METHOD(setDirection : (NSString *)direction)
 {
-  for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
-    if ([scene isKindOfClass:UIWindowScene.class]) {
-      ((UIWindowScene *)scene).traitOverrides.layoutDirection =
-          rtl ? UITraitEnvironmentLayoutDirectionRightToLeft : UITraitEnvironmentLayoutDirectionLeftToRight;
-    }
-  }
+  static dispatch_once_t once;
+  dispatch_once(&once, ^{
+    [NSNotificationCenter.defaultCenter addObserverForName:UISceneWillConnectNotification
+                                                    object:nil
+                                                     queue:NSOperationQueue.mainQueue
+                                                usingBlock:^(NSNotification *note) { apply(note.object); }];
+  });
+  requested = [direction isEqualToString:@"system"] ? nil : direction;
+  for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) apply(scene);
 }
 
 @end

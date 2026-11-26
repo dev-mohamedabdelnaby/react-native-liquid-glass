@@ -72,6 +72,7 @@ fun FloatingHeaderScreen() {
         title = "",
         topEdge = topEdge.edge,
         backdrop = { PlainBackdrop(it, SystemBackground) },
+        photo = false,
         actions = {
             GlassIconButton(if (favorite) glassIcon("heart.fill", Icons.Filled.Favorite) else glassIcon("heart", Icons.Outlined.FavoriteBorder), if (favorite) "Unfavorite" else "Favorite", { favorite = !favorite })
             Spacer(Modifier.width(8.dp))

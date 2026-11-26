@@ -81,6 +81,7 @@ fun SearchScreen() {
         // Material: search sits at the top, under the top app bar, and Sort and Add are bar actions.
         showTopBar = material || !searching,
         backdrop = { PlainBackdrop(it) },
+        photo = false,
         actions = { if (material) { sort(); add() } },
         topAccessory = if (material) { { MaterialSearchField(query, { query = it }, "Search fruits") } } else null,
         bottomBar = {

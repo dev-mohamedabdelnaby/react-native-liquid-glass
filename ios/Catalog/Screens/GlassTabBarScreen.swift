@@ -123,6 +123,8 @@ private struct TabBarDemo: View {
                 .tabViewBottomAccessory {
                     Label("Now Playing", glassImage: "music.note")
                         .padding(.horizontal)
+                        // A media player: LTR in RTL too (HIG).
+                        .environment(\.layoutDirection, .leftToRight)
                 }
 
             case .searchInBar:

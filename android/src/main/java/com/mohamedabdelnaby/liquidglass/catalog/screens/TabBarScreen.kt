@@ -228,8 +228,12 @@ fun TabBarScreen() {
                     }
                 }
                 // Bar color: Glass keeps the liquid glass; a swatch fills every bar piece instead.
+                // Material's row has no vertical padding of its own: the label and swatches need room.
                 val colorRow = @Composable {
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Column(
+                        if (isMaterial) Modifier.padding(vertical = 16.dp) else Modifier,
+                        verticalArrangement = Arrangement.spacedBy(if (isMaterial) 12.dp else 8.dp),
+                    ) {
                         Text("Bar color")
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                             BarSwatch(null, barColor == null) { barColor = null }
@@ -595,15 +599,16 @@ private fun TabBar(
     onSelect: (Tab) -> Unit,
 ) {
     // Material: the Now Playing row over a navigation bar, which stays put while scrolling.
+    // The Now Playing accessories are media players: LTR in RTL too (HIG).
     if (isMaterial) return Column {
-        if (accessory) Row(
+        if (accessory) CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) { Row(
             Modifier.padding(16.dp, 8.dp).fillMaxWidth().height(AccessoryHeight).barSurface().glassClickable(label = "Now Playing") {},
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(glassIcon("music.note", Icons.Filled.MusicNote), null, tint = BarContent)
             Text("Now Playing", color = BarContent)
-        }
+        } }
         LiquidTabBar(
             selectedIndex = tabs.indexOf(selected),
             onSelect = { onSelect(tabs[it]) },
@@ -651,7 +656,7 @@ private fun TabBar(
                 if (searchRole) MiniTab(glassIcon(Tab.Search.symbol, Tab.Search.icon), Tab.Search.title, BarContent, p, Modifier.align(Alignment.BottomEnd)) { onSelect(Tab.Search) }
             }
             // tabViewBottomAccessory: above the bar, then inline between the two circles.
-            if (accessory) Row(
+            if (accessory) CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) { Row(
                 Modifier
                     .layout { measurable, constraints ->
                         val q = p.coerceIn(0f, 1f)
@@ -666,7 +671,7 @@ private fun TabBar(
             ) {
                 Icon(glassIcon("music.note", Icons.Filled.MusicNote), null, tint = BarContent)
                 Text("Now Playing", color = BarContent, fontSize = 17.sp)
-            }
+            } }
         }
     }
 }

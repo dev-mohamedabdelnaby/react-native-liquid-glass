@@ -88,13 +88,13 @@ fun DemoSection(title: String, modifier: Modifier = Modifier, content: @Composab
 
 /**
  * Grey secondary text straight on the page (captions, section headers): its colour and the plate under
- * it. Glass pages are a photo of any colour, so a plate of the surface colour and a stronger grey keep
- * it at 4.5:1 or more over any pixel; Material's plain page needs neither.
+ * it. Over a photo of any colour, a plate of the surface colour and a stronger grey keep it at 4.5:1 or
+ * more over any pixel; a plain page (and Material's) needs neither.
  */
 @Composable
 internal fun captionColors(): Pair<Color, Color> {
     val colors = MaterialTheme.colorScheme
-    return if (isMaterial) colors.onSurfaceVariant to Color.Transparent
+    return if (isMaterial || !LocalOnPhoto.current) colors.onSurfaceVariant to Color.Transparent
     else colors.onSurfaceVariant.copy(alpha = 0.85f) to colors.surface.copy(alpha = 0.8f)
 }
 

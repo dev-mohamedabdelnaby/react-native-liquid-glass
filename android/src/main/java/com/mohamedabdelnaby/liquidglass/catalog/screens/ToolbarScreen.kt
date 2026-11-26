@@ -106,6 +106,7 @@ fun ToolbarScreen() {
         title = "Toolbar",
         // A plain List page, like iOS: no photo backdrop.
         backdrop = { PlainBackdrop(it) },
+        photo = false,
         // navigationTitle without .inline: a large title that collapses into the bar.
         titleContent = { CollapsedBarTitle("Toolbar", scrolled) },
         actions = {
