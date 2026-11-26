@@ -88,8 +88,17 @@ Notes:
 ## settings/
 
 - `settings/android-glass-buttons-rtl.png` | Android glass | Buttons in RTL: mirrored (back arrow on the right) except the media buttons row, which stays LTR | layoutDirection 'rtl'; media players stay LTR
+- `settings/android-glass-custom-buttons.png` | Android glass | Buttons with the Cairo font and custom icons | fontFamily + icons (vectorIcon, svg, PNG)
+- `settings/android-glass-custom-home.png` | Android glass | Home with CUSTOMIZE = true: the Cairo font replaces the phone's italic MIUI font on every label (the custom row icons are further down the list) | fontFamily (per weight)
+- `settings/android-glass-custom-tabBar-demo.png` | Android glass | Tab bar demo (With Now Playing Bar) with the Cairo font and custom tab icons | fontFamily + icons on the tab bar
+- `settings/android-glass-custom-tabBar.png` | Android glass | Tab Bar launcher with the Cairo font | fontFamily
 - `settings/android-glass-home-dark.png` | Android glass | Home with appearance Dark | settings.appearance = 'dark'
 - `settings/android-glass-home-rtl.png` | Android glass | Home with layout direction RTL: whole screen mirrored | settings.layoutDirection = 'rtl'
+- `settings/android-glass-recipes-rtl.png` | Android glass | Recipes in RTL: the mini player stays LTR | layoutDirection 'rtl'; media players stay LTR
+- `settings/android-material-controls-glow.png` | Android material | Controls with control shape Glow (default intensity 0.35) | androidControlShape 'glow'
+- `settings/android-material-controls-labeled.png` | Android material | Controls with control shape Labeled | androidControlShape 'labeled'
+- `settings/android-material-controls-pill.png` | Android material | Controls with control shape Pill (default): Material switch, slider, segmented button | androidControlShape 'pill'
+- `settings/android-material-home-glow.png` | Android material | Material Home with control shape Glow picked: the Pill/Labeled/Glow picker and the Glow intensity slider | androidControlShape 'glow', androidGlowIntensity (default 0.35)
 - `settings/ios-buttons-rtl.png` | iOS | Buttons in RTL: everything mirrored (back chevron on the right) except the play/pause/forward row, which stays LTR | layoutDirection 'rtl'; media players stay LTR
 - `settings/ios-custom-buttons.png` | iOS | Buttons with the Cairo font and custom icons (SVG star on Large, Ionicons play, PNG target for forward, SVG back chevron) | fontFamily + icons (vectorIcon, svg, PNG)
 - `settings/ios-custom-home.png` | iOS | Home with CUSTOMIZE = true: Cairo font on every label, custom row icons (Ionicons water drop, SVG star for Morphing) | fontFamily (per weight) + icons
@@ -101,6 +110,10 @@ Notes:
 
 ## gif/
 
+- `gif/android-glass-controls-liquid.gif` | Android glass | GlassControlsScreen: dragging the liquid slider and flipping the liquid switch | GlassControlsScreen, Glass keeps liquid controls
+- `gif/android-glass-tabBar-minimize.gif` | Android glass | GlassTabBarScreen: scrolling the tab demo (With Now Playing Bar): the tab bar minimizes on scroll and returns | GlassTabBarScreen, minimize on scroll
+- `gif/android-glass-tabBar-switch.gif` | Android glass | GlassTabBarScreen: switching tabs Library, Profile, Home in the floating tab bar | GlassTabBarScreen
+- `gif/android-material-controls-glow.gif` | Android material | GlassControlsScreen: Material Controls with control shape Glow: dragging the slider and flipping the switch | androidControlShape 'glow'
 - `gif/ios-container-merge.gif` | iOS | GlassContainerScreen: dragging 'Pull together' merges the two glass buttons into one shape, dragging back splits them | GlassContainerScreen / glass container merge
 - `gif/ios-floatingHeader-scroll.gif` | iOS | GlassFloatingHeaderScreen: scrolling the list under the floating header and back | GlassFloatingHeaderScreen
 - `gif/ios-interactive-press.gif` | iOS | InteractiveGlassScreen: pressing and holding the interactive glass shape, then tapping the counter button | InteractiveGlassScreen / interactive glass
@@ -108,9 +121,9 @@ Notes:
 - `gif/ios-recipes-player-expand.gif` | iOS | GlassRecipesScreen: tapping the mini player expands it (progress + controls), tapping again collapses it | GlassRecipesScreen mini player
 - `gif/ios-search-open-close.gif` | iOS | GlassSearchScreen: tapping the minimized search button expands the field, typing 'Ch' filters, closing collapses it | GlassSearchScreen
 - `gif/ios-sheets-sheet.gif` | iOS | GlassSheetsScreen: Show Sheet: a partial-height glass sheet opens and is dismissed | GlassSheetsScreen
-- `gif/ios-tabBar-minimize.gif` | iOS | GlassTabBarScreen: scrolling the tab demo: the tab bar minimizes on scroll and returns | GlassTabBarScreen, minimize on scroll
+- `gif/ios-tabBar-minimize.gif` | iOS | GlassTabBarScreen: scrolling the tab demo (With Now Playing Bar): the tab bar minimizes on scroll and returns | GlassTabBarScreen, minimize on scroll
 - `gif/ios-tabBar-switch.gif` | iOS | GlassTabBarScreen: switching tabs Library, Profile, Home in the floating tab bar | GlassTabBarScreen
 - `gif/ios-transitions-badges.gif` | iOS | GlassTransitionsScreen: Show Badges: badges grow out of the avatar glass, Hide Badges folds them back | GlassTransitionsScreen (Matched)
 - `gif/ios-zoomTransitions-sheet.gif` | iOS | GlassZoomTransitionsScreen: New Message: the sheet zooms out of the button, then is dismissed back into it | GlassZoomTransitionsScreen
 
-Total size of the media: 11.8 MB.
+Total size of the media: 14.8 MB.
