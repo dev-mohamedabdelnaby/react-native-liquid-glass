@@ -1,7 +1,10 @@
 # Android style
 
 ```ts
-androidStyle?: 'glass' | 'material'; // default 'glass'; iOS ignores it
+// In GlassSettings, and as a prop of every screen:
+type AndroidStyleSetting = {
+  androidStyle?: 'glass' | 'material'; // default 'glass'; iOS ignores it
+};
 ```
 
 - Set it in `GlassSettings`, so the provider applies it to every screen, or as a prop on one screen. The prop wins over the provider.
@@ -31,6 +34,24 @@ export function GlassButtons() {
 ```
 
 Use `Platform.OS` if you want Material only on some devices; iOS always shows glass.
+
+<table>
+<tr><th>Glass</th><th>Material</th><th>Glass</th><th>Material</th></tr>
+<tr>
+<td><img src="assets/android-glass/home.png" width="170" alt="Android Home in glass"></td>
+<td><img src="assets/android-material/home.png" width="170" alt="Android Home in Material"></td>
+<td><img src="assets/android-glass/toolbar.png" width="170" alt="Android Toolbar in glass"></td>
+<td><img src="assets/android-material/toolbar.png" width="170" alt="Android Toolbar in Material"></td>
+</tr>
+<tr>
+<td><img src="assets/android-glass/sheets.png" width="170" alt="Android Sheets & Menus in glass"></td>
+<td><img src="assets/android-material/sheets.png" width="170" alt="Android Sheets & Menus in Material"></td>
+<td><img src="assets/android-glass/search.png" width="170" alt="Android Search in glass"></td>
+<td><img src="assets/android-material/search.png" width="170" alt="Android Search in Material, with the search bar at the top"></td>
+</tr>
+</table>
+
+Every screen in both styles: [USAGE.md](../USAGE.md).
 
 In Material, the switch, slider, segmented control and bottom tab bar are pill-shaped by default, or labeled or glowing: see [control-shapes.md](control-shapes.md) (`androidControlShape`). Glass keeps its liquid controls.
 
@@ -70,4 +91,4 @@ In Material, the switch, slider, segmented control and bottom tab bar are pill-s
 - Screens about glass itself (Glass Effect, Glass View, Union, Morphing, Glass Container) show Material surfaces in its place, on the plain page instead of the photo.
 - The other Android glass settings (`clear`, `blur`, `liquid` and the rest) do nothing in `'material'`.
 - `appearance`, `layoutDirection` and the back key work as in glass: back closes an open sheet, dialog, menu or search first.
-- Custom [fonts](fonts.md) apply to both styles (glass texts and the Material type scale); custom [icons](icons.md) will too.
+- Custom [fonts](fonts.md) and [icons](icons.md) apply to both styles (glass texts and the Material type scale; glass icons and Material icons).

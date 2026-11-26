@@ -125,7 +125,7 @@ export default function App() {
 const styles = StyleSheet.create({ fill: { flex: 1 } });
 ```
 
-This is the example app's `example/src/App.tsx`.
+This is the example app's `example/src/App.tsx`, without its example-only push demo and its iOS direction module.
 
 ## Why each line is there
 
@@ -139,7 +139,7 @@ This is the example app's `example/src/App.tsx`.
 
 ## Back on each platform
 
-- **iOS.** The screen's back button sends `onBack`. The swipe from the left edge is native-stack's gesture and pops the screen.
+- **iOS.** The screen's back button sends `onBack`. The swipe from the leading edge is native-stack's gesture and pops the screen: from the left edge in left-to-right, from the right edge in right-to-left (with `direction` set as above).
 - **Android.** The system back key or gesture first closes what is open inside the glass screen: a sheet, a menu, a popover, an alert, the search field, a panel, the Tab Bar cover. When nothing is open, React Navigation pops the screen. This is done by the library's host; you do not add a `BackHandler`.
 
 ## Status bar
@@ -153,8 +153,17 @@ This is the example app's `example/src/App.tsx`.
 Glass screens and your React Native screens can live in the same stack. Push your screen from a glass screen's callback, or push a glass screen from your own button:
 
 ```tsx
-navigation.navigate('buttons');
+import { Button } from 'react-native';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+
+type Routes = { Profile: undefined; buttons: undefined };
+
+export function Profile({ navigation }: NativeStackScreenProps<Routes, 'Profile'>) {
+  return <Button title="Glass buttons" onPress={() => navigation.navigate('buttons')} />;
+}
 ```
+
+On iOS 26 and later, if your own screens show a native-stack header and your app switches the layout direction at run time, see [layout-direction.md](layout-direction.md#ios-26-the-back-button-loses-its-chevron-in-run-time-rtl): the header's back button needs the window scene's direction trait to match.
 
 ## Not covered yet
 

@@ -2,7 +2,16 @@
 
 ## What you get
 
-Native screens. Each component (`GlassHomeScreen`, `GlassButtonsScreen` and the others) shows one whole screen of a native app: on iOS a SwiftUI screen, on Android a Jetpack Compose screen. The screen draws its own title bar, back button, content, sheets, menus and dialogs. You do not pass children, and you cannot put React Native views inside it.
+Native screens. Each component (`GlassHomeScreen`, `GlassButtonsScreen` and the others) shows one whole screen of a native app: on iOS a SwiftUI screen with Apple's Liquid Glass, on Android a Jetpack Compose screen with a glass engine (or Material 3). The screen draws its own title bar, back button, content, sheets, menus and dialogs. You do not pass children, and you cannot put React Native views inside it.
+
+<table>
+<tr><th>iOS</th><th>Android, glass</th><th>Android, Material</th></tr>
+<tr>
+<td><img src="assets/ios/buttons.png" width="230" alt="iOS Buttons screen"></td>
+<td><img src="assets/android-glass/buttons.png" width="230" alt="Android glass Buttons screen"></td>
+<td><img src="assets/android-material/buttons.png" width="230" alt="Android Material Buttons screen"></td>
+</tr>
+</table>
 
 ## Requirements
 
@@ -35,7 +44,7 @@ or `yarn add @native-dev-kit/react-native-liquid-glass`. Autolinking adds the na
 
 3. Set the app target's deployment target to 27.0 in Xcode if it is lower.
 
-The pod is `ReactNativeLiquidGlass`. It is Swift and Objective-C++, built with Swift 5 mode.
+The pod is `ReactNativeLiquidGlass` (Swift and Objective-C++, Swift 5 mode). It depends on `SwiftDraw` for SVG icons. More: [ios.md](ios.md).
 
 ## 3. Android
 
@@ -56,6 +65,8 @@ buildscript {
 - The library applies the Kotlin Compose compiler plugin at your app's `kotlinVersion`, so set `kotlinVersion` in `ext`.
 - The example app runs with `newArchEnabled=true` and `edgeToEdgeEnabled=true` in `android/gradle.properties`. That is the verified setup.
 
+The library brings Jetpack Compose (Material 3, material icons, activity-compose) and AndroidSVG for SVG icons. More: [android.md](android.md).
+
 ## 4. Show a screen
 
 Every screen needs a size. The component has no default style, so pass `style={{ flex: 1 }}` (or any style that gives it a size):
@@ -74,7 +85,7 @@ export function ButtonsDemo({ onClose }: { onClose: () => void }) {
 
 Most apps put the screens in React Navigation's native-stack, with Home's `onOpen` pushing a screen and each screen's `onBack` going back. Follow [react-navigation.md](react-navigation.md).
 
-To let Home's settings (appearance, tint, the Android glass options) change every screen, keep the settings in state, pass them to `GlassSettingsProvider`, and feed Home's `onSettingsChange` back into that state. See [settings.md](settings.md).
+To let Home's settings (appearance, layout direction, tint, the Android options) change every screen, keep the settings in state, pass them to `GlassSettingsProvider`, and feed Home's `onSettingsChange` back into that state. See [settings.md](settings.md).
 
 ## 6. Run it
 
@@ -83,9 +94,11 @@ npx react-native run-ios
 npx react-native run-android
 ```
 
-Debug builds load JavaScript from Metro on port 8081. To check on a device without Metro, build Release: the JavaScript bundle is then inside the app.
+Debug builds load JavaScript from Metro on port 8081: make sure the Metro on 8081 is this app's. To check on a device without Metro, build Release (`--mode Release` on iOS, `--mode release` on Android): the JavaScript bundle is then inside the app.
 
 ## Next
 
+- [USAGE.md](../USAGE.md): every screen with screenshots and animations.
 - [screens.md](screens.md): every screen and its props.
+- [fonts.md](fonts.md), [icons.md](icons.md), [layout-direction.md](layout-direction.md), [android-style.md](android-style.md).
 - [troubleshooting.md](troubleshooting.md): known limits.

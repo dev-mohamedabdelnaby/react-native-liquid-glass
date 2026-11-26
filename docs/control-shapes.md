@@ -1,12 +1,24 @@
 # Android control shapes
 
 ```ts
-androidControlShape?: 'pill' | 'labeled' | 'glow'; // default 'pill'; Material only; iOS ignores it
-androidGlowIntensity?: number; // 0 (no glow) to 1; default 0.35; only 'glow' uses it
+// In GlassSettings, and as props of every screen:
+type ControlShapeSettings = {
+  androidControlShape?: 'pill' | 'labeled' | 'glow'; // default 'pill'; Material only; iOS ignores it
+  androidGlowIntensity?: number; // 0 (no glow) to 1; default 0.35; only 'glow' uses it
+};
 ```
+
+<table>
+<tr><th>Material, <code>'pill'</code> (default)</th><th>Glass (liquid controls, no shape)</th></tr>
+<tr>
+<td><img src="assets/android-material/controls.png" width="230" alt="Android Material Controls in the pill shape"></td>
+<td><img src="assets/android-glass/controls.png" width="230" alt="Android glass Controls with liquid switches and sliders"></td>
+</tr>
+</table>
 
 - Android, [`androidStyle: 'material'`](android-style.md) only. Glass keeps its liquid controls (with the drop, and `sliderLiquid`, `switchLiquid`, `segmentedLiquid`, `tabBarLiquid`, `tabBarDrop`, `dropColor`). iOS is unchanged.
 - Set it in `GlassSettings` (the provider applies it to every screen) or as a prop on one screen. The prop wins.
+- An older option, `androidSegmentedCheck` (a check on the stock segmented buttons), was removed with those buttons; the shapes replace it.
 - It shapes four Material controls: the switch, the slider, the segmented control (top tabs) and the bottom tab bar. Everything else keeps its style.
 - `'pill'` is the default: a Material app that sets nothing gets pill controls. An unknown value (or the old `'default'` / `'squared'`) is `'pill'` too.
 - `androidGlowIntensity` sets how strongly `'glow'` glows. Native code clamps it to 0..1; 0 draws the glow shape without a halo, 1 is the strongest. Same provider / screen-prop rules.

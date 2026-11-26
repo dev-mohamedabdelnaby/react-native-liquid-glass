@@ -1,6 +1,6 @@
 # Settings
 
-Settings change how every screen looks: light or dark, the glass tint, and (on Android) the glass engine's options. They come from `GlassSettingsProvider`, not from screen props.
+Settings change how every screen looks: light or dark, the glass tint, the layout direction, your font and icons, and on Android the style and the glass engine's options. They come from `GlassSettingsProvider`; a few can also be set on one screen as props (`androidStyle`, `androidControlShape`, `androidGlowIntensity`, `fontFamily`, `icons`).
 
 ## The provider
 
@@ -21,7 +21,7 @@ export function Root() {
 ```
 
 - `value` is a `Partial<GlassSettings>`. Missing keys and keys set to `undefined` keep the value from above: the parent provider, or `DEFAULT_SETTINGS` when there is none.
-- Providers nest. An inner provider changes only the keys it sets, for the screens inside it.
+- Providers nest. An inner provider changes only the keys it sets, for the screens inside it. A key is replaced as a whole: an inner provider's `icons` or `fontFamily` replaces the outer one's, it is not merged into it.
 - A change reaches every mounted screen at once, including screens under the one on top.
 - Without any provider, screens use `DEFAULT_SETTINGS`.
 - Settings live in your app's state. The library does not save them; they reset when the app restarts unless you save them yourself.
@@ -70,7 +70,10 @@ type GlassSettings = {
   tabBarLiquid?: boolean;
   tabBarDrop?: boolean;
   fontFamily?: string | { regular?: string; medium?: string; semibold?: string; bold?: string; heavy?: string };
+  icons?: Record<string, GlassIcon | undefined>;
 };
+
+type GlassIcon = { glyph: string; fontFamily: string } | { svg: string } | ImageSourcePropType;
 ```
 
 Each platform reads the settings its native app has and ignores the rest.
@@ -98,17 +101,27 @@ Each platform reads the settings its native app has and ignores the rest.
 | `tabBarLiquid` | `true` | no | yes | Glass on bottom tab bars. `false`: frosted. |
 | `tabBarDrop` | `true` | no | yes | Liquid drop on bottom tab bars. |
 | `fontFamily` | `''` | yes | yes | The font of every text the screens draw: one family, or a font per weight. `''`: the system font. A screen's `fontFamily` prop wins. See [fonts.md](fonts.md). |
+| `icons` | `{}` | yes | yes | Custom icons, keyed by the SF Symbol name the screens use (on both platforms). An icon not in the map stays native. A screen's `icons` prop is merged over these, key by key. See [icons.md](icons.md). |
 
 `DEFAULT_SETTINGS` holds exactly these defaults. They are the native apps' defaults.
 
 ## What Home shows
 
-- **iOS Home:** Appearance (System, Light, Dark), Glass tint (None, Blue, Purple, Pink, Orange, Green, Teal) and Layout direction (System, LTR, RTL).
-- **Android Home:** Appearance, Layout direction (System, LTR, RTL), Android style (Glass, Material) and, in Material, the control shape picker (and the Glow intensity slider while Glow is picked), plus a Glass section with the Android settings above (variant, blur, washes, edge light, refraction, tint, drop colour, opaque, liquid and the per-control switches).
+- **iOS Home:** Appearance (System, Light, Dark), Layout direction (System, LTR, RTL) and Glass tint (None, Blue, Purple, Pink, Orange, Green, Teal).
+- **Android Home:** Appearance, Layout direction (System, LTR, RTL), Android style (Glass, Material). In Glass, a Glass section with the Android settings above (variant, blur, washes, edge light, refraction, liquid and the per-control switches, opaque, tint, drop colour). In Material, the control shape picker (and the Glow intensity slider while Glow is picked) and a Colors section with the tint.
+- Home has no font or icon control. Its `onSettingsChange` carries the provider's `fontFamily` and `icons` unchanged, so feeding it back keeps them.
 
 ## Appearance
 
 `appearance` works differently on the two platforms. Both follow the same rule: **the latest mounted screen that asks for light or dark wins, and the app's own value comes back when the last one is unmounted.**
+
+<table>
+<tr><th>iOS, Dark</th><th>Android glass, Dark</th></tr>
+<tr>
+<td><img src="assets/settings/ios-home-dark.png" width="230" alt="iOS Home in dark appearance"></td>
+<td><img src="assets/settings/android-glass-home-dark.png" width="230" alt="Android glass Home in dark appearance"></td>
+</tr>
+</table>
 
 ### iOS: window-wide
 
@@ -119,6 +132,7 @@ SwiftUI's dark mode is the window's style, so a screen with `'light'` or `'dark'
 - A request lasts while the screen is mounted, **even when it is off screen** (under a pushed screen, in an inactive tab). So an off-screen glass screen still holds its light or dark.
 - A request ends when the screen unmounts.
 - If your app calls `Appearance.setColorScheme` while a glass screen holds a request, your value is lost when the request ends: the window gets back the style saved before the first request.
+- Known issue (to be fixed before the 1.0.0 release): with the system in Light and a screen in `'dark'`, the status bar text stays dark.
 
 ### Android: inside the screen, plus the bar icons
 
@@ -131,9 +145,3 @@ SwiftUI's dark mode is the window's style, so a screen with `'light'` or `'dark'
 
 - **iOS:** the glass takes the colour. Home's tint picker shows the named choice that matches the colour (Blue, Purple, Pink, Orange, Green, Teal), or None when no choice matches. A colour that matches no choice still tints the glass. When the user picks a choice on Home, `onSettingsChange` sends the colour as `'#RRGGBBAA'`; None sends `null`.
 - **Android:** every glass surface without its own tint takes the colour. With `androidStyle: 'material'` it is the Material scheme's primary (the accent) instead. Home's colour picker sends `'#RRGGBBAA'` too.
-
-## Coming in the next version
-
-This setting is planned and not in the package yet:
-
-- `icons`: see [icons.md](icons.md).

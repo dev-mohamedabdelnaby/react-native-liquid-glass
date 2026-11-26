@@ -21,13 +21,13 @@ yarn
 
 > Since the project relies on Yarn workspaces, you cannot use [`npm`](https://github.com/npm/cli) for development without manually migrating.
 
-The [example app](/example/) demonstrates usage of the library. You need to run it to test any changes you make.
+The [example app](example/) demonstrates usage of the library. You need to run it to test any changes you make.
 
 It is configured to use the local version of the library, so any changes you make to the library's source code will be reflected in the example app. Changes to the library's JavaScript code will be reflected in the example app without a rebuild, but native code changes will require a rebuild of the example app.
 
 If you want to use Android Studio or Xcode to edit the native code, you can open the `example/android` or `example/ios` directories respectively in those editors. To edit the Objective-C or Swift files, open `example/ios/ReactNativeLiquidGlassExample.xcworkspace` in Xcode and find the source files at `Pods > Development Pods > ReactNativeLiquidGlass`.
 
-To edit the Java or Kotlin files, open `example/android` in Android studio and find the source files at `mohamed-abd-elnaby-react-native-liquid-glass` under `Android`.
+To edit the Kotlin files, open `example/android` in Android Studio and find the source files in the `native-dev-kit_react-native-liquid-glass` module under `Android`.
 
 You can use various commands from the root directory to work with the project.
 
@@ -47,12 +47,6 @@ To run the example app on iOS:
 
 ```sh
 yarn example ios
-```
-
-To run the example app on Web:
-
-```sh
-yarn example web
 ```
 
 Make sure your code passes TypeScript:
@@ -78,6 +72,42 @@ Remember to add tests for your change if possible. Run the unit tests by:
 ```sh
 yarn test
 ```
+
+The example app is a bare React Native CLI app (no Expo). Debug builds load JavaScript from Metro on port 8081 (`yarn example start`); make sure no other project's Metro holds that port, or build Release.
+
+### Native dependencies
+
+- **iOS:** the pod depends on [SwiftDraw](https://github.com/swhitty/SwiftDraw) (SVG icons). Pods need a UTF-8 locale: `cd example/ios && LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pod install`.
+- **Android:** Jetpack Compose (BOM `2026.09.00`), material-icons-extended, activity-compose, navigationevent, lifecycle and [AndroidSVG](https://github.com/BigBadaboom/androidsvg) (SVG icons), all in `android/build.gradle`.
+- **Example only:** `react-native-vector-icons` (the sample icon font in `example/src/customize.ts`) and the Cairo font (SIL OFL). The library itself depends on neither.
+
+### Native tests
+
+Android JVM and Robolectric tests (CI runs them):
+
+```sh
+cd example/android && ./gradlew :native-dev-kit_react-native-liquid-glass:testDebugUnitTest
+```
+
+### iOS XCTest
+
+The pod's test spec runs as the scheme `ReactNativeLiquidGlass-Unit-Tests`:
+
+```sh
+cd example/ios && xcodebuild test -workspace ReactNativeLiquidGlassExample.xcworkspace \
+  -scheme ReactNativeLiquidGlass-Unit-Tests -destination 'platform=iOS Simulator,name=iPhone 18 Pro'
+```
+
+XCTest needs the prebuilt React, Hermes and React Native dependency pods in their **Debug** flavour. After a Release build, swap them from `example/ios/Pods` (use the Hermes and React Native versions from `Podfile.lock`):
+
+```sh
+cd example/ios/Pods
+printf Release > React-Core-prebuilt/.last_build_configuration
+node ../../node_modules/react-native/sdks/hermes-engine/utils/replace_hermes_version.js -c Debug -r <hermes-version> -p "$PWD"
+node ../../node_modules/react-native/third-party-podspecs/replace_dependencies_version.js -c Debug -r <react-native-version> -p "$PWD"
+```
+
+The next Release build swaps them back.
 
 
 ### Commit message convention
@@ -116,8 +146,7 @@ The `package.json` file contains various scripts for common tasks:
 - `yarn example start`: start the Metro server for the example app.
 - `yarn example android`: run the example app on Android.
 - `yarn example ios`: run the example app on iOS.
-- `yarn example web`: run the example app on Web.
-- `yarn example build:web`: build the example app for Web.
+- `yarn example build:android`, `yarn example build:ios`: build the example app.
 
 ### Sending a pull request
 

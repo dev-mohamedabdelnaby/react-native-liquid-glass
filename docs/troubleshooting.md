@@ -9,11 +9,22 @@ The components have no default size. Give every screen a style that sizes it, us
 Home sends every change through `onSettingsChange`; it does not keep it on its own. Store the settings and pass them back:
 
 ```tsx
-const [settings, setSettings] = useState<GlassSettings>(DEFAULT_SETTINGS);
-// …
-<GlassSettingsProvider value={settings}>
-  <GlassHomeScreen style={{ flex: 1 }} onSettingsChange={setSettings} />
-</GlassSettingsProvider>
+import { useState } from 'react';
+import {
+  DEFAULT_SETTINGS,
+  GlassHomeScreen,
+  GlassSettingsProvider,
+  type GlassSettings,
+} from '@native-dev-kit/react-native-liquid-glass';
+
+export function Root() {
+  const [settings, setSettings] = useState<GlassSettings>(DEFAULT_SETTINGS);
+  return (
+    <GlassSettingsProvider value={settings}>
+      <GlassHomeScreen style={{ flex: 1 }} onSettingsChange={setSettings} />
+    </GlassSettingsProvider>
+  );
+}
 ```
 
 ## Every screen updates when an unrelated parent re-renders
@@ -35,6 +46,10 @@ On iOS, `appearance: 'light'` or `'dark'` sets the window's style, so your React
 
 To keep your own screens in one style, set `appearance` in the provider to match your app, or use `'system'`, which never writes the window.
 
+## iOS: the status bar text stays dark in Dark
+
+Known issue, to be fixed before the 1.0.0 release: with the system in Light and Home (or the provider) set to Dark, the status bar text stays dark on the dark screen. With the system in Dark it is right.
+
 ## iOS: `<StatusBar>` does nothing
 
 Under native-stack, react-native-screens owns the status bar on iOS, so React Native's `<StatusBar>` component has no effect. Use the screen option instead: `options={{ statusBarStyle: 'light' }}`. Glass screens set their own icons; you need this only for your own screens.
@@ -50,6 +65,26 @@ The library sends the back key to the screen's open sheet, menu, search field or
 - **Your activity is React Native's `ReactActivity`** (or another `androidx.activity.ComponentActivity`). On Android 16 (API 36) and later, back events come through the activity's navigation event dispatcher, so the activity must be a `NavigationEventDispatcherOwner`. `ReactActivity` is.
 - **No other library replaced the activity window's `Window.Callback` without passing events on.** Below API 36 the library reads the back key there. It installs itself again the next time a glass screen enters the window.
 - **Only one glass screen is visible at a time.** With two glass screens on screen together (a transparent modal or a form sheet over another glass screen), the back key goes to the one that entered the window last, which may be the lower one.
+
+## iOS: the system direction stays left-to-right on an Arabic iPhone
+
+iOS reports right-to-left only for apps localized for a right-to-left language. Add the localization (for example an `ar.lproj` folder, or `ar` in `CFBundleLocalizations`), or set `layoutDirection: 'rtl'`. See [layout-direction.md](layout-direction.md).
+
+## iOS: my own header's back button is an empty glass circle in RTL
+
+On iOS 26 and later, a native-stack header in a direction chosen at run time loses its chevron. Set the window scene's layout-direction trait from a small native module: [layout-direction.md](layout-direction.md#ios-26-the-back-button-loses-its-chevron-in-run-time-rtl).
+
+## A custom icon does not show
+
+- The key must be the SF Symbol name the screen uses at that place (see [icons.md](icons.md#which-keys-exist)).
+- `vectorIcon` returned `undefined` (a development warning names the missing glyph), or the icon font is not added to the app.
+- The SVG is invalid or has neither a `viewBox` nor a size.
+- An image failed to load (on Android a remote image waits at most 10 seconds). The native icon stays in all these cases.
+- Some system-drawn icons cannot be replaced: steppers, the iOS search field, some menu marks.
+
+## A custom font does not show
+
+Check the name: on Android the file name in `assets/fonts` (or the registered family), on iOS the PostScript name, with the file listed in `UIAppFonts`. iOS alerts, menus, pickers, the share sheet and the keyboard always keep the system font.
 
 ## Debug build: red box from another app's code
 
@@ -83,3 +118,6 @@ Not supported yet. Use a bare React Native CLI app.
 - **iOS:** each screen has its own navigation bar, so on push the new bar slides in with its screen. In the native app, one shared bar cross-fades its items.
 - **iOS:** the back chevron is a `chevron.backward` image, about 2 px (at 3x) taller than the system back chevron.
 - **Android, Union:** after "Show Details" in the menu, the details card appears once the menu has closed, about 0.3 s later.
+- **Both:** some bar titles are shorter than the Home row titles (Interactive, Container, Transitions, Notes, Scroll Edge, Split View; Zoom Transitions shows a status pill instead). They are the native apps' titles; see [screens.md](screens.md).
+- **iOS:** after the layout direction is switched on Home, Home's list starts again at the top.
+- **Android Material:** the bottom tab bar does not minimize on scroll.

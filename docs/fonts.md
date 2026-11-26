@@ -1,14 +1,24 @@
 # Fonts
 
 ```ts
-fontFamily?: string | {
-  regular?: string;
-  medium?: string;
-  semibold?: string;
-  bold?: string;
-  heavy?: string;
+// In GlassSettings, and as a prop of every screen:
+type FontSetting = {
+  fontFamily?:
+    | string
+    | { regular?: string; medium?: string; semibold?: string; bold?: string; heavy?: string };
 };
 ```
+
+<table>
+<tr><th>Home</th><th>Buttons</th><th>Tab bar demo</th></tr>
+<tr>
+<td><img src="assets/settings/ios-custom-home.png" width="230" alt="iOS Home in the Cairo font, with custom icons"></td>
+<td><img src="assets/settings/ios-custom-buttons.png" width="230" alt="iOS Buttons in the Cairo font, with custom icons"></td>
+<td><img src="assets/settings/ios-custom-tabBar-demo.png" width="230" alt="iOS tab bar demo in the Cairo font, with custom tab icons"></td>
+</tr>
+</table>
+
+iOS with the example's Cairo font and sample icons (`CUSTOMIZE = true` in `example/src/customize.ts`). Android takes the font the same way.
 
 - Set it in `GlassSettings` (the provider sets it for every screen) or as the `fontFamily` prop of one screen, which wins over the provider's.
 - **A weight map** names the font for each weight, the way an app's own `AppText` component maps weights to font files. A weight you leave out uses `regular`.
@@ -64,7 +74,7 @@ SF Symbols and Material icons stay as they are: they are icons, not text.
 
 ## Bars on iOS
 
-Navigation titles, bar buttons, tab bars, segmented controls and search fields are UIKit views. The library styles them with appearance proxies for a UIKit trait that only its screens with a font carry (and the sheets and full-screen covers they present), so the rest of your app and screens without a font are not touched, and each screen keeps its own font. System alerts keep the system font. As in UIKit, only the large title and the search field follow Dynamic Type; the other bar texts keep their fixed size.
+Navigation titles, bar buttons, tab bars, segmented controls and search fields are UIKit views. The library styles them with appearance proxies for a UIKit trait that only its screens with a font carry (and the sheets and full-screen covers they present), so the rest of your app and screens without a font are not touched, and each screen keeps its own font. System alerts keep the system font. As in UIKit, only the large title and the search field follow Dynamic Type; the other bar texts keep their fixed size. If you change the font while a screen is showing, its bars keep the old font until they are created again (for example when the screen is opened again).
 
 ## Why not a component?
 
