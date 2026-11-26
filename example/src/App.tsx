@@ -1,5 +1,11 @@
-import { useState } from 'react';
-import { I18nManager, Platform, StyleSheet, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import {
+  I18nManager,
+  NativeModules,
+  Platform,
+  StyleSheet,
+  View,
+} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {
@@ -81,6 +87,11 @@ export default function App() {
   const direction = settings.layoutDirection ?? 'system';
   const rtl =
     direction === 'rtl' || (direction === 'system' && I18nManager.isRTL);
+  // iOS: UIKit's own direction follows too, or the stack's glass back button loses its chevron in
+  // RTL (see ios/ReactNativeLiquidGlassExample/LayoutDirection.m).
+  useEffect(() => {
+    NativeModules.ExampleLayoutDirection?.setRTL(rtl);
+  }, [rtl]);
   return (
     <GlassSettingsProvider value={settings}>
       {/* iOS: the stack's direction is UIKit's, which then mirrors its own push and swipes back. */}

@@ -12,6 +12,7 @@
 		46E79F5200E69E8C8B1CB4B7 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		761780EF2CA45674006654EF /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EE2CA45674006654EF /* SceneDelegate.swift */; };
+		A7F0C2A22E0B4C3D00F0A003 /* LayoutDirection.m in Sources */ = {isa = PBXBuildFile; fileRef = A7F0C2A12E0B4C3D00F0A002 /* LayoutDirection.m */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		A7F0C2A12E0B4C3D00F0A001 /* fonts in Resources */ = {isa = PBXBuildFile; fileRef = A7F0C2A02E0B4C3D00F0A001 /* fonts */; };
 /* End PBXBuildFile section */
@@ -25,6 +26,7 @@
 		5709B34CF0A7D63546082F79 /* Pods-ReactNativeLiquidGlassExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ReactNativeLiquidGlassExample.release.xcconfig"; path = "Target Support Files/Pods-ReactNativeLiquidGlassExample/Pods-ReactNativeLiquidGlassExample.release.xcconfig"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-ReactNativeLiquidGlassExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ReactNativeLiquidGlassExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ReactNativeLiquidGlassExample/AppDelegate.swift; sourceTree = "<group>"; };
+		A7F0C2A12E0B4C3D00F0A002 /* LayoutDirection.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = LayoutDirection.m; path = ReactNativeLiquidGlassExample/LayoutDirection.m; sourceTree = "<group>"; };
 		761780EE2CA45674006654EF /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SceneDelegate.swift; path = ReactNativeLiquidGlassExample/SceneDelegate.swift; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = ReactNativeLiquidGlassExample/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		A7F0C2A02E0B4C3D00F0A001 /* fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = fonts; path = ../android/app/src/main/assets/fonts; sourceTree = "<group>"; };
@@ -49,6 +51,7 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				761780EC2CA45674006654EE /* AppDelegate.swift */,
 				761780EE2CA45674006654EF /* SceneDelegate.swift */,
+				A7F0C2A12E0B4C3D00F0A002 /* LayoutDirection.m */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */,
@@ -255,6 +258,7 @@
 			files = (
 				761780ED2CA45674006654EE /* AppDelegate.swift in Sources */,
 				761780EF2CA45674006654EF /* SceneDelegate.swift in Sources */,
+				A7F0C2A22E0B4C3D00F0A003 /* LayoutDirection.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
