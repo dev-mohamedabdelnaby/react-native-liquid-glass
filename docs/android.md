@@ -12,6 +12,16 @@ On Android every screen is a Jetpack Compose screen of a native catalog app. It 
 </tr>
 </table>
 
+<table>
+<tr><th>Liquid controls (glass)</th><th>Tab bar (glass)</th><th>Minimize on scroll (glass)</th><th>Glow controls (Material)</th></tr>
+<tr>
+<td><img src="assets/gif/android-glass-controls-liquid.gif" width="170" alt="Android glass Controls: dragging the liquid slider and flipping the liquid switch"></td>
+<td><img src="assets/gif/android-glass-tabBar-switch.gif" width="170" alt="Android glass tab bar switching tabs"></td>
+<td><img src="assets/gif/android-glass-tabBar-minimize.gif" width="170" alt="Android glass tab bar minimizing on scroll and returning"></td>
+<td><img src="assets/gif/android-material-controls-glow.gif" width="170" alt="Android Material Controls in the glow shape: dragging the slider and flipping the switch"></td>
+</tr>
+</table>
+
 ## Setup
 
 In `android/build.gradle`, inside `buildscript { ext { … } }`:
@@ -83,6 +93,15 @@ On Xiaomi phones (MIUI) in system dark mode, the status bar icons follow the con
 
 Put the files in `android/app/src/main/assets/fonts/` (the file name without the extension is the name), or register a family with `ReactFontManager.getInstance().addCustomFont(…)`. The library loads fonts through React Native's own font manager, so the names your `Text` styles use work unchanged. Both styles take the font, including Material's type scale. See [fonts.md](fonts.md).
 
+<table>
+<tr><th>Home with Cairo</th><th>Buttons with Cairo and custom icons</th><th>Tab bar demo with Cairo and custom icons</th></tr>
+<tr>
+<td><img src="assets/settings/android-glass-custom-home.png" width="230" alt="Android glass Home in the Cairo font"></td>
+<td><img src="assets/settings/android-glass-custom-buttons.png" width="230" alt="Android glass Buttons in the Cairo font, with custom icons"></td>
+<td><img src="assets/settings/android-glass-custom-tabBar-demo.png" width="230" alt="Android glass tab bar demo in the Cairo font, with custom tab icons"></td>
+</tr>
+</table>
+
 ## Icons on Android
 
 Your icons replace the Material icons at the same places, keyed by the SF Symbol name the iOS screen uses there. SVGs are drawn with AndroidSVG. Remote images wait at most 10 seconds and keep the native icon on failure. See [icons.md](icons.md).
@@ -90,6 +109,8 @@ Your icons replace the Material icons at the same places, keyed by the SF Symbol
 ## Right-to-left on Android
 
 `'system'` follows React Native's `I18nManager.isRTL`, so glass screens agree with your React Native screens. Everything mirrors, except media players (they stay left to right). Text reads in its own script's direction, so an English sentence keeps its period last in right-to-left. See [layout-direction.md](layout-direction.md).
+
+<img src="assets/settings/android-glass-recipes-rtl.png" width="230" alt="Android glass Recipes in RTL: the mini player stays left to right">
 
 ## Testing on a device
 

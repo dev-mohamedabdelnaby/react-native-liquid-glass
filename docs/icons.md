@@ -21,9 +21,15 @@ declare function vectorIcon(
 ): GlassIcon | undefined;
 ```
 
-<img src="assets/settings/ios-custom-buttons.png" width="260" alt="iOS Buttons with custom icons: an SVG star on Large, an Ionicons play glyph, a PNG target for forward, an SVG back chevron">
+<table>
+<tr><th>iOS</th><th>Android glass</th></tr>
+<tr>
+<td><img src="assets/settings/ios-custom-buttons.png" width="260" alt="iOS Buttons with custom icons: an SVG star on Large, an Ionicons play glyph, a PNG target for forward, an SVG back chevron"></td>
+<td><img src="assets/settings/android-glass-custom-buttons.png" width="260" alt="Android glass Buttons with the same custom icons"></td>
+</tr>
+</table>
 
-The example's sample icons on iOS: an SVG star, an Ionicons play glyph, a PNG target and an SVG back chevron (`CUSTOMIZE = true` in `example/src/customize.ts`).
+The example's sample icons: an SVG star, an Ionicons play glyph, a PNG target and an SVG back chevron (`CUSTOMIZE = true` in `example/src/customize.ts`).
 
 ## How it works
 

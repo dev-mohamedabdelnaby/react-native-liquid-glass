@@ -43,7 +43,13 @@ export function ForceRtl({ children }: { children: React.ReactNode }) {
 - Icons that SF Symbols mirrors (back and forward chevrons, list and sidebar icons) mirror on both platforms. Media controls, checkmarks and similar symbols do not. A [custom icon](icons.md) mirrors exactly when the symbol it replaces does.
 - Media players stay left-to-right on both platforms, as the HIG and Material ask: media controls follow time, not reading direction. The Recipes mini player (artwork, title, play button), its progress slider and transport row, the Buttons media row and the Tab Bar's Now Playing accessory keep their LTR layout in an RTL screen.
 
-<img src="assets/settings/ios-recipes-rtl.png" width="230" alt="iOS Recipes in RTL: the selector is mirrored, the mini player stays left to right">
+<table>
+<tr><th>iOS Recipes</th><th>Android Recipes</th></tr>
+<tr>
+<td><img src="assets/settings/ios-recipes-rtl.png" width="230" alt="iOS Recipes in RTL: the selector is mirrored, the mini player stays left to right"></td>
+<td><img src="assets/settings/android-glass-recipes-rtl.png" width="230" alt="Android glass Recipes in RTL: the mini player stays left to right"></td>
+</tr>
+</table>
 
 
 ## Screen transitions in RTL

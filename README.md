@@ -29,6 +29,16 @@ This library gives you **whole native screens**, not building blocks. Each scree
 </tr>
 </table>
 
+<table>
+<tr><th>Liquid controls (Android glass)</th><th>Tab bar (Android glass)</th><th>Minimize on scroll (Android glass)</th><th>Glow controls (Android Material)</th></tr>
+<tr>
+<td><img src="https://raw.githubusercontent.com/dev-mohamedabdelnaby/react-native-liquid-glass/main/docs/assets/gif/android-glass-controls-liquid.gif" width="180" alt="Android glass Controls: dragging the liquid slider and flipping the liquid switch"></td>
+<td><img src="https://raw.githubusercontent.com/dev-mohamedabdelnaby/react-native-liquid-glass/main/docs/assets/gif/android-glass-tabBar-switch.gif" width="180" alt="Android glass tab bar switching tabs"></td>
+<td><img src="https://raw.githubusercontent.com/dev-mohamedabdelnaby/react-native-liquid-glass/main/docs/assets/gif/android-glass-tabBar-minimize.gif" width="180" alt="Android glass tab bar minimizing on scroll and returning"></td>
+<td><img src="https://raw.githubusercontent.com/dev-mohamedabdelnaby/react-native-liquid-glass/main/docs/assets/gif/android-material-controls-glow.gif" width="180" alt="Android Material Controls in the glow shape: dragging the slider and flipping the switch"></td>
+</tr>
+</table>
+
 Every screen, with screenshots on both platforms: **[USAGE.md](https://github.com/dev-mohamedabdelnaby/react-native-liquid-glass/blob/main/USAGE.md)**.
 
 ## Requirements
@@ -178,6 +188,16 @@ Every setting: [docs/settings.md](https://github.com/dev-mohamedabdelnaby/react-
 <td><img src="https://raw.githubusercontent.com/dev-mohamedabdelnaby/react-native-liquid-glass/main/docs/assets/settings/ios-home-rtl.png" width="180" alt="iOS Home mirrored right to left"></td>
 <td><img src="https://raw.githubusercontent.com/dev-mohamedabdelnaby/react-native-liquid-glass/main/docs/assets/settings/android-glass-home-rtl.png" width="180" alt="Android Home mirrored right to left"></td>
 <td><img src="https://raw.githubusercontent.com/dev-mohamedabdelnaby/react-native-liquid-glass/main/docs/assets/android-material/controls.png" width="180" alt="Android Material controls in the pill shape"></td>
+</tr>
+</table>
+
+<table>
+<tr><th>Your font and icons (Android)</th><th>Media stays left to right (Android, RTL)</th><th>Labeled shape (Android Material)</th><th>Glow shape (Android Material)</th></tr>
+<tr>
+<td><img src="https://raw.githubusercontent.com/dev-mohamedabdelnaby/react-native-liquid-glass/main/docs/assets/settings/android-glass-custom-buttons.png" width="180" alt="Android glass Buttons with the Cairo font and custom icons"></td>
+<td><img src="https://raw.githubusercontent.com/dev-mohamedabdelnaby/react-native-liquid-glass/main/docs/assets/settings/android-glass-recipes-rtl.png" width="180" alt="Android glass Recipes in RTL: the mini player stays left to right"></td>
+<td><img src="https://raw.githubusercontent.com/dev-mohamedabdelnaby/react-native-liquid-glass/main/docs/assets/settings/android-material-controls-labeled.png" width="180" alt="Android Material Controls in the labeled shape"></td>
+<td><img src="https://raw.githubusercontent.com/dev-mohamedabdelnaby/react-native-liquid-glass/main/docs/assets/settings/android-material-controls-glow.png" width="180" alt="Android Material Controls in the glow shape"></td>
 </tr>
 </table>
 

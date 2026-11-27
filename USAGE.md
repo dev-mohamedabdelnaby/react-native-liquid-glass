@@ -3,7 +3,7 @@
 This guide explains every component in plain words: what it is, when to use it, how to add it, what it looks like on each platform and how it moves. It is written so that an AI assistant can explain the library to you, and so that you can read it yourself.
 
 - Screenshots: iOS (iPhone, iOS 27), Android with the glass style, Android with the Material style. Light mode, left to right, default settings.
-- Animations (GIFs) were recorded on iOS. Android moves the same way unless a section says otherwise.
+- Most animations (GIFs) were recorded on iOS. Where Android moves differently (the liquid controls, the glass tab bar, the Material glow controls), its own GIF is shown next to it. Elsewhere Android moves the same way unless a section says otherwise.
 - The Android screenshots come from a Xiaomi phone, which draws its own status bar.
 
 ## The idea in one minute
@@ -240,11 +240,12 @@ export function Buttons({ onBack }: { onBack: () => void }) {
 In right-to-left everything mirrors except the media row, which keeps play controls in their usual order. With your font and icons the same screen changes too:
 
 <table>
-<tr><th>iOS, RTL</th><th>Android glass, RTL</th><th>iOS, custom font and icons</th></tr>
+<tr><th>iOS, RTL</th><th>Android glass, RTL</th><th>iOS, custom font and icons</th><th>Android glass, custom font and icons</th></tr>
 <tr>
-<td><img src="docs/assets/settings/ios-buttons-rtl.png" width="230" alt="iOS Buttons in RTL, the media row stays left to right"></td>
-<td><img src="docs/assets/settings/android-glass-buttons-rtl.png" width="230" alt="Android glass Buttons in RTL, the media row stays left to right"></td>
-<td><img src="docs/assets/settings/ios-custom-buttons.png" width="230" alt="iOS Buttons with the Cairo font and custom SVG, icon font and PNG icons"></td>
+<td><img src="docs/assets/settings/ios-buttons-rtl.png" width="170" alt="iOS Buttons in RTL, the media row stays left to right"></td>
+<td><img src="docs/assets/settings/android-glass-buttons-rtl.png" width="170" alt="Android glass Buttons in RTL, the media row stays left to right"></td>
+<td><img src="docs/assets/settings/ios-custom-buttons.png" width="170" alt="iOS Buttons with the Cairo font and custom SVG, icon font and PNG icons"></td>
+<td><img src="docs/assets/settings/android-glass-custom-buttons.png" width="170" alt="Android glass Buttons with the Cairo font and custom icons"></td>
 </tr>
 </table>
 
@@ -398,6 +399,17 @@ How it moves (iOS): switching tabs, and the bar minimizing while you scroll down
 </tr>
 </table>
 
+How it moves (Android glass): its own spring and the liquid drop under the selected tab.
+
+<table>
+<tr><th>Switching tabs</th><th>Minimize on scroll</th><th>With your font and icons</th></tr>
+<tr>
+<td><img src="docs/assets/gif/android-glass-tabBar-switch.gif" width="230" alt="Android glass tab bar switching tabs Library, Profile, Home"></td>
+<td><img src="docs/assets/gif/android-glass-tabBar-minimize.gif" width="230" alt="Android glass tab bar minimizing on scroll and returning"></td>
+<td><img src="docs/assets/settings/android-glass-custom-tabBar-demo.png" width="230" alt="Android glass tab bar demo with the Cairo font and custom tab icons"></td>
+</tr>
+</table>
+
 Platform differences:
 
 - **iOS** minimizes the bar itself, with the system animation, when you scroll down; it comes back when you scroll back up.
@@ -446,6 +458,14 @@ export function Controls({ onBack }: { onBack: () => void }) {
 <td><img src="docs/assets/ios/controls.png" width="230" alt="iOS Controls: slider, toggle, segmented picker, steppers, pickers"></td>
 <td><img src="docs/assets/android-glass/controls.png" width="230" alt="Android glass Controls with liquid switches and sliders"></td>
 <td><img src="docs/assets/android-material/controls.png" width="230" alt="Android Material Controls in the pill shape"></td>
+</tr>
+</table>
+
+<table>
+<tr><th>How it moves (Android glass): liquid controls</th><th>How it moves (Android Material): glow shape</th></tr>
+<tr>
+<td><img src="docs/assets/gif/android-glass-controls-liquid.gif" width="230" alt="Android glass Controls: dragging the liquid slider and flipping the liquid switch"></td>
+<td><img src="docs/assets/gif/android-material-controls-glow.gif" width="230" alt="Android Material Controls in the glow shape: dragging the slider and flipping the switch"></td>
 </tr>
 </table>
 
@@ -655,10 +675,11 @@ export function Recipes({ onBack }: { onBack: () => void }) {
 </table>
 
 <table>
-<tr><th>How it moves (iOS): the mini player</th><th>iOS, RTL: the player stays left to right</th></tr>
+<tr><th>How it moves (iOS): the mini player</th><th>iOS, RTL: the player stays left to right</th><th>Android glass, RTL: the same</th></tr>
 <tr>
 <td><img src="docs/assets/gif/ios-recipes-player-expand.gif" width="230" alt="Tapping the mini player expands it, tapping again collapses it"></td>
 <td><img src="docs/assets/settings/ios-recipes-rtl.png" width="230" alt="iOS Recipes in RTL: the selector is mirrored, the mini player is not"></td>
+<td><img src="docs/assets/settings/android-glass-recipes-rtl.png" width="230" alt="Android glass Recipes in RTL: the mini player stays left to right"></td>
 </tr>
 </table>
 
@@ -735,10 +756,12 @@ export function WithCairo({ children }: { children: ReactNode }) {
 Add the font files the usual React Native way: Android `android/app/src/main/assets/fonts/`, iOS the app target plus `UIAppFonts` in `Info.plist`. Texts the system draws (iOS alerts, menus, pickers, the share sheet, the keyboard) keep the system font.
 
 <table>
-<tr><th>iOS Home with Cairo and custom icons</th><th>Tab Bar launcher with Cairo</th></tr>
+<tr><th>iOS Home with Cairo and custom icons</th><th>iOS Tab Bar launcher with Cairo</th><th>Android Home with Cairo</th><th>Android Tab Bar launcher with Cairo</th></tr>
 <tr>
-<td><img src="docs/assets/settings/ios-custom-home.png" width="230" alt="iOS Home with the Cairo font and custom row icons"></td>
-<td><img src="docs/assets/settings/ios-custom-tabBar.png" width="230" alt="iOS Tab Bar launcher in the Cairo font"></td>
+<td><img src="docs/assets/settings/ios-custom-home.png" width="170" alt="iOS Home with the Cairo font and custom row icons"></td>
+<td><img src="docs/assets/settings/ios-custom-tabBar.png" width="170" alt="iOS Tab Bar launcher in the Cairo font"></td>
+<td><img src="docs/assets/settings/android-glass-custom-home.png" width="170" alt="Android glass Home in the Cairo font"></td>
+<td><img src="docs/assets/settings/android-glass-custom-tabBar.png" width="170" alt="Android glass Tab Bar launcher in the Cairo font"></td>
 </tr>
 </table>
 
@@ -819,6 +842,16 @@ In Material, the switch, slider, segmented picker and bottom tab bar come in thr
 - `'glow'`: the accent colour glows; `androidGlowIntensity` (0 to 1, default 0.35) sets how much.
 
 The glass style keeps its liquid controls and ignores the shape.
+
+<table>
+<tr><th><code>'pill'</code></th><th><code>'labeled'</code></th><th><code>'glow'</code></th><th>Home's shape picker</th></tr>
+<tr>
+<td><img src="docs/assets/settings/android-material-controls-pill.png" width="170" alt="Android Material Controls in the pill shape"></td>
+<td><img src="docs/assets/settings/android-material-controls-labeled.png" width="170" alt="Android Material Controls in the labeled shape"></td>
+<td><img src="docs/assets/settings/android-material-controls-glow.png" width="170" alt="Android Material Controls in the glow shape"></td>
+<td><img src="docs/assets/settings/android-material-home-glow.png" width="170" alt="Android Material Home with Glow picked and the Glow intensity slider"></td>
+</tr>
+</table>
 
 ```tsx
 import { GlassControlsScreen } from '@native-dev-kit/react-native-liquid-glass';

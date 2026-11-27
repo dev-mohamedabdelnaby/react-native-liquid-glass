@@ -16,9 +16,14 @@ type FontSetting = {
 <td><img src="assets/settings/ios-custom-buttons.png" width="230" alt="iOS Buttons in the Cairo font, with custom icons"></td>
 <td><img src="assets/settings/ios-custom-tabBar-demo.png" width="230" alt="iOS tab bar demo in the Cairo font, with custom tab icons"></td>
 </tr>
+<tr>
+<td><img src="assets/settings/android-glass-custom-home.png" width="230" alt="Android glass Home in the Cairo font"></td>
+<td><img src="assets/settings/android-glass-custom-buttons.png" width="230" alt="Android glass Buttons in the Cairo font, with custom icons"></td>
+<td><img src="assets/settings/android-glass-custom-tabBar-demo.png" width="230" alt="Android glass tab bar demo in the Cairo font, with custom tab icons"></td>
+</tr>
 </table>
 
-iOS with the example's Cairo font and sample icons (`CUSTOMIZE = true` in `example/src/customize.ts`). Android takes the font the same way.
+iOS (top) and Android glass (bottom) with the example's Cairo font and sample icons (`CUSTOMIZE = true` in `example/src/customize.ts`). On Android the Cairo font replaces the phone's own italic MIUI font.
 
 - Set it in `GlassSettings` (the provider sets it for every screen) or as the `fontFamily` prop of one screen, which wins over the provider's.
 - **A weight map** names the font for each weight, the way an app's own `AppText` component maps weights to font files. A weight you leave out uses `regular`.

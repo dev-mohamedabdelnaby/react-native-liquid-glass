@@ -16,6 +16,24 @@ type ControlShapeSettings = {
 </tr>
 </table>
 
+<table>
+<tr><th><code>'pill'</code></th><th><code>'labeled'</code></th><th><code>'glow'</code></th><th>Home: Glow and its intensity</th></tr>
+<tr>
+<td><img src="assets/settings/android-material-controls-pill.png" width="170" alt="Android Material Controls in the pill shape"></td>
+<td><img src="assets/settings/android-material-controls-labeled.png" width="170" alt="Android Material Controls in the labeled shape"></td>
+<td><img src="assets/settings/android-material-controls-glow.png" width="170" alt="Android Material Controls in the glow shape"></td>
+<td><img src="assets/settings/android-material-home-glow.png" width="170" alt="Android Material Home with Glow picked and the Glow intensity slider"></td>
+</tr>
+</table>
+
+<table>
+<tr><th>Glow, moving</th><th>Glass liquid controls, moving</th></tr>
+<tr>
+<td><img src="assets/gif/android-material-controls-glow.gif" width="230" alt="Android Material Controls in the glow shape: dragging the slider and flipping the switch"></td>
+<td><img src="assets/gif/android-glass-controls-liquid.gif" width="230" alt="Android glass Controls: dragging the liquid slider and flipping the liquid switch"></td>
+</tr>
+</table>
+
 - Android, [`androidStyle: 'material'`](android-style.md) only. Glass keeps its liquid controls (with the drop, and `sliderLiquid`, `switchLiquid`, `segmentedLiquid`, `tabBarLiquid`, `tabBarDrop`, `dropColor`). iOS is unchanged.
 - Set it in `GlassSettings` (the provider applies it to every screen) or as a prop on one screen. The prop wins.
 - An older option, `androidSegmentedCheck` (a check on the stock segmented buttons), was removed with those buttons; the shapes replace it.
