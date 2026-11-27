@@ -1,6 +1,6 @@
 {
   "name": "@native-dev-kit/react-native-liquid-glass",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Liquid Glass screens for React Native: SwiftUI screens with real Liquid Glass on iOS, Jetpack Compose screens (glass or Material 3) on Android",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
